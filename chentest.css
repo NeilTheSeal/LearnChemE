@@ -1,0 +1,57 @@
+.instructionspan {
+    font-size: 30px;
+    width: 600px;
+}
+
+.textspan {
+    font-size: 24px;
+}
+
+.canvas {
+    cursor: crosshair;
+    border: 1px solid black;
+}
+
+.canvaslabel {
+    font-size: 20px;
+}
+
+.canvaspoint {
+    font-size: 16px;
+    display: inline-block;
+    width: 290px;
+    text-align: left;
+}
+
+.canvasmode {
+    font-size: 16px;
+    display: inline-block;
+    width: 290px;
+    text-align: right;
+}
+
+.textboxlabel {
+    font-size: 24px;
+}
+
+.textbox {
+    font-size: 24px;
+    width: 300px;
+}
+
+.textboxanswer {
+    font-size: 24px;
+    color: red;
+    margin-left: 10px;
+}
+
+.submitbutton {
+    width: 100px;
+    height: 50px;
+}
+
+.nextbutton {
+    margin-left: 100px;
+    width: 100px;
+    height: 50px;
+}

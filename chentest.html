@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <link type="text/css" rel="stylesheet" href="chentest.css">
+        
+        <title>Drawing test</title>
+    </head>
+
+    <body>
+        <div class="question">
+            
+            <div class="instruction">
+                <span class="instruction" id="span--instruction">test instruction</span>
+                <br>
+            </div>
+            
+            <div class="questionelements">
+                <div class="canvasarea">
+                    <canvas class="canvas" width="400" height="400"></canvas>
+                    <br>
+                    <div class="canvasinfo">
+                        <span class="mode info" id="span--modeinfo">mode</span>
+                        <span class="point info" id="span--pointinfo">(x, y)</span>
+                    </div>
+                </div>
+
+                <br><hr>
+
+                <div class="inputfields">
+                    <!--
+                    <div class="textentry" id="textentry-%id%">
+                        <span class="textprompt", id="prompt-%id%">%prompt%</span>
+                        <input class="textanswer" placeholder="%placeholder%" id="input-%id%"></input>
+                    </div>
+                    -->
+                </div>
+                <br>
+            </div>
+            
+            <button class="submitbutton">Submit</button>
+        </div>
+        
+        
+        <script src="engine.js"></script>
+        <script src="chentest.js"></script>
+        <!--
+        
+        <script src="immicible.js"></script>
+        -->
+    </body>
+</html>
