@@ -1,67 +1,129 @@
 /*
-
-TO DO:
-
+TODO:
 GraphElement
     add support for drawing:
         multisegment line (length n)
         multisegment straight line (length n)
-        horizontal line
-        vertical line
         point slope line drawing
-    move element
-        lock certain axes
     reset button
-    const elements
-    default elements
-
-
-
 
 */
 
+// ##### Constants (default values) #####
+
+const IDLENGTH = 16;
+const POINTRADIUS = 5;
+const POINTCOLOR = "black";
+const LINEWIDTH = 2;
+const LINECOLOR = "black";
+const GRABRADIUS = 10;
+const FONTSTYLE = "20px Arial";
+const FONTCOLOR = "black";
 
 // ##### Misc functions #####
-function getDist(...args) {
-    if (args.length === 4) {
-        let x1 = args[0];
-        let y1 = args[1];
-        let x2 = args[2];
-        let y2 = args[3];
-        return Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5);
-    } else if (args.length === 2 || args.length === 3) {
-        if (args[0] instanceof Point) {
-            let x1 = args[0].calx;
-            let y1 = args[0].caly;
-            let x2 = args[1].calx;
-            let y2 = args[1].caly;
-            if (args.length === 3) {
-                if (args[2] === "raw") {
-                    x1 = args[0].rawx;
-                    y1 = args[0].rawy;
-                    x2 = args[1].rawx;
-                    y2 = args[1].rawy;
-                }
-            }
-            return Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5);
-        }
+
+/*
+    Calculates the straight-line distance between two 2D points
+    @param {Point} pt1
+    @param {Point} pt2
+    @param {string} [mode] "cal" or "raw"
+*/
+function getDist(pt1, pt2, mode="cal") {
+    if (mode === "cal") {
+        return Math.pow(Math.pow(pt1.calx - pt2.calx, 2) + Math.pow(pt1.caly - pt2.caly, 2), 0.5);
+    } else if (mode === "raw") {
+        return Math.pow(Math.pow(pt1.rawx - pt2.rawx, 2) + Math.pow(pt1.rawy - pt2.rawy, 2), 0.5);
     }
 }
 
+/*
+    Gets a random float between two values
+    @param {float} low Lowest value
+    @param {float} high Highest value
+*/
 function getRandom(low, high) {
     return Math.random() * (high - low) + low;
 }
 
+/*
+    Rounds a float to a given number of decimal places
+    @param {float} num Number to round
+    @param {int} digits Number of digits to round to
+*/
 function roundTo(num, digits) {
     let mul = Math.pow(10, digits);
     return Math.round(num * mul) / mul;
 }
 
-// TODO restructure all geometric objects to be based on points
-// TODO write more comprehensive constructors for various inputs
-// TODO write actual move drag/drop code
+/*
+    Returns one of two results based on a condition
+    @param {string} condition
+    @param {} iftrue
+    @param {} iffalse
+*/
+function ifTF(condition, iftrue, iffalse) {
+    if (condition) {
+        return iftrue;
+    } else {
+        return iffalse;
+    }
+}
 
-// ##### Geometric objects #####
+/*
+    Generates a string of random digits
+    @param {int} digits Number of digits in ID
+*/
+function randomID(digits=16) {
+    let str = ""
+    while (digits > 17) {
+        str += String(Math.random()*10**17);
+        digits -= 17;
+    }
+    str += String(Math.round(Math.random()*10**digits));
+    while (str.length < digits) {
+        str = "0" + str;
+    }
+    return str;
+}
+
+/*
+    Performs a replacement on all strings contained in an object
+    @param {object} obj Object to replace in
+    @param {string} pattern String to find
+    @param {string} replacement String to insert
+*/
+function recursiveReplace(obj, pattern, replacement) {
+    
+    if (typeof(obj) === "string") {
+        while (obj.indexOf(pattern) != -1) {
+            obj = obj.replace(pattern, replacement);
+        }
+    } else if (typeof(obj) === "object"){
+        for (let child of Object.keys(obj)) {
+            obj[child] = recursiveReplace(obj[child], pattern, replacement);
+        }
+    }
+    return obj;
+}
+
+/*
+    Recursively converts all number-like strings into numbers
+    @param {object} obj Object to numberfy
+*/
+function recursiveNumberfy(obj) {
+    if (typeof(obj) === "string" && !isNaN(obj)) {
+        obj = parseFloat(obj);
+    } else if (typeof(obj) === "object"){
+        for (let child of Object.keys(obj)) {
+            obj[child] = recursiveNumberfy(obj[child]);
+        }
+    }
+    return obj;
+}
+
+
+// ##### Canvas objects #####
+
 class Point {
     /*
         rawx    <float> canvas-based x position of point
@@ -71,31 +133,25 @@ class Point {
         movex   <bool> is point movable in the x direction?
         movey   <bool> is point movable in the y direction?
         cal     <dict> calibration data between canvas and graph
+        color   <str> color of point
+        radius  <float> radius of point
+        answer  <bool> should point be submitted as an answer
+        show    <bool> should point be shown as part of a line
     */
     constructor(args) {
-        this.ID = String(Math.random());
-        if (args.rawx != undefined) {
-            this.rawx = args.rawx
+        this.ID = randomID(IDLENGTH);
+        // Default values
+        this.movex = false;
+        this.movey = false;
+        this.color = POINTCOLOR;
+        this.radius = POINTRADIUS;
+        this.answer = false;
+        this.show = true;
+        // Fill values from arguments
+        for (let key of Object.keys(args)) {
+            this[key] = args[key];
         }
-        if (args.calx != undefined) {
-            this.calx = args.calx;
-        }
-        if (args.rawy != undefined) {
-            this.rawy = args.rawy;
-        }
-        if (args.caly != undefined) {
-            this.caly = args.caly;
-        }
-        if (args.movex != undefined) {
-            this.movex = args.movex;
-        } else {
-            this.movex = false;
-        }
-        if (args.movey != undefined) {
-            this.movey = args.movey;
-        } else {
-            this.movey = false;
-        }
+        // Conditional actions from values
         if (args.cal != undefined) {
             this.calibratemissing(args.cal);
         }
@@ -115,22 +171,48 @@ class Point {
     }
     
     inversecalibrate(cal) {
-        this.rawx = (this.calx / (cal.points[1].calx - cal.points[0].calx) * (cal.points[1].rawx - cal.points[0].rawx) + cal.points[0].rawx);
-        this.rawy = (this.caly / (cal.points[1].caly - cal.points[0].caly) * (cal.points[1].rawy - cal.points[0].rawy) + cal.points[0].rawy);
+        this.rawx = (this.calx - cal.points[0].calx) / (cal.points[1].calx - cal.points[0].calx) * (cal.points[1].rawx - cal.points[0].rawx) + cal.points[0].rawx;
+        this.rawy = (this.caly - cal.points[0].caly) / (cal.points[1].caly - cal.points[0].caly) * (cal.points[1].rawy - cal.points[0].rawy) + cal.points[0].rawy;
     }
     
     get data() {
-        return {"rawx":this.rawx, "rawy":this.rawy, "calx":this.calx, "caly":this.caly, "movex":this.movex, "movey":this.movey};
-    }
-    
-    get toArray() {
-        return [this.x, this.y];
+        return {"ID":this.ID,
+                "rawx":this.rawx,
+                "rawy":this.rawy,
+                "calx":this.calx,
+                "caly":this.caly,
+                "movex":this.movex,
+                "movey":this.movey,
+                "color":this.color,
+                "radius":this.radius};
     }
 }
 
 class Line {
-    constructor(points) {
-        this.points = points;
+    /*
+        points      <list> List of point constructor argument objects
+        color       <str> Color of line
+        width       <float> Width of line
+        answer      <bool> should point be submitted as an answer
+    */
+    constructor(args) {
+        this.ID = randomID(IDLENGTH);
+        this.points = args.points;
+        if (args.color != undefined) {
+            this.color = args.color;
+        } else {
+            this.color = LINECOLOR;
+        }
+        if (args.width != undefined) {
+            this.width = args.width;
+        } else {
+            this.width = LINEWIDTH;
+        }
+        if (args.answer != undefined) {
+            this.answer = args.answer;
+        } else {
+            this.answer = false;
+        }
     }
     
     get segments() {
@@ -146,110 +228,30 @@ class Line {
     }
 }
 
-class Line2D {
+class Text {
+    /*
+        text        <str> Text to display
+        font        <str> ex. "italic 20px Arial"
+        color       <str> color of text
+        position    <Point> location on canvas (cal or raw)
+    */
     constructor(args) {
-        if (args.pt1 != undefined) {
-            this.pt1 = args.pt1;
+        this.text = args.text;
+        if (args.position instanceof Point) {
+            this.position = args.position;
         } else {
-            let pt1args = {};
-            for (let k of Object.keys(args)) {
-                if (k.includes("1")) {
-                    let kr = k.replace("1","");
-                    pt1args[kr] = args[k];
-                }
-            }
-            this.pt1 = new Point(pt1args);
+            this.position = new Point(args.position);
         }
-        if (args.pt2 != undefined) {
-            this.pt2 = args.pt2;
+        if (args.font) {
+            this.font = args.font;
         } else {
-            let pt2args = {};
-            for (let k of Object.keys(args)) {
-                if (k.includes("2")) {
-                    let kr = k.replace("2","");
-                    pt2args[kr] = args[k];
-                }
-            }
-            this.pt2 = new Point(pt2args);
+            this.font = FONTSTYLE;
         }
-        if (args.cal != undefined) {
-            this.pt1.calibratemissing(args.cal);
-            this.pt2.calibratemissing(args.cal);
-        }
-        if (args.movept1 != undefined) {
-            this.pt1.movex = args.movept1;
-            this.pt1.movey = args.movept1;
+        if (args.color) {
+            this.color = args.color;
         } else {
-            if (args.movex1 != undefined) {
-                this.pt1.movex = args.movex1;
-            }
-            if (args.movey1 != undefined) {
-                this.pt1.movey = args.movey1;
-            }
+            this.color = FONTCOLOR;
         }
-        if (args.movept2 != undefined) {
-            this.pt2.movex = args.movept2;
-            this.pt2.movey = args.movept2;
-        } else {
-            if (args.movex2 != undefined) {
-                this.pt2.movex = args.movex2;
-            }
-            if (args.movey2 != undefined) {
-                this.pt2.movey = args.movey2;
-            }
-        }
-    }
-    
-    calibrate(cal) {
-        this.pt1.calibrate(cal);
-        this.pt2.calibrate(cal);
-    }
-    
-    inversecalibrate(cal) {
-        this.pt1.inversecalibrate(cal);
-        this.pt2.inversecalibrate(cal);
-    }
-    
-    get toArray() {
-        //return [this.x1, this.y1, this.x2, this.y2];
-    }
-    
-    get toPoints() {
-        return [this.pt1, this.pt2];
-    }
-    
-    get rawLength() {
-        return Math.pow(Math.pow(this.p1.rawx - this.pt2.rawx, 2) + Math.pow(this.pt1.rawy - this.pt2.rawy, 2), 0.5)
-    }
-    
-    get calLength() {
-        return Math.pow(Math.pow(this.p1.calx - this.pt2.calx, 2) + Math.pow(this.pt1.caly - this.pt2.caly, 2), 0.5)
-    }
-}
-
-class Circle {
-    constructor(x, y, r) {
-        this.x = x;
-        this.y = y;
-        this.r = r;
-    }
-    
-    calibrate(cal) {
-        let newcenter = new Point(this.x, this.y).calibrate(cal);
-        return new Circle(...newcenter.toArray, this.r);
-    }
-    
-    inversecalibrate(cal) {
-        let newcenter = new Point(this.x, this.y).inversecalibrate(cal);
-        return new Circle(...newcenter.toArray, this.r);
-    }
-    
-    get toArray() {
-        return [this.x, this.y, this.r];
-    }
-    
-    get center() {
-        return new Point(this.x, this.y);
     }
 }
 
@@ -274,7 +276,6 @@ class CanvasController {
         // Canvas element
         this.img = new Image();
         this.img.src = imgsrc;
-        this.canvas.size = new Point(this.img.width, this.img.height);
         this.canvas.width = this.img.width;
         this.canvas.height = this.img.height;
         this.ctx = this.canvas.getContext('2d');
@@ -284,23 +285,22 @@ class CanvasController {
         // State variables
         this.interactable = true;
         this.mode = mode;
-        this.mode = "move";
-        /* Valid modes are "move", "point", "line", "circle", "calibrate" */
+        /* Valid modes are "move", "point", "line", "calibrate" */
         this.drawing = false; /* True when not finished drawing */
         this.dragging = false; /* holds object being moved */
         
         // Constants
-        this.pointradius = 2;
-        this.grabradius = 10;
+        this.grabradius = GRABRADIUS;
         
         // Graph element variables
-        this.finished = [];
         if (maxelements != undefined) {
             this.max = maxelements;
         } else {
             this.max = [];
         }
+        this.finished = [];
         if (defaults != undefined) {
+            //console.log("Creating defaults:",defaults);
             this.default = [];
             for (let type of Object.keys(defaults)) {
                 for (let d of defaults[type]) {
@@ -313,6 +313,14 @@ class CanvasController {
         this.canvas.addEventListener("mousemove", e => this.mouseMove(e));
         this.canvas.addEventListener("mousedown", e => this.mouseDown(e));
         this.canvas.addEventListener("mouseup", e => this.mouseUp(e));
+        
+        // Calibration setup
+        if (mode === "calibrate") {
+            this.calx1 = DOM.textboxid.replace(/%id%/g, 2);
+            this.caly1 = DOM.textboxid.replace(/%id%/g, 3);
+            this.calx2 = DOM.textboxid.replace(/%id%/g, 4);
+            this.caly2 = DOM.textboxid.replace(/%id%/g, 5);
+        }
   
         // Initialize
         this.init();
@@ -348,17 +356,19 @@ class CanvasController {
             return new Point(data);
         } else if (type === "line") {
             let ptlist = [];
-            for (let ptdata of data) {
+            for (let ptdata of data.points) {
                 ptdata.cal = this.imgcalibration;
                 let pt = new Point(ptdata);
                 ptlist.push(pt);
-                this.finished.push(pt);
-                
+                if (pt.show) {
+                    this.finished.push(pt);
+                }
             }
-            return new Line(ptlist);
-            //return new Line2D(data);
-        } else if (type === "circle") {
-            return new Circle(data);
+            data.points = ptlist;
+            return new Line(data);
+        } else if (type === "text") {
+            data.position.cal = this.imgcalibration;
+            return new Text(data);
         }
     }
     getMousePoint(e) {
@@ -374,60 +384,77 @@ class CanvasController {
             this.ctx.drawImage(this.img, 0, 0);
         }*/
         function sync() {
-            //console.log('whats this');
-            //console.log(this);
+            //console.log('THIS is', this);
             this.ctx.drawImage(this.img, 0, 0);
         }
         this.img.onload = sync.call(this);
         //this.ctx.drawImage(this.img, 0, 0);
     }
-    draw(element, color="black") {
+    draw(element) {
         // Draws geometric elements to the canvas
-        //console.log("Drawing:")
-        //console.log(element);
+        //console.log("Drawing:", element);
         if (element instanceof Point) {
-            this.ctx.strokeStyle = color;
+            // Black border
+            this.ctx.fillStyle = "black";
             this.ctx.beginPath();
-            this.ctx.arc(element.rawx, element.rawy, this.pointradius, 2*Math.PI, false);
-            this.ctx.stroke();
-        } else if (element instanceof Line2D) {
-            this.ctx.strokeStyle = color;
-            this.ctx.moveTo(element.pt1.rawx, element.pt1.rawy);
-            this.ctx.lineTo(element.pt2.rawx, element.pt2.rawy);
-            this.ctx.stroke();
+            this.ctx.arc(element.rawx, element.rawy, element.radius, 2*Math.PI, false);
+            this.ctx.fill();
+            // Colored interior
+            this.ctx.fillStyle = element.color;
+            this.ctx.beginPath();
+            this.ctx.arc(element.rawx, element.rawy, element.radius-1, 2*Math.PI, false);
+            this.ctx.fill();
         } else if (element instanceof Line) {
             // Connect points
-            this.ctx.strokeStyle = color;
+            this.ctx.strokeStyle = element.color;
+            this.ctx.lineWidth = element.width;
             let first = true;
             for (let pt of element.points) {
                 if (first) {
+                    // Move to start of line
                     this.ctx.moveTo(pt.rawx, pt.rawy);
                 } else {
+                    // Draw segment
                     this.ctx.lineTo(pt.rawx, pt.rawy);
                     this.ctx.stroke();
                 }
                 first = false;
             }
-        } else if (element instanceof Circle) {
-            this.ctx.strokeStyle = color;
-            this.ctx.beginPath();
-            this.ctx.arc(element.x, element.y, element.r, 2*Math.PI, false);
-            this.lineWidth = 5;
-            this.ctx.stroke();
+        } else if (element instanceof Text) {
+            this.ctx.fillStyle = element.color;
+            this.ctx.font = element.font;
+            //this.ctx.fontweight = "bold";
+            this.ctx.fillText(element.text, element.position.rawx, element.position.rawy);
         }
     }
     trimLists() {
         // Removes the oldest element of each type if the limit is surpassed
-        
-        /*
-        if (Object.keys(this.finished).length > 0) {
-            for (let type of Object.keys(this.finished)) {
-                while (this.finished[type].length > this.max[type]) {
-                    this.finished[type].shift();
+        let quota = {};
+        for (let type of Object.keys(this.max)) {
+            quota[type] = this.max[type];
+        }
+        for (let i = this.finished.length-1; i >= 0; i--) {
+            let obj = this.finished[i];
+            if (obj.answer) {
+                if (obj instanceof Point) {
+                    if (quota["point"] != undefined) {
+                        if (quota["point"] > 0) {
+                            quota["point"] -= 1;
+                        } else {
+                            this.finished.splice(this.finished.indexOf(obj),1);
+                        }
+                    }
+                } else if (obj instanceof Line) {
+                    if (quota["line"] != undefined) {
+                        if (quota["line"] > 0) {
+                            quota["line"] -= 1;
+                        } else {
+                            this.finished.splice(this.finished.indexOf(obj),1);
+                        }
+                    }
                 }
             }
         }
-        */
     }
     getPointByID(ID) {
         for (let pt of this.finished) {
@@ -458,7 +485,13 @@ class CanvasController {
     getanswers() {
         // Report user-submitted answers to GraphQuestion
         this.interactable = false;
-        return this.finished;
+        let answers = [];
+        for (let element of this.finished) {
+            if (element.answer) {
+                answers.push(element);
+            }
+        }
+        return answers;
     }
     showanswers(answers) {
         let answerselements = []
@@ -472,15 +505,15 @@ class CanvasController {
         // Draw all answers
         for (let answer of answerselements) {
             // Reverse calibration and draw
-            this.draw(answer, "red");
+            this.draw(answer);
         }
     }
     mouseMove(e) {
         // Whenever the mouse is moved over the canvas object
         this.currentpoint = this.getMousePoint(e);
         this.reportPoint(this.currentpoint);
-        this.update();
         if (this.interactable) {
+            this.update();
             let pt = this.getMousePoint(e);
             if (this.mode === "move") {
                 // drag object
@@ -513,7 +546,10 @@ class CanvasController {
                                 p.caly = this.origins[p.ID].caly + caldy;
                             }
                             // Show points
-                            this.draw(p);
+                            if (p.show) {
+                                this.draw(p);
+                            }
+                            
                         }
                         // Show held line
                         this.draw(this.held);
@@ -523,14 +559,9 @@ class CanvasController {
                 if (this.mode === "point") {
                     this.draw(pt);
                 } else if (this.mode === "line") {
-                    //this.draw(new Line2D({"pt1":this.pt1, "pt2":pt}));
-                    this.draw(new Line([this.pt1, pt]));
-                } else if (this.mode === "circle") {
-                    var r = getDist(...this.pt1.toArray, ...pt.toArray);
-                    this.draw(new Circle(...this.pt1.toArray, r));
+                    this.draw(new Line({"points":[this.pt1, pt]}));
                 } else if (this.mode === "calibrate") {
-                    // calibration routine
-                    this.draw(new Line([this.pt1, pt]));
+                    this.draw(new Line({"points":[this.pt1, pt]}));
                 }
             }
         }
@@ -567,7 +598,9 @@ class CanvasController {
                                 p.rawy = this.origins[p.ID].rawy + rawdy;
                                 p.caly = this.origins[p.ID].caly + caldy;
                             }
-                            this.finished.push(p);
+                            if (p.show) {
+                                this.finished.push(p);
+                            }
                         }
                         // Add line to finished list
                         this.finished.push(this.held);
@@ -582,13 +615,20 @@ class CanvasController {
                 if (this.mode === "point") {
                     this.finished.push(pt);
                 } else if (this.mode === "line") {
-                    //this.finished.push(new Line2D({"pt1":this.pt1, "pt2":pt}));
-                    this.finished.push(new Line([this.pt1, pt]));
-                } else if (this.mode === "circle") {
-                    var r = getDist(...this.pt1.toArray, ...pt.toArray);
-                    this.finished["circle"].push(new Circle(...this.pt1.toArray, r));
+                    this.finished.push(new Line({"points":[this.pt1, pt]}));
                 } else if (this.mode === "calibrate") {
                     // calibration routine
+                    this.finished.push(new Line({"points":[this.pt1, pt]}));
+                    let calx1 = document.getElementById(this.calx1).value;
+                    let caly1 = document.getElementById(this.caly1).value;
+                    let calx2 = document.getElementById(this.calx2).value;
+                    let caly2 = document.getElementById(this.caly2).value;
+                    let str = `let calibration = new Line({"points":[new Point({"rawx":${this.pt1.rawx}, "rawy":${this.pt1.rawy}, "calx":${calx1}, "caly":${caly1}})`
+                    str += `, new Point({"rawx":${pt.rawx}, "rawy":${pt.rawy}, "calx":${calx2}, "caly":${caly2}})]});`;
+                    console.log("Copy and paste the line between the bars to use this calibration:");
+                    console.log("-----");
+                    console.log(str);
+                    console.log("-----");
                 }
             }
         }
@@ -603,17 +643,25 @@ class CanvasController {
                 // Check which object is being picked up
                 for (let i in this.finished) {
                     if (this.finished[i] instanceof Point) {
-                        let d = getDist(pt, this.finished[i], "raw");
-                        if (d <= this.grabradius) {
-                            if (d < grabdist) {
-                                grabindex = i;
-                                grabdist = d;
+                        // Check if movable
+                        if (this.finished[i].movex || this.finished[i].movey) {
+                            // Check if in grabbing distance
+                            let d = getDist(pt, this.finished[i], "raw");
+                            if (d <= this.grabradius) {
+                                if (d < grabdist) {
+                                    grabindex = i;
+                                    grabdist = d;
+                                }
                             }
                         }
                     } else if (this.finished[i] instanceof Line) {
                         for (let j = 1; j < this.finished[i].points.length; j++) {
                             let pt1 = this.finished[i].points[j];
                             let pt2 = this.finished[i].points[j-1]
+                            // If neither point is movable, line isn't movable
+                            if (!pt1.movex && !pt1.movey && !pt2.movex && !pt2.movey) {
+                                break;
+                            }
                             let minx = Math.min(pt1.rawx, pt2.rawx) + this.grabradius;
                             let maxx = Math.max(pt1.rawx, pt2.rawx) - this.grabradius;
                             // Check if x is between bounds
@@ -659,12 +707,6 @@ class CanvasController {
             this.mode = "point";
         } else if (key === "l") {
             this.mode = "line";
-        } else if (key === "c") {
-            this.mode = "circle";
-        } else if (key === "x") {
-            this.mode = "point";
-            this.calibrating = true;
-            console.log("Click (0,0)");
         }
         this.reportCurrentMode()
         this.update();
@@ -682,7 +724,7 @@ class GraphElement {
             imgsrc: image source file
             imgcal: calibration for image file
             mode: mode for the canvascontroller to be in
-            answercount: {"point": 1, "line": 0, "circle": 0}, named list of expected
+            answercount: {"point": 1, "line": 0}, named list of expected
             answer: correct answers
             default: default graph objects
             tolerance: range near answer to count as correct
@@ -694,7 +736,6 @@ class GraphElement {
         this.answercount = inputarguments.answercount;
         this.answer = inputarguments.answer;
         this.default = inputarguments.default;
-        this.tolerance = inputarguments.tolerance;
         this.points = inputarguments.points;
         this.showanswer = inputarguments.showanswer;
     }
@@ -705,31 +746,62 @@ class GraphElement {
                      "pct": 0};
         let used = [];
         if (this.answercount["point"] > 0) {
-            let points = answer;
+            // Each answer being looked for
             for (let i in this.answer.point) {
                 score.max += 1;
-                for (let j in points) {
-                    if (used.indexOf(j) === -1) {
-                        if (getDist(points[j], this.answer.point[i]) <= this.tolerance) {
-                            score.got += 1;
-                            used.push(j);
-                            //points.splice(j);
-                            break;
+                // Each answer provided
+                for (let j in answer) {
+                    if (answer[j] instanceof Point) {
+                        // If unused
+                        if (used.indexOf(j) === -1) {
+                            // If close enough
+                            if (Math.abs(answer[j].calx - this.answer.point[i].calx) <= this.answer.point[i].tolerance.calx && Math.abs(answer[j].caly - this.answer.point[i].caly) <= this.answer.point[i].tolerance.caly) {
+                                score.got += 1;
+                                used.push(j);
+                                //points.splice(j);
+                                break;
+                            }
                         }
                     }
                 }
             }
-        } else if (this.answercount["line"] > 0) {
-            let lines = answer.line;
+        }
+        if (this.answercount["line"] > 0) {
+            // Eachanswer being looked for
             for (let i in this.answer.line) {
                 score.max += 1;
-                // line matching logic
-            }
-        } else if (this.answercount["circle"] > 0) {
-            let circles = answer.circle;
-            for (let i in this.answer.circle) {
-                score.max += 1;
-                // circle matching logic
+                // Each answer provided
+                for (let j in answer) {
+                    if (answer[j] instanceof Line) {
+                        // If unused
+                        if (used.indexOf(j) === -1) {
+                            // If same line size
+                            if (this.answer.line[i].points.length === answer[j].points.length) {
+                                // Assume line matches
+                                let fullmatch = true;
+                                // Each point in the line
+                                for (let k in answer[j].points) {
+                                    // If point is not close enough
+                                    let ansx = this.answer.line[i].points[k].calx;
+                                    let inpx = answer[j].points[k].calx;
+                                    let tolx = this.answer.line[i].tolerance.calx;
+                                    let ansy = this.answer.line[i].points[k].caly;
+                                    let inpy = answer[j].points[k].caly;
+                                    let toly = this.answer.line[i].tolerance.caly;
+                                    if (Math.abs(ansx - inpx) > tolx || Math.abs(ansy - inpy) > toly ) {
+                                        fullmatch = false;
+                                        break;
+                                    }
+                                }
+                                if (fullmatch) {
+                                    score.got += 1;
+                                    used.push(j);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         score.pct = score.got / score.max;
@@ -831,33 +903,35 @@ class Question {
         for (let name of Object.keys(this.inputvariables.calculated)) {
             // Construct expression, fill in variable values
             let exp = this.inputvariables.calculated[name];
-            for (let variable of Object.keys(this.variablevalues)) {
-                exp = exp.replace(`%${variable}%`, this.variablevalues[variable]);
+            // Keep replacing until no variables remain
+            let maxloops = 10;
+            let loops = 0;
+            while (exp.indexOf("%") != -1 && loops < maxloops) {
+                for (let variable of Object.keys(this.variablevalues)) {
+                    exp = exp.replace(`%${variable}%`, this.variablevalues[variable]);
+                }
+                loops++;
+            }
+            if (loops >= maxloops) {
+                console.log("Error, maximum loops exceeded, variable not found.");
             }
             // Evaluate expression
+            //console.log("Evaluating",exp);
             this.variablevalues[name] = eval(exp);
         }
     }
     
     assignVariables() {
-        // Replace variables in all elements
+        // Replace variables with values in all elements
         for (let element of this.elements) {
             for (let variable of Object.keys(this.variablevalues)) {
-                if ("label" in element) {
-                    // Replace in label
-                    element.label = element.label.replace(`%${variable}%`, this.variablevalues[variable]);
-                }
-                if ("answer" in element) {
-                    // Replace in answer
-                    if (element instanceof TextboxElement) {
-                        element.answer = element.answer.replace(`%${variable}%`, this.variablevalues[variable]);
-                    } else if (element instanceof GraphElement) {
-                        for (let geotype in element.answer) {
-                            for (let geoobject in element.answer[geotype]) {
-                                for (let geostring in element.answer[geotype][geoobject]) {
-                                    element.answer[geotype][geoobject][geostring] = element.answer[geotype][geoobject][geostring].replace(`%${variable}%`, this.variablevalues[variable]);
-                }
-    }}}}}}}
+                // Replace variable strings with values
+                element = recursiveReplace(element, `%${variable}%`, this.variablevalues[variable]);
+            }
+            // Convert number-like strings into numbers
+            element = recursiveNumberfy(element);
+        }
+    }
     
     keyPress(key) {
         if (key === "q") {
@@ -953,6 +1027,7 @@ class Question {
                 this.canvasControllers[i] = new CanvasController(DOM, i, element.imgsrc, element.imgcal, element.mode, element.answercount, element.default);
             }
         }
+        //console.log(this.variablevalues);
         this.insertSubmitButton(DOM);
     }
     
@@ -1055,10 +1130,20 @@ class ProblemController{
         for (let name of Object.keys(variables.calculated)) {
             // Construct expression, fill in variable values
             let exp = variables.calculated[name];
-            for (let variable of Object.keys(variablevalues)) {
-                exp = exp.replace(`%${variable}%`, variablevalues[variable]);
+            // Keep replacing until no variables remain
+            let maxloops = 10;
+            let loops = 0;
+            while (exp.indexOf("%") != -1 && loops < maxloops) {
+                for (let variable of Object.keys(variablevalues)) {
+                    exp = exp.replace(`%${variable}%`, variablevalues[variable]);
+                }
+                loops++;
+            }
+            if (loops >= maxloops) {
+                console.log("Error, maximum loops exceeded, variable not found.");
             }
             // Evaluate expression
+            //console.log("Evaluating",exp);
             variablevalues[name] = eval(exp);
         }
         return variablevalues;
@@ -1156,6 +1241,6 @@ class ProblemController{
             console.log(`Question ${i}: ${this.score[i].got}/${this.score[i].max}`);
         }
         console.log("--------------------");
-        console.log(`Total: ${got}/${max} = ${roundTo(got/max,2)*100}%`);
+        console.log(`Total: ${got}/${max} = ${roundTo(got/max*100,2)}%`);
     }
 }
