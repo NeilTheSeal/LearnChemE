@@ -1253,9 +1253,12 @@ class ProblemController{
     }
     
     insertRestartButton(DOM) {
+        // Add button
         let container = document.querySelector("." + DOM.restartdivclass);
         let html = `<button class="${DOM.restartbuttonclass}">New Problem</button>`;
         container.insertAdjacentHTML("beforeend", html);
+        // Add event listener to button
+        document.querySelector("." + this.DOM.restartbuttonclass).addEventListener("click", e => this.refresh(e));
     }
     
     updateScores(DOM, score) {
@@ -1291,7 +1294,6 @@ class ProblemController{
             // Add current question objects to html
             this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
             // Add listening event to buttons
-            //document.querySelector("." + this.DOM.restartbuttonclass).addEventListener("click", e => this.refresh(e));
             document.querySelector("." + this.DOM.submitbuttonclass).addEventListener("click", e => this.submit(e));
         }
         this.updateScores(this.DOM, this.score);
@@ -1337,8 +1339,7 @@ class ProblemController{
     finish() {
         // End problem
         this.clearPage();
-        this.insertScores(this.DOM, this.score);
-        this.insertRestartButton(this.DOM);
+        this.updateScores(this.DOM, this.score);
         /*
         let max = 0;
         let got = 0;
