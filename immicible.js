@@ -48,8 +48,6 @@ let problemController = new ProblemController(
     }
 );
 
-const datalabel = "temperature = %T% C <br> saturation pressures: P<sub>satW</sub> = %PsatW% bar,  P<sub>sat%x%</sub> = %Psat%x%% bar";
-
 let calibration = new Line({"points":[new Point({"rawx":38, "rawy":312, "calx":0, "caly":0}), new Point({"rawx":574, "rawy":34, "calx":1, "caly":6})]});
 
 problemController.addQuestion(
@@ -61,11 +59,11 @@ problemController.addQuestion(
         },
         "questionelements": [
             new TextElement({
-                "label": "Drag the line to the pressure where three phases coexist <br>",
+                "label": "Drag the line to the pressure where three phases coexist. <br>",
                 "size": "24px"
             }),
             new TextElement({
-                "label": datalabel,
+                "label": "Temperature = %T% C <br> Saturation Pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%x%</sub> = %Psat%x%% bar",
                 "size": "16px"
             }),
             new GraphElement({
@@ -88,8 +86,8 @@ problemController.addQuestion(
                                    {"calx":1, "caly":4, "movey":true, "show":false}], "color":"black", "answer":true}
                     ],
                     "text": [
-                        {"text":"A", "position": {"calx": 0.49, "caly": 6}, "font":"bold 20px Arial", "color":"black"},
-                        {"text":"B", "position": {"calx": 0.49, "caly": 0.25}, "font":"bold 20px Arial", "color":"black"}
+                        {"text":"A", "position": {"calx": 0.49, "caly": 6}, "font":"bold 16px Arial", "color":"black"},
+                        {"text":"B", "position": {"calx": 0.49, "caly": 0.25}, "font":"bold 16px Arial", "color":"black"}
                     ]
                 },
                 "points": 10
@@ -117,11 +115,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "Drag the blue point to where pure water is in VLE, and drag the orange point to where pure benzene is in VLE. <br>",
-                "size": "30px"
+                "size": "24px"
             }),
             new TextElement({
-                "label": datalabel,
-                "size": "20px"
+                "label": "T = %T% C <br> P<sub>sat,W</sub> = PsatW bar <br> P<sub>sat,%x%</sub> = %Psat%x%% bar",
+                "size": "16px"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -133,7 +131,7 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"calx":"0", "caly":"%PsatW%", "tolerance":{"calx":0.025, "caly":0.1}, "color":"blue"},
+                        {"calx":"0", "caly":"PsatW", "tolerance":{"calx":0.025, "caly":0.1}, "color":"blue"},
                         {"calx":"1", "caly":"%Psat%x%%", "tolerance":{"calx":0.025, "caly":0.1}, "color":"orange"}
                     ]
                 },
@@ -147,8 +145,8 @@ problemController.addQuestion(
                                    {"calx":1, "caly":"%Psum%", "show":false}], "color":"black"},
                     ],
                     "text": [
-                        {"text":"Liquid+Liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
-                        {"text":"Vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
+                        {"text":"liquid + liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
+                        {"text":"vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
                     ]
                 },
                 "points": 20
@@ -168,11 +166,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "Drag the point to where vapor is in equilibrium with two liquid phases. <br>",
-                "size": "30px"
+                "size": "24px"
             }),
             new TextElement({
-                "label": datalabel,
-                "size": "20px"
+                "label": "T = %T% C <br> P<sub>sat,W</sub> = PsatW bar <br> P<sub>sat,%x%</sub> = %Psat%x%% bar",
+                "size": "16px"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -189,7 +187,7 @@ problemController.addQuestion(
                 },
                 "default": {
                     "point": [
-                        {"calx":"0", "caly":"%PsatW%", "color":"blue"},
+                        {"calx":"0", "caly":"PsatW", "color":"blue"},
                         {"calx":"1", "caly":"%Psat%x%%", "color":"orange"},
                         {"calx":0.5, "caly":4, "color":"green", "movex":true, "movey":true, "answer":true}
                     ],
@@ -198,8 +196,8 @@ problemController.addQuestion(
                                    {"calx":1, "caly":"%Psum%", "show":false}], "color":"black"},
                     ],
                     "text": [
-                        {"text":"Liquid+Liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
-                        {"text":"Vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
+                        {"text":"liquid + liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
+                        {"text":"vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
                     ]
                 },
                 "points": 10
@@ -219,11 +217,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "Drag each point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
-                "size": "30px"
+                "size": "24px"
             }),
             new TextElement({
-                "label": datalabel,
-                "size": "20px"
+                "label": "T = %T% C <br> P<sub>sat,W</sub> = PsatW bar <br> P<sub>sat,%x%</sub> = %Psat%x%% bar",
+                "size": "16px"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -234,7 +232,7 @@ problemController.addQuestion(
                     "line": 1
                 },
                 "answer": {
-                    "line":[{"points":[{"calx":"0", "caly":"%PsatW%", "color":"blue"},
+                    "line":[{"points":[{"calx":"0", "caly":"PsatW", "color":"blue"},
                                        {"calx":"%x1%", "caly":"%y1%", "color":"red"},
                                        {"calx":"%x2%", "caly":"%y2%", "color":"red"},
                                        {"calx":"%x3%", "caly":"%y3%", "color":"red"},
@@ -250,7 +248,7 @@ problemController.addQuestion(
                     "line": [
                         {"points":[{"calx":0, "caly":"%Psum%", "radius":1, "show":false},
                                    {"calx":1, "caly":"%Psum%", "radius":1, "show":false}], "color":"black"},
-                        {"points":[{"calx":"0", "caly":"%PsatW%", "color":"blue"},
+                        {"points":[{"calx":"0", "caly":"PsatW", "color":"blue"},
                                    {"calx":"%x1%", "caly":"%y1%", "movey":true},
                                    {"calx":"%x2%", "caly":"%y2%", "movey":true},
                                    {"calx":"%x3%", "caly":"%y3%", "movey":true},
@@ -261,8 +259,8 @@ problemController.addQuestion(
                                    {"calx":"1", "caly":"%Psat%x%%", "color":"orange"}], "color":"black", "answer":true}
                     ],
                     "text": [
-                        {"text":"Liquid+Liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
-                        {"text":"Vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
+                        {"text":"liquid + liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
+                        {"text":"vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
                     ]
                 },
                 "points": 60
