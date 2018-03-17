@@ -25,12 +25,12 @@ let problemController = new ProblemController(
                          "digits": 0}
         },
         "calculated": {
-            "x": "['b', 'b', 'b'][%compound%]",
-            "Psatw": "roundTo(Math.pow(10,%Aw% - %Bw% / (%T% + %Cw%)),1)",
-            "Psatb": "roundTo(Math.pow(10,%Ab% - %Bb% / (%T% + %Cb%)),1)",
-            "Psatt": "roundTo(Math.pow(10,%At% - %Bt% / (%T% + %Ct%)),1)",
-            "Psath": "roundTo(Math.pow(10,%Ah% - %Bh% / (%T% + %Ch%)),1)",
-            "Psum": "%Psatw% + %Psat%x%%",
+            "x": "['B', 'B', 'B'][%compound%]",
+            "PsatW": "roundTo(Math.pow(10,%Aw% - %Bw% / (%T% + %Cw%)),1)",
+            "PsatB": "roundTo(Math.pow(10,%Ab% - %Bb% / (%T% + %Cb%)),1)",
+            "PsatT": "roundTo(Math.pow(10,%At% - %Bt% / (%T% + %Ct%)),1)",
+            "PsatH": "roundTo(Math.pow(10,%Ah% - %Bh% / (%T% + %Ch%)),1)",
+            "Psum": "%PsatW% + %Psat%x%%",
             "xc": "%Psat%x%% / %Psum%",
             "x1": "%xc%/2",
             "x2": "%xc%*4/6",
@@ -38,15 +38,17 @@ let problemController = new ProblemController(
             "x4": "%xc%+(1-%xc%)*1/6",
             "x5": "%xc%+(1-%xc%)*2/6",
             "x6": "%xc%+(1-%xc%)/2",
-            "y1": "%Psatw% / (1 - %x1%)",
-            "y2": "%Psatw% / (1 - %x2%)",
-            "y3": "%Psatw% / (1 - %x3%)",
+            "y1": "%PsatW% / (1 - %x1%)",
+            "y2": "%PsatW% / (1 - %x2%)",
+            "y3": "%PsatW% / (1 - %x3%)",
             "y4": "%Psat%x%% / %x4%",
             "y5": "%Psat%x%% / %x5%",
             "y6": "%Psat%x%% / %x6%",
         }
     }
 );
+
+const datalabel = "temperature = %T% C <br> saturation pressures: P<sub>satW</sub> = %PsatW% bar,  P<sub>sat%x%</sub> = %Psat%x%% bar";
 
 let calibration = new Line({"points":[new Point({"rawx":38, "rawy":312, "calx":0, "caly":0}), new Point({"rawx":574, "rawy":34, "calx":1, "caly":6})]});
 
@@ -60,11 +62,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "Drag the line to the pressure where three phases coexist <br>",
-                "size": "30px"
+                "size": "24px"
             }),
             new TextElement({
-                "label": "T = %T% C <br> Psatw = %Psatw% bar <br> Psat%x% = %Psat%x%% bar",
-                "size": "20px"
+                "label": datalabel,
+                "size": "16px"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -114,11 +116,11 @@ problemController.addQuestion(
         },
         "questionelements": [
             new TextElement({
-                "label": "Drag the blue point to where pure water is in VLE, <br>and drag the orange point to where pure benzene is in VLE. <br>",
+                "label": "Drag the blue point to where pure water is in VLE, and drag the orange point to where pure benzene is in VLE. <br>",
                 "size": "30px"
             }),
             new TextElement({
-                "label": "T = %T% C <br> Psatw = %Psatw% bar <br> Psat%x% = %Psat%x%% bar",
+                "label": datalabel,
                 "size": "20px"
             }),
             new GraphElement({
@@ -131,7 +133,7 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"calx":"0", "caly":"%Psatw%", "tolerance":{"calx":0.025, "caly":0.1}, "color":"blue"},
+                        {"calx":"0", "caly":"%PsatW%", "tolerance":{"calx":0.025, "caly":0.1}, "color":"blue"},
                         {"calx":"1", "caly":"%Psat%x%%", "tolerance":{"calx":0.025, "caly":0.1}, "color":"orange"}
                     ]
                 },
@@ -169,7 +171,7 @@ problemController.addQuestion(
                 "size": "30px"
             }),
             new TextElement({
-                "label": "T = %T% C <br> Psatw = %Psatw% bar <br> Psat%x% = %Psat%x%% bar",
+                "label": datalabel,
                 "size": "20px"
             }),
             new GraphElement({
@@ -187,7 +189,7 @@ problemController.addQuestion(
                 },
                 "default": {
                     "point": [
-                        {"calx":"0", "caly":"%Psatw%", "color":"blue"},
+                        {"calx":"0", "caly":"%PsatW%", "color":"blue"},
                         {"calx":"1", "caly":"%Psat%x%%", "color":"orange"},
                         {"calx":0.5, "caly":4, "color":"green", "movex":true, "movey":true, "answer":true}
                     ],
@@ -220,7 +222,7 @@ problemController.addQuestion(
                 "size": "30px"
             }),
             new TextElement({
-                "label": "T = %T% C <br> Psatw = %Psatw% bar <br> Psat%x% = %Psat%x%% bar",
+                "label": datalabel,
                 "size": "20px"
             }),
             new GraphElement({
@@ -232,7 +234,7 @@ problemController.addQuestion(
                     "line": 1
                 },
                 "answer": {
-                    "line":[{"points":[{"calx":"0", "caly":"%Psatw%", "color":"blue"},
+                    "line":[{"points":[{"calx":"0", "caly":"%PsatW%", "color":"blue"},
                                        {"calx":"%x1%", "caly":"%y1%", "color":"red"},
                                        {"calx":"%x2%", "caly":"%y2%", "color":"red"},
                                        {"calx":"%x3%", "caly":"%y3%", "color":"red"},
@@ -248,7 +250,7 @@ problemController.addQuestion(
                     "line": [
                         {"points":[{"calx":0, "caly":"%Psum%", "radius":1, "show":false},
                                    {"calx":1, "caly":"%Psum%", "radius":1, "show":false}], "color":"black"},
-                        {"points":[{"calx":"0", "caly":"%Psatw%", "color":"blue"},
+                        {"points":[{"calx":"0", "caly":"%PsatW%", "color":"blue"},
                                    {"calx":"%x1%", "caly":"%y1%", "movey":true},
                                    {"calx":"%x2%", "caly":"%y2%", "movey":true},
                                    {"calx":"%x3%", "caly":"%y3%", "movey":true},

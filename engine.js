@@ -995,8 +995,9 @@ class Question {
     }
     
     insertText(DOM, label, size) {
+        console.log('text',label,size);
         let container = document.querySelector("." + DOM.elementdivclass);
-        
+        console.log(container);
         let html = `<span class="${DOM.textspanclass}"`;
         if (size != undefined) {
             html += ` style="font-size:${size}"`
@@ -1012,7 +1013,6 @@ class Question {
         this.generateVariables();
         this.assignVariables();
         // Create display elements
-        this.insertContainers(DOM, this.instruction);
         for (let i in this.elements) {
             let element = this.elements[i];
             // Text
@@ -1088,8 +1088,6 @@ class ProblemController{
     get getDOM() {
         return {
         "questiondivclass": "question",
-            "instructiondivclass": "instruction",
-                "instructionspanclass": "instructionspan",
             "elementdivclass": "questionelements",
                 "canvasdivclass": "canvasarea",
                     "canvaslabelclass": "canvaslabel",
