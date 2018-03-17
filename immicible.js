@@ -48,7 +48,9 @@ let problemController = new ProblemController(
     }
 );
 
-let calibration = new Line({"points":[new Point({"rawx":38, "rawy":312, "calx":0, "caly":0}), new Point({"rawx":574, "rawy":34, "calx":1, "caly":6})]});
+const datalabel = "Temperature = %T% C <br> Saturation Pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%x%</sub> = %Psat%x%% bar";
+
+let calibration = new Line({"points":[new Point({"rawx":38, "rawy":312, "x":0, "y":0}), new Point({"rawx":574, "rawy":34, "x":1, "y":6})]});
 
 problemController.addQuestion(
     new Question({
@@ -59,11 +61,11 @@ problemController.addQuestion(
         },
         "questionelements": [
             new TextElement({
-                "label": "Drag the line to the pressure where three phases coexist. <br>",
+                "label": "1) Drag the line to the pressure where three phases coexist. <br>",
                 "size": "24px"
             }),
             new TextElement({
-                "label": "Temperature = %T% C <br> Saturation Pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%x%</sub> = %Psat%x%% bar",
+                "label": datalabel,
                 "size": "16px"
             }),
             new GraphElement({
@@ -76,25 +78,25 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "line": [
-                        {"points":[{"calx":"0", "caly":"%Psum%"},
-                                   {"calx":"1", "caly":"%Psum%"}], "tolerance":{"calx":0.025, "caly":0.1}, "color":"red"}
+                        {"points":[{"x":"0", "y":"%Psum%"},
+                                   {"x":"1", "y":"%Psum%"}], "tolerance":{"x":0.025, "y":0.1}, "color":"green"}
                     ]
                 },
                 "default": {
                     "line": [
-                        {"points":[{"calx":0, "caly":4, "movey":true, "show":false},
-                                   {"calx":1, "caly":4, "movey":true, "show":false}], "color":"black", "answer":true}
+                        {"points":[{"x":0, "y":4, "movey":true, "show":false},
+                                   {"x":1, "y":4, "movey":true, "show":false}], "color":"black", "answer":true}
                     ],
                     "text": [
-                        {"text":"A", "position": {"calx": 0.49, "caly": 6}, "font":"bold 16px Arial", "color":"black"},
-                        {"text":"B", "position": {"calx": 0.49, "caly": 0.25}, "font":"bold 16px Arial", "color":"black"}
+                        {"text":"A", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
+                        {"text":"B", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
                 },
                 "points": 10
             }),
             new TextboxElement({
                 "label": "Which region has two liquids in equilibrium and no vapor? ",
-                "placeholder": "A or B",
+                "placeholder": "type A or B",
                 "answertype": "text",
                 "answer": "A",
                 "tolerance": 0,
@@ -114,11 +116,11 @@ problemController.addQuestion(
         },
         "questionelements": [
             new TextElement({
-                "label": "Drag the blue point to where pure water is in VLE, and drag the orange point to where pure benzene is in VLE. <br>",
+                "label": "2) Drag the blue point to where pure water is in VLE, and drag the orange point to where pure benzene is in VLE. <br>",
                 "size": "24px"
             }),
             new TextElement({
-                "label": "T = %T% C <br> P<sub>sat,W</sub> = PsatW bar <br> P<sub>sat,%x%</sub> = %Psat%x%% bar",
+                "label": datalabel,
                 "size": "16px"
             }),
             new GraphElement({
@@ -131,22 +133,22 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"calx":"0", "caly":"PsatW", "tolerance":{"calx":0.025, "caly":0.1}, "color":"blue"},
-                        {"calx":"1", "caly":"%Psat%x%%", "tolerance":{"calx":0.025, "caly":0.1}, "color":"orange"}
+                        {"x":"0", "y":"%PsatW%", "tolerance":{"x":0.025, "y":0.1}, "color":"blue"},
+                        {"x":"1", "y":"%Psat%x%%", "tolerance":{"x":0.025, "y":0.1}, "color":"orange"}
                     ]
                 },
                 "default": {
                     "point": [
-                        {"calx":0.3, "caly":4, "movex":true, "movey":true, "color":"blue", "answer":true},
-                        {"calx":0.7, "caly":4, "movex":true, "movey":true, "color":"orange", "answer":true}
+                        {"x":0.3, "y":4, "movex":true, "movey":true, "color":"blue", "answer":true},
+                        {"x":0.7, "y":4, "movex":true, "movey":true, "color":"orange", "answer":true}
                     ],
                     "line": [
-                        {"points":[{"calx":0, "caly":"%Psum%", "show":false},
-                                   {"calx":1, "caly":"%Psum%", "show":false}], "color":"black"},
+                        {"points":[{"x":0, "y":"%Psum%", "show":false},
+                                   {"x":1, "y":"%Psum%", "show":false}], "color":"black"},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
-                        {"text":"vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
                 },
                 "points": 20
@@ -165,11 +167,11 @@ problemController.addQuestion(
         },
         "questionelements": [
             new TextElement({
-                "label": "Drag the point to where vapor is in equilibrium with two liquid phases. <br>",
+                "label": "3) Drag the point to where vapor is in equilibrium with two liquid phases. <br>",
                 "size": "24px"
             }),
             new TextElement({
-                "label": "T = %T% C <br> P<sub>sat,W</sub> = PsatW bar <br> P<sub>sat,%x%</sub> = %Psat%x%% bar",
+                "label": datalabel,
                 "size": "16px"
             }),
             new GraphElement({
@@ -182,22 +184,22 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"calx":"%xc%", "caly":"%Psum%", "tolerance":{"calx":0.025, "caly":0.1}, "color":"green"}
+                        {"x":"%xc%", "y":"%Psum%", "tolerance":{"x":0.025, "y":0.1}, "color":"green"}
                     ]
                 },
                 "default": {
                     "point": [
-                        {"calx":"0", "caly":"PsatW", "color":"blue"},
-                        {"calx":"1", "caly":"%Psat%x%%", "color":"orange"},
-                        {"calx":0.5, "caly":4, "color":"green", "movex":true, "movey":true, "answer":true}
+                        {"x":"0", "y":"%PsatW%", "color":"blue"},
+                        {"x":"1", "y":"%Psat%x%%", "color":"orange"},
+                        {"x":0.5, "y":4, "color":"green", "movex":true, "movey":true, "answer":true}
                     ],
                     "line": [
-                        {"points":[{"calx":0, "caly":"%Psum%", "show":false},
-                                   {"calx":1, "caly":"%Psum%", "show":false}], "color":"black"},
+                        {"points":[{"x":0, "y":"%Psum%", "show":false},
+                                   {"x":1, "y":"%Psum%", "show":false}], "color":"black"},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
-                        {"text":"vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
                 },
                 "points": 10
@@ -216,11 +218,11 @@ problemController.addQuestion(
         },
         "questionelements": [
             new TextElement({
-                "label": "Drag each point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
+                "label": "4) Drag each point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
                 "size": "24px"
             }),
             new TextElement({
-                "label": "T = %T% C <br> P<sub>sat,W</sub> = PsatW bar <br> P<sub>sat,%x%</sub> = %Psat%x%% bar",
+                "label": datalabel,
                 "size": "16px"
             }),
             new GraphElement({
@@ -232,35 +234,35 @@ problemController.addQuestion(
                     "line": 1
                 },
                 "answer": {
-                    "line":[{"points":[{"calx":"0", "caly":"PsatW", "color":"blue"},
-                                       {"calx":"%x1%", "caly":"%y1%", "color":"red"},
-                                       {"calx":"%x2%", "caly":"%y2%", "color":"red"},
-                                       {"calx":"%x3%", "caly":"%y3%", "color":"red"},
-                                       {"calx":"%xc%", "caly":"%Psum%", "color":"green"},
-                                       {"calx":"%x4%", "caly":"%y4%", "color":"red"},
-                                       {"calx":"%x5%", "caly":"%y5%", "color":"red"},
-                                       {"calx":"%x6%", "caly":"%y6%", "color":"red"},
-                                       {"calx":"1", "caly":"%Psat%x%%", "color":"orange"}], "tolerance":{"calx":0.025, "caly":0.1}, "color":"red"}
+                    "line":[{"points":[{"x":"0", "y":"%PsatW%", "color":"blue"},
+                                       {"x":"%x1%", "y":"%y1%", "color":"green"},
+                                       {"x":"%x2%", "y":"%y2%", "color":"green"},
+                                       {"x":"%x3%", "y":"%y3%", "color":"green"},
+                                       {"x":"%xc%", "y":"%Psum%", "color":"green"},
+                                       {"x":"%x4%", "y":"%y4%", "color":"green"},
+                                       {"x":"%x5%", "y":"%y5%", "color":"green"},
+                                       {"x":"%x6%", "y":"%y6%", "color":"green"},
+                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"}], "tolerance":{"x":0.025, "y":0.1}, "color":"green"}
                             ]
                 },
                 "default": {
                     "point": [],
                     "line": [
-                        {"points":[{"calx":0, "caly":"%Psum%", "radius":1, "show":false},
-                                   {"calx":1, "caly":"%Psum%", "radius":1, "show":false}], "color":"black"},
-                        {"points":[{"calx":"0", "caly":"PsatW", "color":"blue"},
-                                   {"calx":"%x1%", "caly":"%y1%", "movey":true},
-                                   {"calx":"%x2%", "caly":"%y2%", "movey":true},
-                                   {"calx":"%x3%", "caly":"%y3%", "movey":true},
-                                   {"calx":"%xc%", "caly":"%Psum%", "color":"green"},
-                                   {"calx":"%x4%", "caly":"%y4%", "movey":true},
-                                   {"calx":"%x5%", "caly":"%y5%", "movey":true},
-                                   {"calx":"%x6%", "caly":"%y6%", "movey":true},
-                                   {"calx":"1", "caly":"%Psat%x%%", "color":"orange"}], "color":"black", "answer":true}
+                        {"points":[{"x":0, "y":"%Psum%", "radius":1, "show":false},
+                                   {"x":1, "y":"%Psum%", "radius":1, "show":false}], "color":"black"},
+                        {"points":[{"x":"0", "y":"%PsatW%", "color":"blue"},
+                                   {"x":"%x1%", "y":"%y1%", "movey":true},
+                                   {"x":"%x2%", "y":"%y2%", "movey":true},
+                                   {"x":"%x3%", "y":"%y3%", "movey":true},
+                                   {"x":"%xc%", "y":"%Psum%", "color":"green"},
+                                   {"x":"%x4%", "y":"%y4%", "movey":true},
+                                   {"x":"%x5%", "y":"%y5%", "movey":true},
+                                   {"x":"%x6%", "y":"%y6%", "movey":true},
+                                   {"x":"1", "y":"%Psat%x%%", "color":"orange"}], "color":"black", "answer":true}
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"calx": 0.39, "caly": 6}, "color":"black"},
-                        {"text":"vapor", "position": {"calx": 0.45, "caly": 0.25}, "color":"black"}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
                 },
                 "points": 60
