@@ -32,12 +32,12 @@ let problemController = new ProblemController(
             "PsatH": "roundTo(Math.pow(10,%Ah% - %Bh% / (%T% + %Ch%)),1)",
             "Psum": "%PsatW% + %Psat%x%%",
             "xc": "%Psat%x%% / %Psum%",
-            "x1": "%xc%/2",
-            "x2": "%xc%*4/6",
-            "x3": "%xc%*5/6",
-            "x4": "%xc%+(1-%xc%)*1/6",
-            "x5": "%xc%+(1-%xc%)*2/6",
-            "x6": "%xc%+(1-%xc%)/2",
+            "x1": "%xc% / 2",
+            "x2": "%xc% * 4/6",
+            "x3": "%xc% * 5/6",
+            "x4": "%xc% + (1-%xc%) * 1/6",
+            "x5": "%xc% + (1-%xc%) * 2/6",
+            "x6": "%xc% + (1-%xc%) / 2",
             "y1": "%PsatW% / (1 - %x1%)",
             "y2": "%PsatW% / (1 - %x2%)",
             "y3": "%PsatW% / (1 - %x3%)",
@@ -48,9 +48,11 @@ let problemController = new ProblemController(
     }
 );
 
-const datalabel = "Temperature = %T% C <br> Saturation Pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%x%</sub> = %Psat%x%% bar";
+const datalabel = "temperature = %T% C <br> saturation pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%x%</sub> = %Psat%x%% bar";
 
-let calibration = new Line({"points":[new Point({"rawx":38, "rawy":312, "x":0, "y":0}), new Point({"rawx":574, "rawy":34, "x":1, "y":6})]});
+let calibration = new Calibration({"pt1":new Point({"rawx":38, "rawy":312, "x":0, "y":0}), "pt2":new Point({"rawx":574, "rawy":34, "x":1, "y":6})});
+
+let pointtolerance = {"x":0.025, "y":0.2};
 
 problemController.addQuestion(
     new Question({
@@ -62,11 +64,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "1) Drag the line to the pressure where three phases coexist. <br>",
-                "size": "24px"
+                "style": "prompt"
             }),
             new TextElement({
                 "label": datalabel,
-                "size": "16px"
+                "style": "data"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -79,7 +81,7 @@ problemController.addQuestion(
                 "answer": {
                     "line": [
                         {"points":[{"x":"0", "y":"%Psum%"},
-                                   {"x":"1", "y":"%Psum%"}], "tolerance":{"x":0.025, "y":0.1}, "color":"green"}
+                                   {"x":"1", "y":"%Psum%"}], "tolerance":pointtolerance, "color":"green"}
                     ]
                 },
                 "default": {
@@ -88,9 +90,13 @@ problemController.addQuestion(
                                    {"x":1, "y":4, "movey":true, "show":false}], "color":"black", "answer":true}
                     ],
                     "text": [
-                        {"text":"A", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
-                        {"text":"B", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
+                        {"text":"region A", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
+                        {"text":"region B", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
+                },
+                "cursor": {
+                    "digits": 1,
+                    "bounds": calibration,
                 },
                 "points": 10
             }),
@@ -117,11 +123,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "2) Drag the blue point to where pure water is in VLE, and drag the orange point to where pure benzene is in VLE. <br>",
-                "size": "24px"
+                "style": "prompt"
             }),
             new TextElement({
                 "label": datalabel,
-                "size": "16px"
+                "style": "data"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -133,8 +139,8 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"x":"0", "y":"%PsatW%", "tolerance":{"x":0.025, "y":0.1}, "color":"blue"},
-                        {"x":"1", "y":"%Psat%x%%", "tolerance":{"x":0.025, "y":0.1}, "color":"orange"}
+                        {"x":"0", "y":"%PsatW%", "tolerance":pointtolerance, "color":"blue"},
+                        {"x":"1", "y":"%Psat%x%%", "tolerance":pointtolerance, "color":"orange"}
                     ]
                 },
                 "default": {
@@ -150,6 +156,10 @@ problemController.addQuestion(
                         {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
                         {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
+                },
+                "cursor": {
+                    "digits": 1,
+                    "bounds": calibration,
                 },
                 "points": 20
             }),
@@ -168,11 +178,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "3) Drag the point to where vapor is in equilibrium with two liquid phases. <br>",
-                "size": "24px"
+                "style": "prompt"
             }),
             new TextElement({
                 "label": datalabel,
-                "size": "16px"
+                "style": "data"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -184,7 +194,7 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"x":"%xc%", "y":"%Psum%", "tolerance":{"x":0.025, "y":0.1}, "color":"green"}
+                        {"x":"%xc%", "y":"%Psum%", "tolerance":pointtolerance, "color":"green"}
                     ]
                 },
                 "default": {
@@ -201,6 +211,10 @@ problemController.addQuestion(
                         {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
                         {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
+                },
+                "cursor": {
+                    "digits": 1,
+                    "bounds": calibration,
                 },
                 "points": 10
             }),
@@ -219,11 +233,11 @@ problemController.addQuestion(
         "questionelements": [
             new TextElement({
                 "label": "4) Drag each point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
-                "size": "24px"
+                "style": "prompt"
             }),
             new TextElement({
                 "label": datalabel,
-                "size": "16px"
+                "style": "data"
             }),
             new GraphElement({
                 "imgsrc": "pressure_immicible.png",
@@ -242,7 +256,7 @@ problemController.addQuestion(
                                        {"x":"%x4%", "y":"%y4%", "color":"green"},
                                        {"x":"%x5%", "y":"%y5%", "color":"green"},
                                        {"x":"%x6%", "y":"%y6%", "color":"green"},
-                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"}], "tolerance":{"x":0.025, "y":0.1}, "color":"green"}
+                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"}], "tolerance":pointtolerance, "color":"green"}
                             ]
                 },
                 "default": {
@@ -264,6 +278,10 @@ problemController.addQuestion(
                         {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
                         {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
                     ]
+                },
+                "cursor": {
+                    "digits": 1,
+                    "bounds": calibration,
                 },
                 "points": 60
             }),

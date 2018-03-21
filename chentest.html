@@ -7,44 +7,36 @@
         
         <title>Drawing test</title>
     </head>
-
+    
     <body>
-        <div class="question">
-            <div class="questionelements">
-                <div class="canvasarea">
-                    <canvas class="canvas" width="400" height="400"></canvas>
-                    <br>
-                    <div class="canvasinfo">
-                        <span class="mode info" id="span--modeinfo">mode</span>
-                        <span class="point info" id="span--pointinfo">(x, y)</span>
-                    </div>
-                </div>
-
-                <br><hr>
-
-                <div class="inputfields">
+        <div id="page">
+            <div id="header">
+                <img src="boulder-one-line-reverse.png" height= 60>
+            </div>
+            <div id="body">
+                <div class="question">
+                <div class="questionelements">
                     <!--
-                    <div class="textentry" id="textentry-%id%">
-                        <span class="textprompt", id="prompt-%id%">%prompt%</span>
-                        <input class="textanswer" placeholder="%placeholder%" id="input-%id%"></input>
-                    </div>
+                    Question elements are inserted here
                     -->
                 </div>
-                <br>
             </div>
-            
-            <button class="submitbutton">Submit</button>
+            <div class="score">
+                <!--
+                Score summary inserted here
+                -->
+            </div>
+            <div class="restart">
+                <!--
+                Restart button inserted here
+                -->
+            </div>
+            </div>
+            <div id="footer">
+                Footer
+            </div>
         </div>
-        <div class="score"></div>
-        <div class="restart"></div>
-        
-        
         <script src="engine.js"></script>
         <script src="immicible.js"></script>
-        <!--
-        <script src="chentest.js"></script>
-        <script src="immicible.js"></script>
-        <script src="calibrate.js"></script>
-        -->
     </body>
 </html>
