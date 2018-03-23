@@ -245,18 +245,21 @@ problemController.addQuestion(
                 "mode": "move",
                 "answercount": {
                     "point": 0,
-                    "line": 1
+                    "line": 2
                 },
                 "answer": {
-                    "line":[{"points":[{"x":"0", "y":"%PsatW%", "color":"blue"},
+                    "line":[{"points":[{"x":"0", "y":"%Psum%", "show":false},
+                                       {"x":"0", "y":"%PsatW%", "color":"blue"},
                                        {"x":"%x1%", "y":"%y1%", "color":"green"},
                                        {"x":"%x2%", "y":"%y2%", "color":"green"},
                                        {"x":"%x3%", "y":"%y3%", "color":"green"},
-                                       {"x":"%xc%", "y":"%Psum%", "color":"green"},
+                                       {"x":"%xc%", "y":"%Psum%", "color":"green"}], "tolerance":pointtolerance, "color":"green"},
+                            {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
                                        {"x":"%x4%", "y":"%y4%", "color":"green"},
                                        {"x":"%x5%", "y":"%y5%", "color":"green"},
                                        {"x":"%x6%", "y":"%y6%", "color":"green"},
-                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"}], "tolerance":pointtolerance, "color":"green"}
+                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"},
+                                       {"x":"1", "y":"%Psum%", "show":false}], "tolerance":pointtolerance, "color":"green"}
                             ]
                 },
                 "default": {
@@ -264,15 +267,18 @@ problemController.addQuestion(
                     "line": [
                         {"points":[{"x":0, "y":"%Psum%", "radius":1, "show":false},
                                    {"x":1, "y":"%Psum%", "radius":1, "show":false}], "color":"black"},
-                        {"points":[{"x":"0", "y":"%PsatW%", "color":"blue"},
+                        {"points":[{"x":"0", "y":"%Psum%", "show":false},
+                                   {"x":"0", "y":"%PsatW%", "color":"blue"},
                                    {"x":"%x1%", "y":"%y1%", "movey":true},
                                    {"x":"%x2%", "y":"%y2%", "movey":true},
                                    {"x":"%x3%", "y":"%y3%", "movey":true},
-                                   {"x":"%xc%", "y":"%Psum%", "color":"green"},
+                                   {"x":"%xc%", "y":"%Psum%", "color":"green"}], "color":"black", "answer":true},
+                        {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
                                    {"x":"%x4%", "y":"%y4%", "movey":true},
                                    {"x":"%x5%", "y":"%y5%", "movey":true},
                                    {"x":"%x6%", "y":"%y6%", "movey":true},
-                                   {"x":"1", "y":"%Psat%x%%", "color":"orange"}], "color":"black", "answer":true}
+                                   {"x":"1", "y":"%Psat%x%%", "color":"orange"},
+                                   {"x":"1", "y":"%Psum%", "show":false}], "color":"black", "answer":true}
                     ],
                     "text": [
                         {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},

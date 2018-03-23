@@ -1,4 +1,12 @@
 /*
+    Structure:
+    
+    ProblemController
+        Question[]
+            Element[]
+*/
+
+/*
 TODO:
 GraphElement
     add support for drawing:
@@ -385,13 +393,21 @@ class CanvasController {
         this.trimLists();
         // Draw background image
         this.drawImage();
-        // Draw geometric objects
+        // Draw lines
         for (let obj of this.finished) {
-            this.draw(obj);
+            if (obj instanceof Line) {
+                this.draw(obj);
+            }
+        }
+        // Draw points
+        for (let obj of this.finished) {
+            if (obj instanceof Point) {
+                this.draw(obj);
+            }
         }
     }
     dataToElement(type, data) {
-        // Converts data to a geometric class object
+        // Creates geometric class object from input data
         // Append calibration data
         data.cal = this.imgcalibration;
         // Create appropriate object
@@ -427,10 +443,13 @@ class CanvasController {
             this.ctx.drawImage(this.img, 0, 0);
         }*/
         function sync() {
-            //console.log('THIS is', this);
+            console.log('THIS is', this);
             this.ctx.drawImage(this.img, 0, 0);
+            
         }
+        console.log('setting up sync');
         this.img.onload = sync.call(this);
+        console.log('finished setting up sync');
         //this.ctx.drawImage(this.img, 0, 0);
     }
     draw(element) {
@@ -473,6 +492,9 @@ class CanvasController {
                 }
                 first = false;
             }
+            this.ctx.fillStyle = "black";
+            this.ctx.globalAlpha = 0.1;
+            this.ctx.fill();
         } else if (element instanceof Text) {
             this.ctx.fillStyle = element.color;
             this.ctx.globalAlpha = 1;
@@ -1035,7 +1057,7 @@ class Question {
     }
     
     insertContainers(DOM) {
-        let container = document.querySelector("." + DOM.questiondivclass);
+        let container = document.querySelector("#" + DOM.questiondivid);
         let html = `<div class="${DOM.elementdivclass}">`;
         html += '</div>';
         
@@ -1043,20 +1065,29 @@ class Question {
     }
     
     insertSubmitButton(DOM) {
-        let container = document.querySelector("." + DOM.questiondivclass);
-        let html = `<hr><button class="${DOM.submitbuttonclass}">Submit Answers</button>`;
+        let container = document.querySelector("#" + DOM.nextdivid);
+        let html = `<button id="${DOM.submitbuttonid}">Submit Answers</button>`;
         container.insertAdjacentHTML("beforeend", html);
     }
     
     removeSubmitButton(DOM) {
-        let submit = document.querySelector("." + DOM.submitbuttonclass);
-        submit.remove();
+        let submit = document.querySelector("#" + DOM.submitbuttonid);
+        if (submit) {
+            submit.remove();
+        }
     }
     
     insertNextButton(DOM) {
-        let container = document.querySelector("." + DOM.questiondivclass);
-        let html = `<button class="${DOM.nextbuttonclass}">Next Part</button>`;
+        let container = document.querySelector("#" + DOM.nextdivid);
+        let html = `<button id="${DOM.nextbuttonid}">Next Part</button>`;
         container.insertAdjacentHTML("beforeend", html);
+    }
+    
+    removeNextButton(DOM) {
+        let next = document.querySelector("#" + DOM.nextbuttonid);
+        if (next) {
+            next.remove();
+        }
     }
     
     insertCanvas(DOM, id, imgsrc) {
@@ -1124,8 +1155,8 @@ class Question {
             }
         }
         //console.log(this.variablevalues);
+        this.removeNextButton(DOM);
         this.insertSubmitButton(DOM);
-        
     }
     
     submit(DOM) {
@@ -1183,30 +1214,29 @@ class ProblemController{
     
     get getDOM() {
         return {
-        "questiondivclass": "question",
-            "instructiondivclass": "instruction",
-                "instructionspanclass": "instructionspan",
-            "elementdivclass": "questionelements",
-                "canvasdivclass": "canvasarea",
-                    "canvasclass": "canvas",
-                    "canvasid": "canvas--%id%",
-                    "canvasinfodivclass": "canvasinfo",
-                        "canvaspointclass": "canvaspoint",
-                        "canvaspointid": "canvaspoint--%id%",
-                        "canvasmodeclass": "canvasmode",
-                        "canvasmodeid": "canvasmode--%id%",
-                "textboxdivclass": "textentry",
-                    "textboxspanclass": "textboxlabel",
-                    "textboxclass": "textbox",
-                    "textboxid": "textbox--%id%",
-                    "textboxanswerclass": "textboxanswer",
-                    "textboxanswerid": "textboxanswer--%id%",
-                "textspanclass": "textspan",
-            "submitbuttonclass": "submitbutton",
-            "nextbuttonclass": "nextbutton",
-        "scoredivclass": "score",
-        "restartdivclass": "restart",
-            "restartbuttonclass": "restartbutton",
+        "questiondivid": "question",
+            "canvasdivclass": "canvasarea",
+                "canvasclass": "canvas",
+                "canvasid": "canvas--%id%",
+                "canvasinfodivclass": "canvasinfo",
+                    "canvaspointclass": "canvaspoint",
+                    "canvaspointid": "canvaspoint--%id%",
+                    "canvasmodeclass": "canvasmode",
+                    "canvasmodeid": "canvasmode--%id%",
+            "textboxdivclass": "textentry",
+                "textboxspanclass": "textboxlabel",
+                "textboxclass": "textbox",
+                "textboxid": "textbox--%id%",
+                "textboxanswerclass": "textboxanswer",
+                "textboxanswerid": "textboxanswer--%id%",
+            "textspanclass": "textspan",
+            "submitbuttonid": "submitbutton",
+            "nextbuttonid": "nextbutton",
+        "nextdivid": "next",
+        "scoredivid": "score",
+        "scoretitleid": "scoretitle",
+        "restartdivid": "restart",
+            "restartbuttonid": "restartbutton",
         };
     }
     
@@ -1293,7 +1323,7 @@ class ProblemController{
     
     clearPage() {
         // Clear question objects from html
-        let container = document.querySelector("." + this.DOM.questiondivclass);
+        let container = document.querySelector("#" + this.DOM.questiondivid);
         while (container.hasChildNodes()) {
             container.firstChild.remove();
         }
@@ -1301,15 +1331,15 @@ class ProblemController{
     
     insertRestartButton(DOM) {
         // Add button
-        let container = document.querySelector("." + DOM.restartdivclass);
-        let html = `<button class="${DOM.restartbuttonclass}">New Problem</button>`;
+        let container = document.querySelector("#" + DOM.restartdivid);
+        let html = `<button id="${DOM.restartbuttonid}">New Problem</button>`;
         container.insertAdjacentHTML("beforeend", html);
         // Add event listener to button
-        document.querySelector("." + this.DOM.restartbuttonclass).addEventListener("click", e => this.refresh(e));
+        document.querySelector("#" + this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
     }
     
     updateScores(DOM, score) {
-        let container = document.querySelector("." + DOM.scoredivclass);
+        let container = document.querySelector("#" + DOM.scoredivid);
         
         // Clear score objects from html
         while (container.hasChildNodes()) {
@@ -1320,10 +1350,11 @@ class ProblemController{
         let sumpoints = 0;
         
         // Create new score object
-        let html = "<table>"
-        html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>"
+        let html = `<span id=${DOM.scoretitleid}>SCORES</span>`;
+        html += "<table>";
+        html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
         for (let i in score) {
-            html += `<tr><td>${parseFloat(i)+1}</td><td>${score[i].got}</td><td>${score[i].max}</td><td>${score[i].pct*100}%</td></tr>`
+            html += `<tr><td>${parseFloat(i)+1}</td><td>${score[i].got}</td><td>${score[i].max}</td><td>${score[i].pct*100}%</td></tr>`;
             sumscore += score[i].got;
             sumpoints += score[i].max;
         }
@@ -1341,7 +1372,7 @@ class ProblemController{
             // Add current question objects to html
             this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
             // Add listening event to buttons
-            document.querySelector("." + this.DOM.submitbuttonclass).addEventListener("click", e => this.submit(e));
+            document.querySelector("#" + this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
         }
         this.updateScores(this.DOM, this.score);
     }
@@ -1354,16 +1385,16 @@ class ProblemController{
         this.score[this.currentquestion] = this.questions[this.currentquestion].submit(this.DOM);
         if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
             // Add listening event to Next button
-            document.querySelector("." + this.DOM.nextbuttonclass).addEventListener("click", e => this.next(e));
+            document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
             // Adjust label to Finish if on last question
             if (this.currentquestion == this.questions.length - 1) {
-                document.querySelector("." + this.DOM.nextbuttonclass).textContent = "Finish";
+                document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Finish";
             }
         } else {
             // Add listening event to Next button
-            document.querySelector("." + this.DOM.nextbuttonclass).addEventListener("click", e => this.repeat(e));
+            document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.repeat(e));
             // Adjust label to Retry
-            document.querySelector("." + this.DOM.nextbuttonclass).textContent = "Retry";
+            document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Retry";
         }
         this.updateScores(this.DOM, this.score);
     }
