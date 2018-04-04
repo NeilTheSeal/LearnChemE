@@ -338,7 +338,6 @@ class CanvasController {
         // State variables
         this.interactable = true;
         this.drawing = false; /* True when not finished drawing */
-        this.dragging = false; /* holds object being moved */
         
         // Constants
         this.grabradius = GRABRADIUS;
@@ -405,6 +404,12 @@ class CanvasController {
                 this.draw(obj);
             }
         }
+        // Draw text
+        for (let obj of this.finished) {
+            if (obj instanceof Text) {
+                this.draw(obj);
+            }
+        }
     }
     dataToElement(type, data) {
         // Creates geometric class object from input data
@@ -442,15 +447,7 @@ class CanvasController {
             console.log(a);
             this.ctx.drawImage(this.img, 0, 0);
         }*/
-        function sync() {
-            console.log('THIS is', this);
-            this.ctx.drawImage(this.img, 0, 0);
-            
-        }
-        console.log('setting up sync');
-        this.img.onload = sync.call(this);
-        console.log('finished setting up sync');
-        //this.ctx.drawImage(this.img, 0, 0);
+        this.ctx.drawImage(this.img, 0, 0);
     }
     draw(element) {
         // Draws geometric elements to the canvas
@@ -604,6 +601,7 @@ class CanvasController {
                 if (inbounds) {
                     let cursorpt = new Point(pt.data);
                     let cursoralign = "";
+                    // Constants align box position around crosshair cursor nicely
                     if (cursorpt.rawx < this.canvas.width/2) {
                         cursoralign = "left";
                         cursorpt.rawx += 5;
@@ -617,8 +615,6 @@ class CanvasController {
                         cursorpt.rawy -= 5;
 
                     }
-                    // Draw cursor text
-                    // `${roundTo(cursorpt.x,this.cursordigits)}, ${roundTo(cursorpt.y,this.cursordigits)}`
                     
                     this.draw(new Text({"text":`${cursorpt.x.toFixed(this.cursordigits)}, ${cursorpt.y.toFixed(this.cursordigits)}`,
                                         "color":"black",
@@ -644,6 +640,7 @@ class CanvasController {
                         this.draw(this.held);
                     } else if (this.held instanceof Line) {
                         // Update location data
+                        // qwer
                         let rawdx = pt.rawx - this.grabpoint.rawx;
                         let caldx = pt.x - this.grabpoint.x;
                         let rawdy = pt.rawy - this.grabpoint.rawy;
@@ -1064,32 +1061,6 @@ class Question {
         container.insertAdjacentHTML("beforeend", html);
     }
     
-    insertSubmitButton(DOM) {
-        let container = document.querySelector("#" + DOM.nextdivid);
-        let html = `<button id="${DOM.submitbuttonid}">Submit Answers</button>`;
-        container.insertAdjacentHTML("beforeend", html);
-    }
-    
-    removeSubmitButton(DOM) {
-        let submit = document.querySelector("#" + DOM.submitbuttonid);
-        if (submit) {
-            submit.remove();
-        }
-    }
-    
-    insertNextButton(DOM) {
-        let container = document.querySelector("#" + DOM.nextdivid);
-        let html = `<button id="${DOM.nextbuttonid}">Next Part</button>`;
-        container.insertAdjacentHTML("beforeend", html);
-    }
-    
-    removeNextButton(DOM) {
-        let next = document.querySelector("#" + DOM.nextbuttonid);
-        if (next) {
-            next.remove();
-        }
-    }
-    
     insertCanvas(DOM, id, imgsrc) {
         let container = document.querySelector("." + DOM.elementdivclass);
         
@@ -1155,8 +1126,9 @@ class Question {
             }
         }
         //console.log(this.variablevalues);
-        this.removeNextButton(DOM);
-        this.insertSubmitButton(DOM);
+        //this.insertHintButton(DOM);
+        //this.removeNextButton(DOM);
+        //this.insertSubmitButton(DOM);
     }
     
     submit(DOM) {
@@ -1185,8 +1157,8 @@ class Question {
             }
             score.pct = score.got / score.max;
         }
-        this.removeSubmitButton(DOM);
-        this.insertNextButton(DOM);
+        //this.removeSubmitButton(DOM);
+        //this.insertNextButton(DOM);
         return score;
     }
 }
@@ -1230,6 +1202,7 @@ class ProblemController{
                 "textboxanswerclass": "textboxanswer",
                 "textboxanswerid": "textboxanswer--%id%",
             "textspanclass": "textspan",
+            "hintbuttonid": "hintbutton",
             "submitbuttonid": "submitbutton",
             "nextbuttonid": "nextbutton",
         "nextdivid": "next",
@@ -1237,6 +1210,8 @@ class ProblemController{
         "scoretitleid": "scoretitle",
         "restartdivid": "restart",
             "restartbuttonid": "restartbutton",
+        "hiddentextclass": "hiddentext",
+        "hiddenbuttonclass": "hiddenbutton"
         };
     }
     
@@ -1255,7 +1230,11 @@ class ProblemController{
                              "pct": 0};
         }
         
-        // Create restart button
+        // Create buttons
+        this.insertHintButton(this.DOM);
+        this.insertSubmitButton(this.DOM);
+        this.insertNextButton(this.DOM);
+        this.toggleNextButton(this.DOM);
         this.insertRestartButton(this.DOM);
         
         // Create variables
@@ -1321,12 +1300,38 @@ class ProblemController{
         this.questions.push(question)
     }
     
+    setFinish(finish) {
+        this.finishquestion = finish;
+        console.log('set finish to', this.finishquestion);
+    }
+    
     clearPage() {
         // Clear question objects from html
         let container = document.querySelector("#" + this.DOM.questiondivid);
         while (container.hasChildNodes()) {
             container.firstChild.remove();
         }
+    }
+    
+    insertHintButton(DOM) {
+        let container = document.querySelector("#" + DOM.nextdivid);
+        let html = `<button id="${DOM.hintbuttonid}">Hint</button>`;
+        container.insertAdjacentHTML("beforeend", html);
+        document.getElementById(this.DOM.hintbuttonid).addEventListener("click", e => this.showhint(e));
+    }
+    
+    insertSubmitButton(DOM) {
+        let container = document.querySelector("#" + DOM.nextdivid);
+        let html = `<button id="${DOM.submitbuttonid}">Submit Answers</button>`;
+        container.insertAdjacentHTML("beforeend", html);
+        document.getElementById(this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
+    }
+    
+    insertNextButton(DOM) {
+        let container = document.querySelector("#" + DOM.nextdivid);
+        let html = `<button id="${DOM.nextbuttonid}">Next Part</button>`;
+        container.insertAdjacentHTML("beforeend", html);
+        document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
     }
     
     insertRestartButton(DOM) {
@@ -1338,7 +1343,27 @@ class ProblemController{
         document.querySelector("#" + this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
     }
     
-    updateScores(DOM, score) {
+    enableHintButton(DOM) {
+        document.getElementById(DOM.hintbuttonid).disabled = false;
+    }
+    
+    disableHintButton(DOM) {
+        document.getElementById(DOM.hintbuttonid).disabled = true;
+    }
+    
+    toggleSubmitButton(DOM) {
+        document.getElementById(DOM.submitbuttonid).classList.toggle(DOM.hiddenbuttonclass);
+    }
+    
+    toggleNextButton(DOM) {
+        document.getElementById(DOM.nextbuttonid).classList.toggle(DOM.hiddenbuttonclass);
+    }
+    
+    toggleHintButton(DOM) {
+        document.getElementById(DOM.hintbuttonid).classList.toggle(DOM.hiddenbuttonclass);
+    }
+    
+    updateScores(DOM, score, show) {
         let container = document.querySelector("#" + DOM.scoredivid);
         
         // Clear score objects from html
@@ -1372,9 +1397,18 @@ class ProblemController{
             // Add current question objects to html
             this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
             // Add listening event to buttons
-            document.querySelector("#" + this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
+            //document.querySelector("#" + this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
         }
         this.updateScores(this.DOM, this.score);
+        document.getElementById(this.DOM.scoredivid).classList.remove("showscore");
+    }
+    
+    showhint() {
+        this.disableHintButton(this.DOM);
+        let elements = document.getElementsByClassName(this.DOM.hiddentextclass);
+        while (elements[0]) {
+            elements[0].classList.remove(this.DOM.hiddentextclass);
+        }
     }
     
     submit() {
@@ -1385,18 +1419,22 @@ class ProblemController{
         this.score[this.currentquestion] = this.questions[this.currentquestion].submit(this.DOM);
         if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
             // Add listening event to Next button
-            document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
+            //document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
             // Adjust label to Finish if on last question
             if (this.currentquestion == this.questions.length - 1) {
                 document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Finish";
             }
         } else {
             // Add listening event to Next button
-            document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.repeat(e));
+            //document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.repeat(e));
             // Adjust label to Retry
             document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Retry";
         }
+        this.toggleSubmitButton(this.DOM);
+        this.toggleNextButton(this.DOM);
+        this.showhint();
         this.updateScores(this.DOM, this.score);
+        document.getElementById(this.DOM.scoredivid).classList.add("showscore");
     }
     
     repeat() {
@@ -1407,6 +1445,9 @@ class ProblemController{
     
     next() {
         // End question, go to next
+        this.toggleSubmitButton(this.DOM);
+        this.toggleNextButton(this.DOM);
+        this.enableHintButton(this.DOM);
         if (this.currentquestion < this.questions.length - 1) {
             this.nextQuestion();
         } else {
@@ -1418,5 +1459,8 @@ class ProblemController{
         // End problem
         this.clearPage();
         this.updateScores(this.DOM, this.score);
+        document.getElementById(this.DOM.nextdivid).remove();
+        this.finishquestion.display(this.DOM, this.variablevalues);
+        document.getElementById(this.DOM.scoredivid).classList.add("showscore");
     }
 }

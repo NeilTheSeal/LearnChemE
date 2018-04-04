@@ -100,6 +100,10 @@ problemController.addQuestion(
                 },
                 "points": 10
             }),
+            new TextElement({
+                "label": "Hint: sum the saturation pressures",
+                "style": "hiddentext hint"
+            }),
             new TextboxElement({
                 "label": "Which region has two liquids in equilibrium and no vapor? ",
                 "placeholder": "type A or B",
@@ -107,6 +111,10 @@ problemController.addQuestion(
                 "answer": "A",
                 "tolerance": 0,
                 "points": 10
+            }),
+            new TextElement({
+                "label": "Hint: liquids are more stable at higher pressures",
+                "style": "hiddentext hint"
             }),
         ],
         "requiredscore": 0.00
@@ -163,6 +171,10 @@ problemController.addQuestion(
                 },
                 "points": 20
             }),
+            new TextElement({
+                "label": "Hint: pure component saturation pressures",
+                "style": "hiddentext hint"
+            }),
         ],
         "requiredscore": 0.00
     })
@@ -217,6 +229,10 @@ problemController.addQuestion(
                     "bounds": calibration,
                 },
                 "points": 10
+            }),
+            new TextElement({
+                "label": "Hint: each liquid exerts its saturation pressure",
+                "style": "hiddentext hint"
             }),
         ],
         "requiredscore": 0.00
@@ -277,6 +293,75 @@ problemController.addQuestion(
                                    {"x":"%x4%", "y":"%y4%", "movey":true},
                                    {"x":"%x5%", "y":"%y5%", "movey":true},
                                    {"x":"%x6%", "y":"%y6%", "movey":true},
+                                   {"x":"1", "y":"%Psat%x%%", "color":"orange"},
+                                   {"x":"1", "y":"%Psum%", "show":false}], "color":"black", "answer":true}
+                    ],
+                    "text": [
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
+                    ]
+                },
+                "cursor": {
+                    "digits": 1,
+                    "bounds": calibration,
+                },
+                "points": 60
+            }),
+            new TextElement({
+                "label": "Hint: the vapor mole fraction for component X is P<sub>sat,X</sub> / P",
+                "style": "hiddentext hint"
+            }),
+        ],
+        "requiredscore": 0.00
+    })
+);
+
+problemController.setFinish(
+    new Question({
+        "variables": {
+            "constants": {},
+            "random": { },
+            "calculated": { }
+        },
+        "questionelements": [
+            new GraphElement({
+                "imgsrc": "pressure_immicible.png",
+                "imgcal": calibration,
+                "mode": "move",
+                "answercount": {
+                    "point": 0,
+                    "line": 2
+                },
+                "answer": {
+                    "line":[{"points":[{"x":"0", "y":"%Psum%", "show":false},
+                                       {"x":"0", "y":"%PsatW%", "color":"blue"},
+                                       {"x":"%x1%", "y":"%y1%", "color":"green"},
+                                       {"x":"%x2%", "y":"%y2%", "color":"green"},
+                                       {"x":"%x3%", "y":"%y3%", "color":"green"},
+                                       {"x":"%xc%", "y":"%Psum%", "color":"green"}], "tolerance":pointtolerance, "color":"green"},
+                            {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
+                                       {"x":"%x4%", "y":"%y4%", "color":"green"},
+                                       {"x":"%x5%", "y":"%y5%", "color":"green"},
+                                       {"x":"%x6%", "y":"%y6%", "color":"green"},
+                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"},
+                                       {"x":"1", "y":"%Psum%", "show":false}], "tolerance":pointtolerance, "color":"green"}
+                            ]
+                },
+                "default": {
+                    "point": [],
+                    "line": [
+                        {"points":[{"x":0, "y":"%Psum%", "radius":1, "show":false},
+                                   {"x":1, "y":"%Psum%", "radius":1, "show":false}], "color":"black"},
+                        {"points":[{"x":"0", "y":"%Psum%", "show":false},
+                                   {"x":"0", "y":"%PsatW%", "color":"blue"},
+                                   {"x":"%x1%", "y":"%y1%"},
+                                   {"x":"%x2%", "y":"%y2%"},
+                                   {"x":"%x3%", "y":"%y3%"},
+                                   {"x":"%xc%", "y":"%Psum%", "color":"green"}], "color":"black", "answer":true},
+                        {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
+                                   {"x":"%x4%", "y":"%y4%"},
+                                   {"x":"%x5%", "y":"%y5%"},
+                                   {"x":"%x6%", "y":"%y6%"},
                                    {"x":"1", "y":"%Psat%x%%", "color":"orange"},
                                    {"x":"1", "y":"%Psum%", "show":false}], "color":"black", "answer":true}
                     ],
