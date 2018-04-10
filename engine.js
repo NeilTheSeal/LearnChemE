@@ -150,7 +150,6 @@ String.prototype.hashCode = function() {
     }
     return hash;
 }
-
 /*
 s = "105209964" + "101" + "10";
 console.log('hashing', s, s.hashCode());
@@ -159,6 +158,29 @@ console.log('hashing', s, s.hashCode());
 s = "105209964" + "101" + "30";
 console.log('hashing', s, s.hashCode());
 */
+
+
+/*
+    Returns true if x is between a and b (or equal to either)
+    @param {num} x Test number
+    @param {num} a First boundary
+    @param {num} b Second boundary
+*/
+function isBetween(x, a, b) {
+    return (a <= x && x <= b) || (a >= x && x >= b)
+}
+
+/*
+    Returns x if between a and b, otherwise whichever boundary is closer
+    @param {num} x Test number
+    @param {num} a First boundary
+    @param {num} b Second boundary
+*/
+function minMax(x, a, b) {
+    const min = Math.min(a, b);
+    const max = Math.max(a, b);
+    return Math.max(Math.min(x, max), min);
+}
 
 // ##### Canvas objects #####
 
@@ -189,12 +211,45 @@ class Point {
         for (let key of Object.keys(args)) {
             this[key] = args[key];
         }
-        // Conditional actions from values
-        if (args.cal != undefined) {
-            this.calibratemissing(args.cal);
+        // Fill missing values
+        this.generateCal();
+        this.generateRaw();
+    }
+    generateCal() {
+        if (this.rawx != undefined) {
+            if (this.graphinfo.xRawToCal != undefined) {
+                this.x = this.graphinfo.xRawToCal(this.rawx);
+            }
+            if (this.graphinfo.x2RawToCal != undefined) {
+                this.x2 = this.graphinfo.x2RawToCal(this.rawx);
+            }
+        }
+        if (this.rawy != undefined) {
+            if (this.graphinfo.yRawToCal != undefined) {
+                this.y = this.graphinfo.yRawToCal(this.rawy);
+            }
+            if (this.graphinfo.y2RawToCal != undefined) {
+                this.y2 = this.graphinfo.y2RawToCal(this.rawy);
+            }
+        }
+    }
+    generateRaw() {
+        if (this.x != undefined) {
+            this.rawx = this.graphinfo.xCalToRaw(this.x);
+        }
+        if (this.y != undefined) {
+            this.rawy = this.graphinfo.yCalToRaw(this.y);
+        }
+        if (this.x2 != undefined) {
+            this.rawx = this.graphinfo.x2CalToRaw(this.x2);
+        }
+        if (this.y2 != undefined) {
+            this.rawy = this.graphinfo.y2CalToRaw(this.y2);
         }
     }
     
+    
+    /*
     calibratemissing(cal) {
         if (this.rawx != undefined && this.rawy != undefined) {
             this.calibrate(cal);
@@ -212,6 +267,7 @@ class Point {
         this.rawx = (this.x - cal.pt1.x) / (cal.pt2.x - cal.pt1.x) * (cal.pt2.rawx - cal.pt1.rawx) + cal.pt1.rawx;
         this.rawy = (this.y - cal.pt1.y) / (cal.pt2.y - cal.pt1.y) * (cal.pt2.rawy - cal.pt1.rawy) + cal.pt1.rawy;
     }
+    */
     
     get data() {
         let r = {};
@@ -313,7 +369,7 @@ class GraphInfo {
         this.width = this.graphwidth + this.padding.left + this.padding.right;
         
         // Generate calibration values/functions
-        if (this.x) {
+        if (this.x != undefined) {
             this.scaleX = (this.graphwidth) / (this.x.max - this.x.min);
             this.xCalToRaw = function(xcal) {
                 return (xcal - this.x.min) * this.scaleX + this.padding.left;
@@ -322,7 +378,7 @@ class GraphInfo {
                 return (xraw - this.padding.left) / this.scaleX + this.x.min;
             }
         }
-        if (this.y) {
+        if (this.y != undefined) {
             this.scaleY = -(this.graphheight) / (this.y.max - this.y.min);
             this.yCalToRaw = function(ycal) {
                 return (ycal - this.y.max) * this.scaleY + this.padding.top;
@@ -331,7 +387,7 @@ class GraphInfo {
                 return (yraw - this.padding.top) / this.scaleY + this.y.max;
             }
         }
-        if (this.x2) {
+        if (this.x2 != undefined) {
             this.scaleX2 = (this.graphwidth) / (this.x2.max - this.x2.min);
             this.x2CalToRaw = function(xcal) {
                 return (xcal - this.x2.min) * this.scaleX2 + this.padding.left;
@@ -340,7 +396,7 @@ class GraphInfo {
                 return (xraw - this.padding.left) / this.scaleX2 + this.x2.min;
             }
         }
-        if (this.y2) {
+        if (this.y2 != undefined) {
             this.scaleY2 = -(this.graphheight) / (this.y2.max - this.y2.min);
             this.y2CalToRaw = function(ycal) {
                 return (ycal - this.y2.max) * this.scaleY2 + this.padding.top;
@@ -350,20 +406,29 @@ class GraphInfo {
             }
         }
     }
+    get calibration() {
+        calinfo = {};
+        for (let key of ["scaleX", "xCalToRaw", "xRawToCal",
+                         "scaleY", "yCalToRaw", "yRawToCal",
+                         "scaleX2", "x2CalToRaw", "x2RawToCal",
+                         "scaleY2", "y2CalToRaw", "y2RawToCal"]) {
+            if (this[key] != undefined) {
+                calinfo[key] = this[key];
+            }
+        }
+        return calinfo;
+    }
 }
 
 /*
     Text element for display through CanvasController
-    
+    @param {string} text Text to display
+    @param {string} font ex. "italic 20px Arial"
+    @param {string} align "left", "right", or "center"
+    @param {string} color Color of text
+    @param {Point} position Location on canvas
 */
 class Text {
-    /*
-        text        <str> Text to display
-        font        <str> ex. "italic 20px Arial"
-        align       <str> "left", "right", or "center"
-        color       <str> color of text
-        position    <Point> location on canvas (cal or raw)
-    */
     constructor(args) {
         // Default values
         this.text = "";
@@ -378,6 +443,7 @@ class Text {
         if (!(this.position instanceof Point)) {
             this.position = new Point(this.position);
         }
+        
     }
     
     get data() {
@@ -398,27 +464,13 @@ class CanvasController {
     constructor(DOM, index, args) {
         // Load arguments
         this.graphinfo = args.graphinfo;
-        this.img = new Image();
-        this.img.src = args.imgsrc;
-        this.imgcalibration = args.imgcal;
+        //this.img = new Image();
+        //this.img.src = args.imgsrc;
+        //this.imgcalibration = args.imgcal;
         /* Valid modes are "move", "point", "line", "calibrate" */
         this.mode = args.mode;
         if (args.cursor != undefined) {
-            if (args.cursor.show != undefined) {
-                this.showcursor = args.cursor.show;
-            } else {
-                this.showcursor = true;
-            }
-            if (this.showcursor) {
-                if (args.cursor.digits != undefined) {
-                    this.cursordigits = args.cursor.digits;
-                } else {
-                    this.cursordigits = 2;
-                }
-                if (args.cursor.bounds != undefined) {
-                    this.cursorbounds = args.cursor.bounds;
-                }
-            }
+            this.cursor = args.cursor;
         }
         
         // HTML element ids
@@ -527,14 +579,14 @@ class CanvasController {
     dataToElement(type, data) {
         // Creates geometric class object from input data
         // Append calibration data
-        data.cal = this.imgcalibration;
+        data.graphinfo = this.graphinfo;
         // Create appropriate object
         if (type === "point") {
             return new Point(data);
         } else if (type === "line") {
             let ptlist = [];
             for (let ptdata of data.points) {
-                ptdata.cal = this.imgcalibration;
+                ptdata.graphinfo = this.graphinfo;
                 let pt = new Point(ptdata);
                 ptlist.push(pt);
                 if (pt.show) {
@@ -544,7 +596,7 @@ class CanvasController {
             data.points = ptlist;
             return new Line(data);
         } else if (type === "text") {
-            data.position.cal = this.imgcalibration;
+            data.position.graphinfo = this.graphinfo;
             return new Text(data);
         }
     }
@@ -552,10 +604,9 @@ class CanvasController {
         // Returns a point object at the current location of the cursor
         return new Point({"rawx":e.pageX - this.dynamiccanvas.offsetParent.offsetLeft,
                           "rawy":e.pageY - this.dynamiccanvas.offsetParent.offsetTop,
-                          "cal":this.imgcalibration});
+                          "graphinfo":this.graphinfo});
     }
     drawGraph() {
-        console.log(this.graphinfo);
         // Constants
         const MajorAxisTickLength = 10;
         const MinorAxisTickLength = 5;
@@ -574,7 +625,7 @@ class CanvasController {
         this.staticctx.fillRect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
         this.staticctx.beginPath();
         // X axis
-        if (this.graphinfo.x) {
+        if (this.graphinfo.x != undefined) {
             // Draw gridlines
             this.staticctx.strokeStyle = GridColor;
             this.staticctx.lineWidth = GridThickness;
@@ -611,7 +662,7 @@ class CanvasController {
             this.staticctx.fillText(this.graphinfo.x.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.height - this.graphinfo.padding.bottom + 40);
         }
         // Y axis
-        if (this.graphinfo.y) {
+        if (this.graphinfo.y != undefined) {
             // Draw gridlines
             this.staticctx.strokeStyle = GridColor;
             this.staticctx.lineWidth = GridThickness;
@@ -653,7 +704,7 @@ class CanvasController {
             this.staticctx.restore();
         }
         // X2 axis
-        if (this.graphinfo.x2) {
+        if (this.graphinfo.x2 != undefined) {
             // Draw gridlines
             this.staticctx.strokeStyle = GridColor;
             this.staticctx.lineWidth = GridThickness;
@@ -691,7 +742,7 @@ class CanvasController {
             this.staticctx.fillText(this.graphinfo.x2.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.padding.top - 37);
         }
         // Y2 axis
-        if (this.graphinfo.y2) {
+        if (this.graphinfo.y2 != undefined) {
             // Draw gridlines
             this.staticctx.strokeStyle = GridColor;
             this.staticctx.lineWidth = GridThickness;
@@ -768,7 +819,8 @@ class CanvasController {
             if (element.correctanswer) {
                 this.dynamicctx.beginPath();
                 this.dynamicctx.strokeStyle = "green";
-                this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.imgcalibration.scalex, element.tolerance.y*this.imgcalibration.scaley, 0, 0, 2*Math.PI, false);
+                //this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.imgcalibration.scalex, element.tolerance.y*this.imgcalibration.scaley, 0, 0, 2*Math.PI, false);
+                this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.graphinfo.scaleX, element.tolerance.y*-this.graphinfo.scaleY, 0, 0, 2*Math.PI, false);
                 this.dynamicctx.stroke();
             }
         } else if (element instanceof Line) {
@@ -789,9 +841,9 @@ class CanvasController {
                 }
                 first = false;
             }
-            this.dynamicctx.fillStyle = "black";
-            this.dynamicctx.globalAlpha = 0.1;
-            this.dynamicctx.fill();
+            //this.dynamicctx.fillStyle = "black";
+            //this.dynamicctx.globalAlpha = 0.1;
+            //this.dynamicctx.fill();
         } else if (element instanceof Text) {
             this.dynamicctx.fillStyle = element.color;
             this.dynamicctx.globalAlpha = 1;
@@ -885,20 +937,11 @@ class CanvasController {
         if (this.interactable) {
             this.update();
             let pt = this.getMousePoint(e);
-            if (this.showcursor) {
-                let inbounds = true;
+            if (this.cursor != undefined) {
                 // Check if cursor is between bounding limits
-                // Will break if bounding line is not a positive slope
-                if (this.cursorbounds != undefined) {
-                    if (pt.x < this.cursorbounds.pt1.x ||
-                        pt.x > this.cursorbounds.pt2.x ||
-                        pt.y < this.cursorbounds.pt1.y ||
-                        pt.y > this.cursorbounds.pt2.y) {
-                        inbounds = false;
-                    }
-                }
-                // Cursor position is valid
-                if (inbounds) {
+                //console.log(pt.x, this.graphinfo.x.min, this.graphinfo.x.max, pt.y, this.graphinfo.y.min, this.graphinfo.y.max);
+                if (isBetween(pt.x, this.graphinfo.x.min, this.graphinfo.x.max) &&
+                    isBetween(pt.y, this.graphinfo.y.min, this.graphinfo.y.max)) {
                     let cursorpt = new Point(pt.data);
                     let cursoralign = "";
                     // Constants align box position around crosshair cursor nicely
@@ -916,7 +959,21 @@ class CanvasController {
 
                     }
                     
-                    this.draw(new Text({"text":`${cursorpt.x.toFixed(this.cursordigits)}, ${cursorpt.y.toFixed(this.cursordigits)}`,
+                    let content = this.cursor.format;
+                    if (this.graphinfo.x != undefined) {
+                        content = content.replace("%x%", cursorpt.x.toFixed(this.cursor.digits.x));
+                    }
+                    if (this.graphinfo.y != undefined) {
+                        content = content.replace("%y%", cursorpt.y.toFixed(this.cursor.digits.y));
+                    }
+                    if (this.graphinfo.x2 != undefined) {
+                        content = content.replace("%x2%", cursorpt.x2.toFixed(this.cursor.digits.x2));
+                    }
+                    if (this.graphinfo.y2 != undefined) {
+                        content = content.replace("%y2%", cursorpt.y2.toFixed(this.cursor.digits.y2));
+                    }
+                    
+                    this.draw(new Text({"text":content,
                                         "color":"black",
                                         "font":"bold 14px arial",
                                         "align":cursoralign,
@@ -929,36 +986,33 @@ class CanvasController {
                     if (this.held instanceof Point) {
                         // Copy current location data to point
                         if (this.held.movex) {
-                            this.held.rawx = pt.rawx;
-                            this.held.x = pt.x;
+                            this.held.rawx = minMax(pt.rawx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
                         }
                         if (this.held.movey) {
-                            this.held.rawy = pt.rawy;
-                            this.held.y = pt.y;
+                            this.held.rawy = minMax(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                         }
+                        // Calculated calibrated positions from new raw position
+                        this.held.generateCal();
                         // Show held point
                         this.draw(this.held);
                     } else if (this.held instanceof Line) {
                         // Update location data
-                        // qwer
                         let rawdx = pt.rawx - this.grabpoint.rawx;
                         let caldx = pt.x - this.grabpoint.x;
                         let rawdy = pt.rawy - this.grabpoint.rawy;
                         let caldy = pt.y - this.grabpoint.y;
                         for (let p of this.held.points) {
                             if (p.movex) {
-                                p.rawx = this.origins[p.ID].rawx + rawdx;
-                                p.x = this.origins[p.ID].x + caldx;
+                                p.rawx = minMax(this.origins[p.ID].rawx + rawdx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
                             }
                             if (p.movey) {
-                                p.rawy = this.origins[p.ID].rawy + rawdy;
-                                p.y = this.origins[p.ID].y + caldy;
+                                p.rawy = minMax(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                             }
+                            p.generateCal();
                             // Show points
                             if (p.show) {
                                 this.draw(p);
                             }
-                            
                         }
                         // Show held line
                         this.draw(this.held);
@@ -984,13 +1038,13 @@ class CanvasController {
                     if (this.held instanceof Point) {
                         // Copy current location data to point
                         if (this.held.movex) {
-                            this.held.rawx = pt.rawx;
-                            this.held.x = pt.x;
+                            this.held.rawx = minMax(pt.rawx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
                         }
                         if (this.held.movey) {
-                            this.held.rawy = pt.rawy;
-                            this.held.y = pt.y;
+                            this.held.rawy = minMax(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                         }
+                        // Calculated calibrated positions from new raw position
+                        this.held.generateCal();
                         // Add point to finished list
                         this.finished.push(this.held);
                     } else if (this.held instanceof Line) {
@@ -1000,13 +1054,13 @@ class CanvasController {
                         let caldy = pt.y - this.grabpoint.y;
                         for (let p of this.held.points) {
                             if (p.movex) {
-                                p.rawx = this.origins[p.ID].rawx + rawdx;
-                                p.x = this.origins[p.ID].x + caldx;
+                                p.rawx = minMax(this.origins[p.ID].rawx + rawdx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
                             }
                             if (p.movey) {
-                                p.rawy = this.origins[p.ID].rawy + rawdy;
-                                p.y = this.origins[p.ID].y + caldy;
+                                p.rawy = minMax(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                             }
+                            p.generateCal();
+                            // Show points
                             if (p.show) {
                                 this.finished.push(p);
                             }
@@ -1046,7 +1100,6 @@ class CanvasController {
         // Whenever the mouse is clicked on the canvas object
         if (this.interactable) {
             let pt = this.getMousePoint(e);
-            console.log("x", pt.rawx, roundTo(this.graphinfo.xRawToCal(pt.rawx),2), "   ", "y", pt.rawy, roundTo(this.graphinfo.yRawToCal(pt.rawy),2));
             if (this.mode === "move") {
                 let grabindex = -1;
                 let grabdist = 99999;
@@ -1482,38 +1535,43 @@ class ProblemController{
         
         // Set page title
         document.title = title;
+        document.querySelector("#" + this.DOM.titledivid).insertAdjacentHTML("beforeend", title);
         // Catch keyboard events
         document.addEventListener("keydown", e => this.keyEvent(e));
     }
     
     get getDOM() {
         return {
-        "questiondivid": "question",
-            "canvasdivclass": "canvasarea",
-                "canvasclass": "canvas",
-                "canvasid": "canvas--%id%",
-                "staticcanvasid": "canvas--static--%id%",
-                "dynamiccanvasid": "canvas--dynamic--%id%",
-                "canvasinfodivclass": "canvasinfo",
-                    "canvaspointclass": "canvaspoint",
-                    "canvaspointid": "canvaspoint--%id%",
-                    "canvasmodeclass": "canvasmode",
-                    "canvasmodeid": "canvasmode--%id%",
-            "textboxdivclass": "textentry",
-                "textboxspanclass": "textboxlabel",
-                "textboxclass": "textbox",
-                "textboxid": "textbox--%id%",
-                "textboxanswerclass": "textboxanswer",
-                "textboxanswerid": "textboxanswer--%id%",
-            "textspanclass": "textspan",
-            "hintbuttonid": "hintbutton",
-            "submitbuttonid": "submitbutton",
-            "nextbuttonid": "nextbutton",
-        "nextdivid": "next",
-        "scoredivid": "score",
-        "scoretitleid": "scoretitle",
-        "restartdivid": "restart",
-            "restartbuttonid": "restartbutton",
+        "headerdivid": "header",
+        "bodydivid": "body",
+            "titledivid": "title",
+            "questiondivid": "question",
+                "canvasdivclass": "canvasarea",
+                    "canvasclass": "canvas",
+                    "canvasid": "canvas--%id%",
+                    "staticcanvasid": "canvas--static--%id%",
+                    "dynamiccanvasid": "canvas--dynamic--%id%",
+                    "canvasinfodivclass": "canvasinfo",
+                        "canvaspointclass": "canvaspoint",
+                        "canvaspointid": "canvaspoint--%id%",
+                        "canvasmodeclass": "canvasmode",
+                        "canvasmodeid": "canvasmode--%id%",
+                "textboxdivclass": "textentry",
+                    "textboxspanclass": "textboxlabel",
+                    "textboxclass": "textbox",
+                    "textboxid": "textbox--%id%",
+                    "textboxanswerclass": "textboxanswer",
+                    "textboxanswerid": "textboxanswer--%id%",
+                "textspanclass": "textspan",
+            "nextdivid": "next",
+                "hintbuttonid": "hintbutton",
+                "submitbuttonid": "submitbutton",
+                "nextbuttonid": "nextbutton",
+            "scoredivid": "score",
+                "scoretitleid": "scoretitle",
+            "restartdivid": "restart",
+                "restartbuttonid": "restartbutton",
+        "footerdivid": "footer",
         "hiddentextclass": "hiddentext",
         "hiddenbuttonclass": "hiddenbutton"
         };

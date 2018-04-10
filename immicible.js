@@ -1,6 +1,6 @@
 // Create new problem
 let problemController = new ProblemController(
-    "Immicible liquids",
+    "Construct a Pressure-Composition Diagram for Immiscible Liquids",
     {
         "constants": {
             "Aw": 5.0768,
@@ -25,13 +25,13 @@ let problemController = new ProblemController(
                          "digits": 0}
         },
         "calculated": {
-            "x": "['B', 'B', 'B'][%compound%]",
+            "org": "['B', 'B', 'B'][%compound%]",
             "PsatW": "roundTo(Math.pow(10,%Aw% - %Bw% / (%T% + %Cw%)),1)",
             "PsatB": "roundTo(Math.pow(10,%Ab% - %Bb% / (%T% + %Cb%)),1)",
             "PsatT": "roundTo(Math.pow(10,%At% - %Bt% / (%T% + %Ct%)),1)",
             "PsatH": "roundTo(Math.pow(10,%Ah% - %Bh% / (%T% + %Ch%)),1)",
-            "Psum": "%PsatW% + %Psat%x%%",
-            "xc": "%Psat%x%% / %Psum%",
+            "Psum": "%PsatW% + %Psat%org%%",
+            "xc": "%Psat%org%% / %Psum%",
             "x1": "%xc% / 2",
             "x2": "%xc% * 4/6",
             "x3": "%xc% * 5/6",
@@ -41,14 +41,14 @@ let problemController = new ProblemController(
             "y1": "%PsatW% / (1 - %x1%)",
             "y2": "%PsatW% / (1 - %x2%)",
             "y3": "%PsatW% / (1 - %x3%)",
-            "y4": "%Psat%x%% / %x4%",
-            "y5": "%Psat%x%% / %x5%",
-            "y6": "%Psat%x%% / %x6%",
+            "y4": "%Psat%org%% / %x4%",
+            "y5": "%Psat%org%% / %x5%",
+            "y6": "%Psat%org%% / %x6%",
         }
     }
 );
 
-const datalabel = "temperature = %T% C <br> saturation pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%x%</sub> = %Psat%x%% bar";
+const datalabel = "temperature = %T% C <br> saturation pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%org%</sub> = %Psat%org%% bar";
 
 const watercolor = "blue";
 const organiccolor = "orange";
@@ -89,8 +89,6 @@ let graphinfo = new GraphInfo({
     },
 });
 
-let calibration = new Calibration({"pt1":new Point({"rawx":38, "rawy":312, "x":0, "y":0}), "pt2":new Point({"rawx":574, "rawy":34, "x":1, "y":6})});
-
 let pointtolerance = {"x":0.025, "y":0.2};
 
 problemController.addQuestion(
@@ -111,8 +109,6 @@ problemController.addQuestion(
             }),
             new GraphElement({
                 "graphinfo": graphinfo,
-                "imgsrc": "pressure_immicible.png",
-                "imgcal": calibration,
                 "mode": "move",
                 "answercount": {
                     "point": 0,
@@ -130,13 +126,14 @@ problemController.addQuestion(
                                    {"x":1, "y":4, "movey":true, "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"region A", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
-                        {"text":"region B", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
+                        {"text":"region A", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
+                        {"text":"region B", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
-                    "digits": 1,
-                    "bounds": calibration,
+                    "format": "%x%, %y%",
+                    "digits": {"x": 1,
+                               "y": 1}
                 },
                 "points": 10
             }),
@@ -178,8 +175,7 @@ problemController.addQuestion(
                 "style": "data"
             }),
             new GraphElement({
-                "imgsrc": "pressure_immicible.png",
-                "imgcal": calibration,
+                "graphinfo": graphinfo,
                 "mode": "move",
                 "answercount": {
                     "point": 2,
@@ -188,7 +184,7 @@ problemController.addQuestion(
                 "answer": {
                     "point": [
                         {"x":"0", "y":"%PsatW%", "tolerance":pointtolerance, "color":watercolor},
-                        {"x":"1", "y":"%Psat%x%%", "tolerance":pointtolerance, "color":organiccolor}
+                        {"x":"1", "y":"%Psat%org%%", "tolerance":pointtolerance, "color":organiccolor}
                     ]
                 },
                 "default": {
@@ -201,13 +197,14 @@ problemController.addQuestion(
                                    {"x":1, "y":"%Psum%", "show":false}], "color":graycolor},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
-                    "digits": 1,
-                    "bounds": calibration,
+                    "format": "%x%, %y%",
+                    "digits": {"x": 1,
+                               "y": 1}
                 },
                 "points": 20
             }),
@@ -237,8 +234,7 @@ problemController.addQuestion(
                 "style": "data"
             }),
             new GraphElement({
-                "imgsrc": "pressure_immicible.png",
-                "imgcal": calibration,
+                "graphinfo": graphinfo,
                 "mode": "move",
                 "answercount": {
                     "point": 1,
@@ -252,7 +248,7 @@ problemController.addQuestion(
                 "default": {
                     "point": [
                         {"x":"0", "y":"%PsatW%", "color":watercolor},
-                        {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                        {"x":"1", "y":"%Psat%org%%", "color":organiccolor},
                         {"x":0.5, "y":4, "color":triplecolor, "movex":true, "movey":true, "answer":true}
                     ],
                     "line": [
@@ -260,13 +256,14 @@ problemController.addQuestion(
                                    {"x":1, "y":"%Psum%", "show":false}], "color":graycolor},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
-                    "digits": 1,
-                    "bounds": calibration,
+                    "format": "%x%, %y%",
+                    "digits": {"x": 1,
+                               "y": 1}
                 },
                 "points": 10
             }),
@@ -296,8 +293,7 @@ problemController.addQuestion(
                 "style": "data"
             }),
             new GraphElement({
-                "imgsrc": "pressure_immicible.png",
-                "imgcal": calibration,
+                "graphinfo": graphinfo,
                 "mode": "move",
                 "answercount": {
                     "point": 0,
@@ -314,7 +310,7 @@ problemController.addQuestion(
                                        {"x":"%x4%", "y":"%y4%"},
                                        {"x":"%x5%", "y":"%y5%"},
                                        {"x":"%x6%", "y":"%y6%"},
-                                       {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                                       {"x":"1", "y":"%Psat%org%%", "color":organiccolor},
                                        {"x":"1", "y":"%Psum%", "show":false}], "tolerance":pointtolerance, "color":answercolor}
                             ]
                 },
@@ -330,20 +326,21 @@ problemController.addQuestion(
                                    {"x":"%x3%", "y":"%PsatW%", "movey":true},
                                    {"x":"%xc%", "y":"%Psum%", "color":"green"}], "color":graycolor, "answer":true},
                         {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
-                                   {"x":"%x4%", "y":"%Psat%x%%", "movey":true},
-                                   {"x":"%x5%", "y":"%Psat%x%%", "movey":true},
-                                   {"x":"%x6%", "y":"%Psat%x%%", "movey":true},
-                                   {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                                   {"x":"%x4%", "y":"%Psat%org%%", "movey":true},
+                                   {"x":"%x5%", "y":"%Psat%org%%", "movey":true},
+                                   {"x":"%x6%", "y":"%Psat%org%%", "movey":true},
+                                   {"x":"1", "y":"%Psat%org%%", "color":organiccolor},
                                    {"x":"1", "y":"%Psum%", "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
-                    "digits": 2,
-                    "bounds": calibration,
+                    "format": "%x%, %y%",
+                    "digits": {"x": 2,
+                               "y": 2}
                 },
                 "points": 20
             }),
@@ -365,8 +362,7 @@ problemController.setFinish(
         },
         "questionelements": [
             new GraphElement({
-                "imgsrc": "pressure_immicible.png",
-                "imgcal": calibration,
+                "graphinfo": graphinfo,
                 "mode": "move",
                 "answercount": {
                     "point": 0,
@@ -383,7 +379,7 @@ problemController.setFinish(
                                        {"x":"%x4%", "y":"%y4%", "color":"green"},
                                        {"x":"%x5%", "y":"%y5%", "color":"green"},
                                        {"x":"%x6%", "y":"%y6%", "color":"green"},
-                                       {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                                       {"x":"1", "y":"%Psat%org%%", "color":organiccolor},
                                        {"x":"1", "y":"%Psum%", "show":false}], "tolerance":pointtolerance, "color":"green"}
                             ]
                 },
@@ -402,17 +398,18 @@ problemController.setFinish(
                                    {"x":"%x4%", "y":"%y4%"},
                                    {"x":"%x5%", "y":"%y5%"},
                                    {"x":"%x6%", "y":"%y6%"},
-                                   {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                                   {"x":"1", "y":"%Psat%org%%", "color":organiccolor},
                                    {"x":"1", "y":"%Psum%", "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
-                    "digits": 1,
-                    "bounds": calibration,
+                    "format": "%x%, %y%",
+                    "digits": {"x": 2,
+                               "y": 2}
                 },
                 "points": 60
             }),
