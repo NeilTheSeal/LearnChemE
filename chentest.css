@@ -17,7 +17,7 @@ body {
     margin: 0;
     border: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
     font-family: sans-serif;
 }
 
@@ -45,7 +45,7 @@ body {
     bottom: 0;
     width: 100%;
     height: 60px;
-    font-size: 24px;
+    font-size: 12px;
 }
 
 #question {
@@ -210,6 +210,14 @@ button:hover {
 }
 
 /* ########## Canvas ########## */
+
+.canvasarea {
+    position: relative;
+}
+
+.canvasarea canvas {
+    position: absolute;
+}
 
 .canvas {
     cursor: crosshair;

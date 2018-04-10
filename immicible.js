@@ -50,6 +50,45 @@ let problemController = new ProblemController(
 
 const datalabel = "temperature = %T% C <br> saturation pressures: P<sub>sat,W</sub> = %PsatW% bar, P<sub>sat,%x%</sub> = %Psat%x%% bar";
 
+const watercolor = "blue";
+const organiccolor = "orange";
+const triplecolor = "green";
+const textcolor = "black";
+const graycolor = "#999999";
+const answercolor = "green";
+
+let graphinfo = new GraphInfo({
+    "graphheight": 400,
+    "graphwidth": 600,
+    "padding": {"left":60, "bottom":60, "top":60, "right":30},
+    "graphbackground": "white",
+    "axesbackground": "lightgray",
+    "x": {
+        "label": "organic mole fraction (xB)",
+        "min": 0,
+        "max": 1,
+        "majortick": 0.1,
+        "minortick": 0.05,
+        "gridline": 0.05,
+    },
+    "y": {
+        "label": "pressure [bar]",
+        "min": 0,
+        "max": 6,
+        "majortick": 1,
+        "minortick": 0.2,
+        "gridline": 0.5,
+    },
+    "x2": {
+        "label": "water mole fraction (xW)",
+        "min": 1,
+        "max": 0,
+        "majortick": 0.1,
+        "minortick": 0.05,
+        "gridline": 0.05,
+    },
+});
+
 let calibration = new Calibration({"pt1":new Point({"rawx":38, "rawy":312, "x":0, "y":0}), "pt2":new Point({"rawx":574, "rawy":34, "x":1, "y":6})});
 
 let pointtolerance = {"x":0.025, "y":0.2};
@@ -71,6 +110,7 @@ problemController.addQuestion(
                 "style": "data"
             }),
             new GraphElement({
+                "graphinfo": graphinfo,
                 "imgsrc": "pressure_immicible.png",
                 "imgcal": calibration,
                 "mode": "move",
@@ -81,17 +121,17 @@ problemController.addQuestion(
                 "answer": {
                     "line": [
                         {"points":[{"x":"0", "y":"%Psum%"},
-                                   {"x":"1", "y":"%Psum%"}], "tolerance":pointtolerance, "color":"green"}
+                                   {"x":"1", "y":"%Psum%"}], "tolerance":pointtolerance, "color":answercolor}
                     ]
                 },
                 "default": {
                     "line": [
                         {"points":[{"x":0, "y":4, "movey":true, "show":false},
-                                   {"x":1, "y":4, "movey":true, "show":false}], "color":"black", "answer":true}
+                                   {"x":1, "y":4, "movey":true, "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"region A", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
-                        {"text":"region B", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
+                        {"text":"region A", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
+                        {"text":"region B", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
@@ -147,22 +187,22 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"x":"0", "y":"%PsatW%", "tolerance":pointtolerance, "color":"blue"},
-                        {"x":"1", "y":"%Psat%x%%", "tolerance":pointtolerance, "color":"orange"}
+                        {"x":"0", "y":"%PsatW%", "tolerance":pointtolerance, "color":watercolor},
+                        {"x":"1", "y":"%Psat%x%%", "tolerance":pointtolerance, "color":organiccolor}
                     ]
                 },
                 "default": {
                     "point": [
-                        {"x":0.3, "y":4, "movex":true, "movey":true, "color":"blue", "answer":true},
-                        {"x":0.7, "y":4, "movex":true, "movey":true, "color":"orange", "answer":true}
+                        {"x":0.3, "y":4, "movex":true, "movey":true, "color":watercolor, "answer":true},
+                        {"x":0.7, "y":4, "movex":true, "movey":true, "color":organiccolor, "answer":true}
                     ],
                     "line": [
                         {"points":[{"x":0, "y":"%Psum%", "show":false},
-                                   {"x":1, "y":"%Psum%", "show":false}], "color":"black"},
+                                   {"x":1, "y":"%Psum%", "show":false}], "color":graycolor},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
@@ -206,22 +246,22 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "point": [
-                        {"x":"%xc%", "y":"%Psum%", "tolerance":pointtolerance, "color":"green"}
+                        {"x":"%xc%", "y":"%Psum%", "tolerance":pointtolerance, "color":triplecolor}
                     ]
                 },
                 "default": {
                     "point": [
-                        {"x":"0", "y":"%PsatW%", "color":"blue"},
-                        {"x":"1", "y":"%Psat%x%%", "color":"orange"},
-                        {"x":0.5, "y":4, "color":"green", "movex":true, "movey":true, "answer":true}
+                        {"x":"0", "y":"%PsatW%", "color":watercolor},
+                        {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                        {"x":0.5, "y":4, "color":triplecolor, "movex":true, "movey":true, "answer":true}
                     ],
                     "line": [
                         {"points":[{"x":0, "y":"%Psum%", "show":false},
-                                   {"x":1, "y":"%Psum%", "show":false}], "color":"black"},
+                                   {"x":1, "y":"%Psum%", "show":false}], "color":graycolor},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
@@ -265,47 +305,47 @@ problemController.addQuestion(
                 },
                 "answer": {
                     "line":[{"points":[{"x":"0", "y":"%Psum%", "show":false},
-                                       {"x":"0", "y":"%PsatW%", "color":"blue"},
-                                       {"x":"%x1%", "y":"%y1%", "color":"green"},
-                                       {"x":"%x2%", "y":"%y2%", "color":"green"},
-                                       {"x":"%x3%", "y":"%y3%", "color":"green"},
-                                       {"x":"%xc%", "y":"%Psum%", "color":"green"}], "tolerance":pointtolerance, "color":"green"},
+                                       {"x":"0", "y":"%PsatW%", "color":watercolor},
+                                       {"x":"%x1%", "y":"%y1%"},
+                                       {"x":"%x2%", "y":"%y2%"},
+                                       {"x":"%x3%", "y":"%y3%"},
+                                       {"x":"%xc%", "y":"%Psum%"}], "tolerance":pointtolerance, "color":answercolor},
                             {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
-                                       {"x":"%x4%", "y":"%y4%", "color":"green"},
-                                       {"x":"%x5%", "y":"%y5%", "color":"green"},
-                                       {"x":"%x6%", "y":"%y6%", "color":"green"},
-                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"},
-                                       {"x":"1", "y":"%Psum%", "show":false}], "tolerance":pointtolerance, "color":"green"}
+                                       {"x":"%x4%", "y":"%y4%"},
+                                       {"x":"%x5%", "y":"%y5%"},
+                                       {"x":"%x6%", "y":"%y6%"},
+                                       {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                                       {"x":"1", "y":"%Psum%", "show":false}], "tolerance":pointtolerance, "color":answercolor}
                             ]
                 },
                 "default": {
                     "point": [],
                     "line": [
                         {"points":[{"x":0, "y":"%Psum%", "radius":1, "show":false},
-                                   {"x":1, "y":"%Psum%", "radius":1, "show":false}], "color":"black"},
+                                   {"x":1, "y":"%Psum%", "radius":1, "show":false}], "color":graycolor},
                         {"points":[{"x":"0", "y":"%Psum%", "show":false},
-                                   {"x":"0", "y":"%PsatW%", "color":"blue"},
-                                   {"x":"%x1%", "y":"%y1%", "movey":true},
-                                   {"x":"%x2%", "y":"%y2%", "movey":true},
-                                   {"x":"%x3%", "y":"%y3%", "movey":true},
-                                   {"x":"%xc%", "y":"%Psum%", "color":"green"}], "color":"black", "answer":true},
+                                   {"x":"0", "y":"%PsatW%", "color":watercolor},
+                                   {"x":"%x1%", "y":"%PsatW%", "movey":true},
+                                   {"x":"%x2%", "y":"%PsatW%", "movey":true},
+                                   {"x":"%x3%", "y":"%PsatW%", "movey":true},
+                                   {"x":"%xc%", "y":"%Psum%", "color":"green"}], "color":graycolor, "answer":true},
                         {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
-                                   {"x":"%x4%", "y":"%y4%", "movey":true},
-                                   {"x":"%x5%", "y":"%y5%", "movey":true},
-                                   {"x":"%x6%", "y":"%y6%", "movey":true},
-                                   {"x":"1", "y":"%Psat%x%%", "color":"orange"},
-                                   {"x":"1", "y":"%Psum%", "show":false}], "color":"black", "answer":true}
+                                   {"x":"%x4%", "y":"%Psat%x%%", "movey":true},
+                                   {"x":"%x5%", "y":"%Psat%x%%", "movey":true},
+                                   {"x":"%x6%", "y":"%Psat%x%%", "movey":true},
+                                   {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                                   {"x":"1", "y":"%Psum%", "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
-                    "digits": 1,
+                    "digits": 2,
                     "bounds": calibration,
                 },
-                "points": 60
+                "points": 20
             }),
             new TextElement({
                 "label": "Hint: the vapor mole fraction for component X is P<sub>sat,X</sub> / P",
@@ -334,7 +374,7 @@ problemController.setFinish(
                 },
                 "answer": {
                     "line":[{"points":[{"x":"0", "y":"%Psum%", "show":false},
-                                       {"x":"0", "y":"%PsatW%", "color":"blue"},
+                                       {"x":"0", "y":"%PsatW%", "color":watercolor},
                                        {"x":"%x1%", "y":"%y1%", "color":"green"},
                                        {"x":"%x2%", "y":"%y2%", "color":"green"},
                                        {"x":"%x3%", "y":"%y3%", "color":"green"},
@@ -343,7 +383,7 @@ problemController.setFinish(
                                        {"x":"%x4%", "y":"%y4%", "color":"green"},
                                        {"x":"%x5%", "y":"%y5%", "color":"green"},
                                        {"x":"%x6%", "y":"%y6%", "color":"green"},
-                                       {"x":"1", "y":"%Psat%x%%", "color":"orange"},
+                                       {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
                                        {"x":"1", "y":"%Psum%", "show":false}], "tolerance":pointtolerance, "color":"green"}
                             ]
                 },
@@ -351,23 +391,23 @@ problemController.setFinish(
                     "point": [],
                     "line": [
                         {"points":[{"x":0, "y":"%Psum%", "radius":1, "show":false},
-                                   {"x":1, "y":"%Psum%", "radius":1, "show":false}], "color":"black"},
+                                   {"x":1, "y":"%Psum%", "radius":1, "show":false}], "color":graycolor},
                         {"points":[{"x":"0", "y":"%Psum%", "show":false},
-                                   {"x":"0", "y":"%PsatW%", "color":"blue"},
+                                   {"x":"0", "y":"%PsatW%", "color":watercolor},
                                    {"x":"%x1%", "y":"%y1%"},
                                    {"x":"%x2%", "y":"%y2%"},
                                    {"x":"%x3%", "y":"%y3%"},
-                                   {"x":"%xc%", "y":"%Psum%", "color":"green"}], "color":"black", "answer":true},
+                                   {"x":"%xc%", "y":"%Psum%", "color":"green"}], "color":graycolor, "answer":true},
                         {"points":[{"x":"%xc%", "y":"%Psum%", "color":"green"},
                                    {"x":"%x4%", "y":"%y4%"},
                                    {"x":"%x5%", "y":"%y5%"},
                                    {"x":"%x6%", "y":"%y6%"},
-                                   {"x":"1", "y":"%Psat%x%%", "color":"orange"},
-                                   {"x":"1", "y":"%Psum%", "show":false}], "color":"black", "answer":true}
+                                   {"x":"1", "y":"%Psat%x%%", "color":organiccolor},
+                                   {"x":"1", "y":"%Psum%", "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":"black"},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":"black"}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 6}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": 0.25}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {

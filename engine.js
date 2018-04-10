@@ -18,6 +18,9 @@ GraphElement
     add region element (defined by lines?)
     
     graph/axis making page
+    
+    remove Calibration requirement (fit to generated graph)
+    
 */
 
 // ##### Constants (default values) #####
@@ -132,6 +135,30 @@ function recursiveNumberfy(obj) {
     return obj;
 }
 
+/*
+    Generate hash from string
+*/
+String.prototype.hashCode = function() {
+    var hash = 0;
+    if (this.length == 0) {
+        return hash;
+    }
+    for (var i = 0; i < this.length; i++) {
+        var char = this.charCodeAt(i);
+        hash = ((hash<<5)-hash)+char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+/*
+s = "105209964" + "101" + "10";
+console.log('hashing', s, s.hashCode());
+s = "105209964" + "101" + "20";
+console.log('hashing', s, s.hashCode());
+s = "105209964" + "101" + "30";
+console.log('hashing', s, s.hashCode());
+*/
 
 // ##### Canvas objects #####
 
@@ -255,6 +282,80 @@ class Calibration {
     }
 }
 
+/*
+    Container class for graph/calibration data
+    @param {int} graphheight Height (in px) of the vertical (y) axes
+    @param {int} graphwidth Width (in px) of the horizontal (x) axes
+    @param {string} graphbackground Color of the area within the axes
+    @param {string} axesbackground Color of the area around the graph
+    @param {dict} padding Container for padding size around the plot
+        @param {int} top Height (in px) of the region above the plot
+        @param {int} left Width (in px) of the region to the left of the plot
+        @param {int} bottom Height (in px) of the region below the plot
+        @param {int} right Width (in px) of the region to the right of the plot
+    @param {dict} x Container for information about the primary x axis
+        @param {string} label Text to label the axis
+        @param {float} min Left/bottom value on the axis
+        @param {float} max Right/top value on the axis
+        @param {float} majortick Increment to draw major tick marks on the axis
+        @param {float} minortick Increment to draw minor tick marks on the axis
+        @param {float} gridline Increent to draw gridlines across the plot
+    @param {dict} y Container for information about the primary y axis (same arguments as x)
+    @param {dict} x2 Container for information about the secondary x axis (same arguments as x)
+    @param {dict} y2 Container for information about the secondary y axis (same arguments as x)
+*/
+class GraphInfo {
+    constructor(args) {
+        for (let key of Object.keys(args)) {
+            this[key] = args[key];
+        }
+        this.height = this.graphheight + this.padding.bottom + this.padding.top;
+        this.width = this.graphwidth + this.padding.left + this.padding.right;
+        
+        // Generate calibration values/functions
+        if (this.x) {
+            this.scaleX = (this.graphwidth) / (this.x.max - this.x.min);
+            this.xCalToRaw = function(xcal) {
+                return (xcal - this.x.min) * this.scaleX + this.padding.left;
+            }
+            this.xRawToCal = function(xraw) {
+                return (xraw - this.padding.left) / this.scaleX + this.x.min;
+            }
+        }
+        if (this.y) {
+            this.scaleY = -(this.graphheight) / (this.y.max - this.y.min);
+            this.yCalToRaw = function(ycal) {
+                return (ycal - this.y.max) * this.scaleY + this.padding.top;
+            }
+            this.yRawToCal = function(yraw) {
+                return (yraw - this.padding.top) / this.scaleY + this.y.max;
+            }
+        }
+        if (this.x2) {
+            this.scaleX2 = (this.graphwidth) / (this.x2.max - this.x2.min);
+            this.x2CalToRaw = function(xcal) {
+                return (xcal - this.x2.min) * this.scaleX2 + this.padding.left;
+            }
+            this.x2RawToCal = function(xraw) {
+                return (xraw - this.padding.left) / this.scaleX2 + this.x2.min;
+            }
+        }
+        if (this.y2) {
+            this.scaleY2 = -(this.graphheight) / (this.y2.max - this.y2.min);
+            this.y2CalToRaw = function(ycal) {
+                return (ycal - this.y2.max) * this.scaleY2 + this.padding.top;
+            }
+            this.y2RawToCal = function(yraw) {
+                return (yraw - this.padding.top) / this.scaleY2 + this.y2.max;
+            }
+        }
+    }
+}
+
+/*
+    Text element for display through CanvasController
+    
+*/
 class Text {
     /*
         text        <str> Text to display
@@ -296,6 +397,7 @@ class CanvasController {
     */
     constructor(DOM, index, args) {
         // Load arguments
+        this.graphinfo = args.graphinfo;
         this.img = new Image();
         this.img.src = args.imgsrc;
         this.imgcalibration = args.imgcal;
@@ -321,19 +423,30 @@ class CanvasController {
         
         // HTML element ids
         this.index = index;
-        this.canvasid = DOM.canvasid.replace(/%id%/g, index);
+        this.staticcanvasid = DOM.staticcanvasid.replace(/%id%/g, index);
+        this.dynamiccanvasid = DOM.dynamiccanvasid.replace(/%id%/g, index);
         this.pointinfoid = DOM.canvaspointid.replace(/%id%/g, index);
         this.modeinfoid = DOM.canvasmodeid.replace(/%id%/g, index);
         
         // DOM elements
-        this.canvas = document.getElementById(this.canvasid);
+        this.staticcanvas = document.getElementById(this.staticcanvasid);
+        this.dynamiccanvas = document.getElementById(this.dynamiccanvasid);
         this.pointspan = document.getElementById(this.pointinfoid);
         this.modespan = document.getElementById(this.modeinfoid);
         
         // Canvas objects
-        this.canvas.width = this.img.width;
-        this.canvas.height = this.img.height;
-        this.ctx = this.canvas.getContext('2d');
+        this.height = this.graphinfo.height;
+        this.width = this.graphinfo.width;
+        document.querySelector("."+DOM.canvasdivclass).style.height = this.height + "px";
+        this.staticcanvas.width = this.width;
+        this.staticcanvas.height = this.height;
+        this.dynamiccanvas.width = this.width;
+        this.dynamiccanvas.height = this.height;
+        this.staticctx = this.staticcanvas.getContext('2d');
+        this.dynamicctx = this.dynamiccanvas.getContext('2d');
+        
+        // Draw graph
+        this.drawGraph();
         
         // State variables
         this.interactable = true;
@@ -360,9 +473,9 @@ class CanvasController {
         }
         
         // Setup mouse events
-        this.canvas.addEventListener("mousemove", e => this.mouseMove(e));
-        this.canvas.addEventListener("mousedown", e => this.mouseDown(e));
-        this.canvas.addEventListener("mouseup", e => this.mouseUp(e));
+        this.dynamiccanvas.addEventListener("mousemove", e => this.mouseMove(e));
+        this.dynamiccanvas.addEventListener("mousedown", e => this.mouseDown(e));
+        this.dynamiccanvas.addEventListener("mouseup", e => this.mouseUp(e));
         
         // Calibration setup
         if (this.mode === "calibrate") {
@@ -383,7 +496,7 @@ class CanvasController {
     clear() {
         // Clears the canvas
         //this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-        this.canvas.width = this.canvas.width; // Hacky workaround
+        this.dynamiccanvas.width = this.dynamiccanvas.width; // Hacky workaround
     }
     update() {
         // Updates the canvas to the current state
@@ -391,7 +504,7 @@ class CanvasController {
         // Trim objects over limits
         this.trimLists();
         // Draw background image
-        this.drawImage();
+        //this.drawImage();
         // Draw lines
         for (let obj of this.finished) {
             if (obj instanceof Line) {
@@ -437,9 +550,196 @@ class CanvasController {
     }
     getMousePoint(e) {
         // Returns a point object at the current location of the cursor
-        return new Point({"rawx":e.pageX - this.canvas.offsetLeft,
-                          "rawy":e.pageY - this.canvas.offsetTop,
+        return new Point({"rawx":e.pageX - this.dynamiccanvas.offsetParent.offsetLeft,
+                          "rawy":e.pageY - this.dynamiccanvas.offsetParent.offsetTop,
                           "cal":this.imgcalibration});
+    }
+    drawGraph() {
+        console.log(this.graphinfo);
+        // Constants
+        const MajorAxisTickLength = 10;
+        const MinorAxisTickLength = 5;
+        const GridColor = "lightgray";
+        const GridThickness = 1;
+        const TickColor = "gray";
+        const TickThickness = 1;
+        const TextColor = "black";
+        const TextFont = "20px sans-serif";
+        // Border region
+        this.staticctx.beginPath();
+        this.staticctx.fillStyle = this.graphinfo.axesbackground;
+        this.staticctx.fillRect(0, 0, this.graphinfo.width, this.graphinfo.height);
+        // Graph region
+        this.staticctx.fillStyle = this.graphinfo.graphbackground;
+        this.staticctx.fillRect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
+        this.staticctx.beginPath();
+        // X axis
+        if (this.graphinfo.x) {
+            // Draw gridlines
+            this.staticctx.strokeStyle = GridColor;
+            this.staticctx.lineWidth = GridThickness;
+            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x.gridline * this.graphinfo.scaleX)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
+                this.staticctx.lineTo(x, this.graphinfo.padding.top);
+                this.staticctx.stroke();
+            }
+            // Draw minor ticks
+            this.staticctx.strokeStyle = TickColor;
+            this.staticctx.lineWidth = TickThickness;
+            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x.minortick * this.graphinfo.scaleX)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
+                this.staticctx.lineTo(x, this.graphinfo.height - this.graphinfo.padding.bottom - MinorAxisTickLength);
+                this.staticctx.stroke();
+            }
+            // Draw major ticks and numbers
+            for (let x = this.graphinfo.padding.left; x < this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x.majortick * this.graphinfo.scaleX)) {
+                this.staticctx.beginPath();
+                this.staticctx.strokeStyle = TickColor;
+                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
+                this.staticctx.lineTo(x, this.graphinfo.height - this.graphinfo.padding.bottom - MajorAxisTickLength);
+                this.staticctx.stroke();
+                this.staticctx.fillStyle = TextColor;
+                this.staticctx.font = TextFont;
+                this.staticctx.textAlign = "center";
+                this.staticctx.fillText(this.graphinfo.xRawToCal(x), x, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
+            }
+            // Draw last number
+            this.staticctx.fillText(this.graphinfo.xRawToCal(this.graphinfo.width - this.graphinfo.padding.right), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
+            // Draw label
+            this.staticctx.fillText(this.graphinfo.x.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.height - this.graphinfo.padding.bottom + 40);
+        }
+        // Y axis
+        if (this.graphinfo.y) {
+            // Draw gridlines
+            this.staticctx.strokeStyle = GridColor;
+            this.staticctx.lineWidth = GridThickness;
+            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y.gridline * this.graphinfo.scaleY)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(this.graphinfo.padding.left, y);
+                this.staticctx.lineTo(this.graphinfo.padding.left + this.graphinfo.graphwidth, y);
+                this.staticctx.stroke();
+            }
+            // Draw minor ticks
+            this.staticctx.strokeStyle = TickColor;
+            this.staticctx.lineWidth = TickThickness;
+            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y.minortick * this.graphinfo.scaleY)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(this.graphinfo.padding.left, y);
+                this.staticctx.lineTo(this.graphinfo.padding.left + MinorAxisTickLength, y);
+                this.staticctx.stroke();
+            }
+            // Draw major ticks and numbers
+            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y.majortick * this.graphinfo.scaleY)) {
+                this.staticctx.beginPath();
+                this.staticctx.strokeStyle = TickColor;
+                this.staticctx.moveTo(this.graphinfo.padding.left, y);
+                this.staticctx.lineTo(this.graphinfo.padding.left + MajorAxisTickLength, y);
+                this.staticctx.stroke();
+                this.staticctx.fillStyle = TextColor;
+                this.staticctx.font = TextFont;
+                this.staticctx.textAlign = "right";
+                this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(y),2), this.graphinfo.padding.left - 5, y + 7); // vertical align not working, 7 works for 20 pt font
+            }
+            // Draw last number
+            this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(this.height - this.graphinfo.padding.bottom),2), this.graphinfo.padding.left - 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
+            // Draw label
+            this.staticctx.save();
+            this.staticctx.rotate(-Math.PI/2);
+            this.staticctx.textAlign = "center";
+            // rotate is strange, temporary fix
+            this.staticctx.fillText(this.graphinfo.y.label, -this.graphinfo.graphheight / 2 - this.graphinfo.padding.top, 35);
+            this.staticctx.restore();
+        }
+        // X2 axis
+        if (this.graphinfo.x2) {
+            // Draw gridlines
+            this.staticctx.strokeStyle = GridColor;
+            this.staticctx.lineWidth = GridThickness;
+            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x2.gridline * this.graphinfo.scaleX2)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
+                this.staticctx.lineTo(x, this.graphinfo.padding.top);
+                this.staticctx.stroke();
+            }
+            // Draw minor ticks
+            this.staticctx.strokeStyle = TickColor;
+            this.staticctx.lineWidth = TickThickness;
+            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x2.minortick * this.graphinfo.scaleX2)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(x, this.graphinfo.padding.top);
+                this.staticctx.lineTo(x, this.graphinfo.padding.top + MinorAxisTickLength);
+                this.staticctx.stroke();
+            }
+            // Draw major ticks and numbers
+            for (let x = this.graphinfo.padding.left; x < this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x2.majortick * this.graphinfo.scaleX2)) {
+                // working
+                this.staticctx.beginPath();
+                this.staticctx.strokeStyle = TickColor;
+                this.staticctx.moveTo(x, this.graphinfo.padding.top);
+                this.staticctx.lineTo(x, this.graphinfo.padding.top + MajorAxisTickLength);
+                this.staticctx.stroke();
+                this.staticctx.fillStyle = TextColor;
+                this.staticctx.font = TextFont;
+                this.staticctx.textAlign = "center";
+                this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(x),1), x, this.graphinfo.padding.top - 15);
+            }
+            // Draw last number
+            this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(this.graphinfo.width - this.graphinfo.padding.right),1), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.padding.top - 15);
+            // Draw label
+            this.staticctx.fillText(this.graphinfo.x2.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.padding.top - 37);
+        }
+        // Y2 axis
+        if (this.graphinfo.y2) {
+            // Draw gridlines
+            this.staticctx.strokeStyle = GridColor;
+            this.staticctx.lineWidth = GridThickness;
+            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y2.gridline * this.graphinfo.scaleY2)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(this.graphinfo.padding.left, y);
+                this.staticctx.lineTo(this.graphinfo.padding.left + this.graphinfo.graphwidth, y);
+                this.staticctx.stroke();
+            }
+            // Draw minor ticks
+            this.staticctx.strokeStyle = TickColor;
+            this.staticctx.lineWidth = TickThickness;
+            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y2.minortick * this.graphinfo.scaleY2)) {
+                this.staticctx.beginPath();
+                this.staticctx.moveTo(this.width - this.graphinfo.padding.right, y);
+                this.staticctx.lineTo(this.width - this.graphinfo.padding.right - MinorAxisTickLength, y);
+                this.staticctx.stroke();
+            }
+            // Draw major ticks and numbers
+            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y2.majortick * this.graphinfo.scaleY2)) {
+                this.staticctx.beginPath();
+                this.staticctx.strokeStyle = TickColor;
+                this.staticctx.moveTo(this.width - this.graphinfo.padding.right, y);
+                this.staticctx.lineTo(this.width - this.graphinfo.padding.right - MajorAxisTickLength, y);
+                this.staticctx.stroke();
+                this.staticctx.fillStyle = TextColor;
+                this.staticctx.font = TextFont;
+                this.staticctx.textAlign = "left";
+                this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(y),2), this.width - this.graphinfo.padding.right + 5, y + 7); // vertical align not working, 7 works for 20 pt font
+            }
+            // Draw last number
+            this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(this.height - this.graphinfo.padding.bottom),2), this.width - this.graphinfo.padding.right + 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
+            // Draw label
+            this.staticctx.save();
+            this.staticctx.rotate(Math.PI/2);
+            this.staticctx.textAlign = "center";
+            // rotate is strange, temporary fix
+            this.staticctx.fillText(this.graphinfo.y2.label, this.graphinfo.graphheight/2+this.graphinfo.padding.top, -this.graphinfo.width + this.graphinfo.padding.right - 37);
+            this.staticctx.restore();
+        }
+        // Bounding box
+        this.staticctx.rect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
+        this.staticctx.strokeStyle = "black";
+        this.staticctx.lineWidth = 1;
+        this.staticctx.stroke();
+    }
+    drawAxis(axis) {
+        
     }
     drawImage() {
         /*this.img.onload = function(a) {
@@ -447,59 +747,59 @@ class CanvasController {
             console.log(a);
             this.ctx.drawImage(this.img, 0, 0);
         }*/
-        this.ctx.drawImage(this.img, 0, 0);
+        this.staticctx.drawImage(this.img, 0, 0);
     }
     draw(element) {
         // Draws geometric elements to the canvas
         //console.log("Drawing:", element);
-        this.ctx.save();
+        this.dynamicctx.save();
         if (element instanceof Point) {
             // Black border
-            this.ctx.beginPath();
-            this.ctx.fillStyle = "black";
-            this.ctx.globalAlpha = 1;
-            this.ctx.arc(element.rawx, element.rawy, element.radius, 2*Math.PI, false);
-            this.ctx.fill();
+            this.dynamicctx.beginPath();
+            this.dynamicctx.fillStyle = "black";
+            this.dynamicctx.globalAlpha = 1;
+            this.dynamicctx.arc(element.rawx, element.rawy, element.radius, 2*Math.PI, false);
+            this.dynamicctx.fill();
             // Colored interior
-            this.ctx.beginPath();
-            this.ctx.fillStyle = element.color;
-            this.ctx.arc(element.rawx, element.rawy, element.radius-1, 2*Math.PI, false);
-            this.ctx.fill();
+            this.dynamicctx.beginPath();
+            this.dynamicctx.fillStyle = element.color;
+            this.dynamicctx.arc(element.rawx, element.rawy, element.radius-1, 2*Math.PI, false);
+            this.dynamicctx.fill();
             if (element.correctanswer) {
-                this.ctx.beginPath();
-                this.ctx.strokeStyle = "green";
-                this.ctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.imgcalibration.scalex, element.tolerance.y*this.imgcalibration.scaley, 0, 0, 2*Math.PI, false);
-                this.ctx.stroke();
+                this.dynamicctx.beginPath();
+                this.dynamicctx.strokeStyle = "green";
+                this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.imgcalibration.scalex, element.tolerance.y*this.imgcalibration.scaley, 0, 0, 2*Math.PI, false);
+                this.dynamicctx.stroke();
             }
         } else if (element instanceof Line) {
             // Connect points
-            this.ctx.beginPath();
-            this.ctx.globalAlpha = 1;
-            this.ctx.strokeStyle = element.color;
-            this.ctx.lineWidth = element.width;
+            this.dynamicctx.beginPath();
+            this.dynamicctx.globalAlpha = 1;
+            this.dynamicctx.strokeStyle = element.color;
+            this.dynamicctx.lineWidth = element.width;
             let first = true;
             for (let pt of element.points) {
                 if (first) {
                     // Move to start of line
-                    this.ctx.moveTo(pt.rawx, pt.rawy);
+                    this.dynamicctx.moveTo(pt.rawx, pt.rawy);
                 } else {
                     // Draw segment
-                    this.ctx.lineTo(pt.rawx, pt.rawy);
-                    this.ctx.stroke();
+                    this.dynamicctx.lineTo(pt.rawx, pt.rawy);
+                    this.dynamicctx.stroke();
                 }
                 first = false;
             }
-            this.ctx.fillStyle = "black";
-            this.ctx.globalAlpha = 0.1;
-            this.ctx.fill();
+            this.dynamicctx.fillStyle = "black";
+            this.dynamicctx.globalAlpha = 0.1;
+            this.dynamicctx.fill();
         } else if (element instanceof Text) {
-            this.ctx.fillStyle = element.color;
-            this.ctx.globalAlpha = 1;
-            this.ctx.font = element.font;
-            this.ctx.textAlign = element.align;
-            this.ctx.fillText(element.text, element.position.rawx, element.position.rawy);
+            this.dynamicctx.fillStyle = element.color;
+            this.dynamicctx.globalAlpha = 1;
+            this.dynamicctx.font = element.font;
+            this.dynamicctx.textAlign = element.align;
+            this.dynamicctx.fillText(element.text, element.position.rawx, element.position.rawy);
         }
-        this.ctx.restore();
+        this.dynamicctx.restore();
     }
     trimLists() {
         // Removes the oldest element of each type if the limit is surpassed
@@ -602,14 +902,14 @@ class CanvasController {
                     let cursorpt = new Point(pt.data);
                     let cursoralign = "";
                     // Constants align box position around crosshair cursor nicely
-                    if (cursorpt.rawx < this.canvas.width/2) {
+                    if (cursorpt.rawx < this.dynamiccanvas.width/2) {
                         cursoralign = "left";
                         cursorpt.rawx += 5;
                     } else {
                         cursoralign = "right";
                         cursorpt.rawx -= 5;
                     }
-                    if (cursorpt.rawy < this.canvas.height/2) {
+                    if (cursorpt.rawy < this.dynamiccanvas.height/2) {
                         cursorpt.rawy += 13;
                     } else {
                         cursorpt.rawy -= 5;
@@ -746,6 +1046,7 @@ class CanvasController {
         // Whenever the mouse is clicked on the canvas object
         if (this.interactable) {
             let pt = this.getMousePoint(e);
+            console.log("x", pt.rawx, roundTo(this.graphinfo.xRawToCal(pt.rawx),2), "   ", "y", pt.rawy, roundTo(this.graphinfo.yRawToCal(pt.rawy),2));
             if (this.mode === "move") {
                 let grabindex = -1;
                 let grabdist = 99999;
@@ -1065,7 +1366,8 @@ class Question {
         let container = document.querySelector("." + DOM.elementdivclass);
         
         let html = `<div class="${DOM.canvasdivclass}">`;
-        html += `<canvas class="${DOM.canvasclass}" id="${DOM.canvasid}"></canvas>`;
+        html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
+        html += `<canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2"></canvas>`;
         html += `<br>`;
         html += `<div class="${DOM.canvasinfodivclass}">`;
         //html += `<span class="${DOM.canvaspointclass}" id="${DOM.canvaspointid}">(x, y)</span>`;
@@ -1190,6 +1492,8 @@ class ProblemController{
             "canvasdivclass": "canvasarea",
                 "canvasclass": "canvas",
                 "canvasid": "canvas--%id%",
+                "staticcanvasid": "canvas--static--%id%",
+                "dynamiccanvasid": "canvas--dynamic--%id%",
                 "canvasinfodivclass": "canvasinfo",
                     "canvaspointclass": "canvaspoint",
                     "canvaspointid": "canvaspoint--%id%",
@@ -1302,7 +1606,6 @@ class ProblemController{
     
     setFinish(finish) {
         this.finishquestion = finish;
-        console.log('set finish to', this.finishquestion);
     }
     
     clearPage() {
