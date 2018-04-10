@@ -576,8 +576,12 @@ class CanvasController {
             }
         }
     }
+    /*
+        Creates geometric class object from input data
+        @param {string} type "point", "line", or "text"
+        @param {dict} data Dict of input arguments for object
+    */
     dataToElement(type, data) {
-        // Creates geometric class object from input data
         // Append calibration data
         data.graphinfo = this.graphinfo;
         // Create appropriate object
@@ -600,8 +604,11 @@ class CanvasController {
             return new Text(data);
         }
     }
+    /*
+        Returns a point object at the current location of the cursor
+        @param {event} e Mouse event
+    */
     getMousePoint(e) {
-        // Returns a point object at the current location of the cursor
         return new Point({"rawx":e.pageX - this.dynamiccanvas.offsetParent.offsetLeft,
                           "rawy":e.pageY - this.dynamiccanvas.offsetParent.offsetTop,
                           "graphinfo":this.graphinfo});
@@ -624,6 +631,7 @@ class CanvasController {
         this.staticctx.fillStyle = this.graphinfo.graphbackground;
         this.staticctx.fillRect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
         this.staticctx.beginPath();
+        // TODO abstract these four blocks into one method with arguments
         // X axis
         if (this.graphinfo.x != undefined) {
             // Draw gridlines
@@ -961,16 +969,16 @@ class CanvasController {
                     
                     let content = this.cursor.format;
                     if (this.graphinfo.x != undefined) {
-                        content = content.replace("%x%", cursorpt.x.toFixed(this.cursor.digits.x));
+                        content = content.replace("%!x%", cursorpt.x.toFixed(this.cursor.digits.x));
                     }
                     if (this.graphinfo.y != undefined) {
-                        content = content.replace("%y%", cursorpt.y.toFixed(this.cursor.digits.y));
+                        content = content.replace("%!y%", cursorpt.y.toFixed(this.cursor.digits.y));
                     }
                     if (this.graphinfo.x2 != undefined) {
-                        content = content.replace("%x2%", cursorpt.x2.toFixed(this.cursor.digits.x2));
+                        content = content.replace("%!x2%", cursorpt.x2.toFixed(this.cursor.digits.x2));
                     }
                     if (this.graphinfo.y2 != undefined) {
-                        content = content.replace("%y2%", cursorpt.y2.toFixed(this.cursor.digits.y2));
+                        content = content.replace("%!y2%", cursorpt.y2.toFixed(this.cursor.digits.y2));
                     }
                     
                     this.draw(new Text({"text":content,

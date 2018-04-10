@@ -131,9 +131,10 @@ problemController.addQuestion(
                     ]
                 },
                 "cursor": {
-                    "format": "%x%, %y%",
+                    "format": "%!x%, %!y%",
                     "digits": {"x": 1,
-                               "y": 1}
+                               "y": 1,
+                              }
                 },
                 "points": 10
             }),
@@ -202,7 +203,7 @@ problemController.addQuestion(
                     ]
                 },
                 "cursor": {
-                    "format": "%x%, %y%",
+                    "format": "%!x%, %!y%",
                     "digits": {"x": 1,
                                "y": 1}
                 },
@@ -261,7 +262,7 @@ problemController.addQuestion(
                     ]
                 },
                 "cursor": {
-                    "format": "%x%, %y%",
+                    "format": "%!x%, %!y%",
                     "digits": {"x": 1,
                                "y": 1}
                 },
@@ -338,7 +339,7 @@ problemController.addQuestion(
                     ]
                 },
                 "cursor": {
-                    "format": "%x%, %y%",
+                    "format": "%!x%, %!y%",
                     "digits": {"x": 2,
                                "y": 2}
                 },
@@ -407,7 +408,7 @@ problemController.setFinish(
                     ]
                 },
                 "cursor": {
-                    "format": "%x%, %y%",
+                    "format": "%!x%, %!y%",
                     "digits": {"x": 2,
                                "y": 2}
                 },
