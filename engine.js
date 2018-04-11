@@ -19,8 +19,6 @@ GraphElement
     
     graph/axis making page
     
-    remove Calibration requirement (fit to generated graph)
-    
 */
 
 // ##### Constants (default values) #####

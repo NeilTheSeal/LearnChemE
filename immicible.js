@@ -9,12 +9,12 @@ let problemController = new ProblemController(
             "Ab": 4.72583,
             "Bb": 1660.652,
             "Cb": 271.5,
-            "At": 0,
-            "Bt": 0,
-            "Ct": 0,
-            "Ah": 0,
-            "Bh": 0,
-            "Ch": 0,
+            "At": 4.07827,
+            "Bt": 1343.943,
+            "Ct": 219.227,
+            "Ah": 4.00266,
+            "Bh": 1171.53,
+            "Ch": 224.216,
         },
         "random": {
             "T": {"min": 105,
@@ -25,7 +25,7 @@ let problemController = new ProblemController(
                          "digits": 0}
         },
         "calculated": {
-            "org": "['B', 'B', 'B'][%compound%]",
+            "org": "['B', 'T', 'H'][%compound%]",
             "PsatW": "roundTo(Math.pow(10,%Aw% - %Bw% / (%T% + %Cw%)),1)",
             "PsatB": "roundTo(Math.pow(10,%Ab% - %Bb% / (%T% + %Cb%)),1)",
             "PsatT": "roundTo(Math.pow(10,%At% - %Bt% / (%T% + %Ct%)),1)",
@@ -56,6 +56,8 @@ const triplecolor = "green";
 const textcolor = "black";
 const graycolor = "#999999";
 const answercolor = "green";
+const regionAy = 6.6;
+const regionBy = 0.1;
 
 let graphinfo = new GraphInfo({
     "graphheight": 400,
@@ -64,7 +66,7 @@ let graphinfo = new GraphInfo({
     "graphbackground": "white",
     "axesbackground": "lightgray",
     "x": {
-        "label": "organic mole fraction (xB)",
+        "label": "organic mole fraction (x%org%)",
         "min": 0,
         "max": 1,
         "majortick": 0.1,
@@ -74,7 +76,7 @@ let graphinfo = new GraphInfo({
     "y": {
         "label": "pressure [bar]",
         "min": 0,
-        "max": 6,
+        "max": 7,
         "majortick": 1,
         "minortick": 0.2,
         "gridline": 0.5,
@@ -126,8 +128,8 @@ problemController.addQuestion(
                                    {"x":1, "y":4, "movey":true, "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"region A", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
-                        {"text":"region B", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
+                        {"text":"region A", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
+                        {"text":"region B", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
@@ -198,8 +200,8 @@ problemController.addQuestion(
                                    {"x":1, "y":"%Psum%", "show":false}], "color":graycolor},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
@@ -257,8 +259,8 @@ problemController.addQuestion(
                                    {"x":1, "y":"%Psum%", "show":false}], "color":graycolor},
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
@@ -334,8 +336,8 @@ problemController.addQuestion(
                                    {"x":"1", "y":"%Psum%", "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
@@ -403,8 +405,8 @@ problemController.setFinish(
                                    {"x":"1", "y":"%Psum%", "show":false}], "color":graycolor, "answer":true}
                     ],
                     "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": 5.6}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": 0.2}, "align":"center", "color":textcolor}
+                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
+                        {"text":"vapor", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": {
