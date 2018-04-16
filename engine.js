@@ -108,6 +108,13 @@ function randomID(digits=16) {
     return str;
 }
 
+function isIterable(obj) {
+    if (obj == null) {
+        return false;
+    }
+    return typeof obj[Symbol.iterator] === 'function';
+}
+
 /*
     Performs a replacement on all strings contained in an object
     @param {object} obj Object to replace in
@@ -163,6 +170,35 @@ function recursiveExists(obj, pattern) {
     }
     return false;
 }
+
+/*
+    Attempts to find a pattern in any string contained in an object
+    @param {object} obj Object to replace in
+    @param {string} pattern String to find
+*/
+function recursiveFind(obj, pattern) {
+    let findlist = [];
+    if (typeof(obj) === "string") {
+        while (obj.indexOf(pattern) != -1) {
+            return obj;
+        }
+    } else if (typeof(obj) === "object"){
+        for (let child of Object.keys(obj)) {
+            let f = recursiveFind(obj[child], pattern);
+            if (f) {
+                if (Array.isArray(f)) {
+                    for (let i of f) {
+                        findlist.push(i);
+                    }
+                } else {
+                    findlist.push(f);
+                }
+            }
+        }
+    }
+    return findlist;
+}
+
 
 /*
     Generate hash from string
@@ -403,6 +439,10 @@ class GraphInfo {
         }
         this.height = this.graphheight + this.padding.bottom + this.padding.top;
         this.width = this.graphwidth + this.padding.left + this.padding.right;
+        this.graphleft = this.padding.left;
+        this.graphright = this.padding.left + this.graphwidth;
+        this.graphtop = this.padding.top;
+        this.graphbottom = this.padding.top + this.graphheight;
         
         // Generate calibration values/functions
         if (this.x != undefined) {
@@ -952,16 +992,20 @@ class CanvasController {
             this.dynamicctx.strokeStyle = element.color;
             this.dynamicctx.lineWidth = element.width;
             let first = true;
+            //console.log(element);
             for (let pt of element.points) {
-                if (first) {
-                    // Move to start of line
-                    this.dynamicctx.moveTo(pt.rawx, pt.rawy);
-                } else {
-                    // Draw segment
-                    this.dynamicctx.lineTo(pt.rawx, pt.rawy);
-                    this.dynamicctx.stroke();
+                if (this.graphinfo.graphleft <= pt.rawx && pt.rawx <= this.graphinfo.graphright && this.graphinfo.graphtop <= pt.rawy && pt.rawy <= this.graphinfo.graphbottom) {
+                    
+                    if (first) {
+                        // Move to start of line
+                        this.dynamicctx.moveTo(pt.rawx, pt.rawy);
+                    } else {
+                        // Draw segment
+                        this.dynamicctx.lineTo(pt.rawx, pt.rawy);
+                        this.dynamicctx.stroke();
+                    }
+                    first = false;
                 }
-                first = false;
             }
             //this.dynamicctx.fillStyle = "black";
             //this.dynamicctx.globalAlpha = 0.1;
@@ -1540,10 +1584,17 @@ class Question {
     assignVariables() {
         // Replace variables with values in all elements
         for (let element of this.elements) {
+            const maxloops = 100;
+            let loops = 0;
             while (recursiveExists(element, `${VAR}`)) {
                 for (let variable of Object.keys(this.variablevalues)) {
                     // Replace variable strings with values
                     element = recursiveReplace(element, `${VAR}${variable}${VAR}`, this.variablevalues[variable]);
+                }
+                loops++;
+                if (loops >= maxloops) {
+                    console.log('assignVariables failed:', recursiveFind(element, `${VAR}`));
+                    break;
                 }
             }
             // Convert number-like strings into numbers
@@ -1822,6 +1873,7 @@ class ProblemController{
         // Loop through all hints, remove hidden text class
         let elements = document.getElementsByClassName(this.DOM.hiddentextclass);
         while (elements[0]) {
+            console.log('looping');
             elements[0].classList.remove(this.DOM.hiddentextclass);
         }
     }

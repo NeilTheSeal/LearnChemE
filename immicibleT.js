@@ -3,18 +3,18 @@ let problemController = new ProblemController(
     "Construct a Temperature-Composition Diagram for Immiscible Liquids",
     {
         "constants": {
-            "Aw": 5.0768,
-            "Bw": 1659.793,
-            "Cw": 227.1,
-            "Ab": 4.72583,
-            "Bb": 1660.652,
-            "Cb": 271.5,
-            "At": 4.07827,
-            "Bt": 1343.943,
-            "Ct": 219.227,
-            "Ah": 4.00266,
-            "Bh": 1171.53,
-            "Ch": 224.216,
+            "AW": 5.0768,
+            "BW": 1659.793,
+            "CW": 227.1,
+            "AB": 4.72583,
+            "BB": 1660.652,
+            "CB": 271.5,
+            "AT": 4.07827,
+            "BT": 1343.943,
+            "CT": 219.227,
+            "AH": 4.00266,
+            "BH": 1171.53,
+            "CH": 224.216,
         },
         "random": {
             "P": {"min": 5,
@@ -25,15 +25,13 @@ let problemController = new ProblemController(
                        "digits": 0}
         },
         "calculated": {
-            "org": "['b', 't', 'h'][@orgnum@]",
+            "org": "['B', 'T', 'H'][@orgnum@]",
             "compound": "['benzene', 'toluene', 'hexane'][@orgnum@]",
-            "TsatW": "roundTo(@Bw@/(@Aw@-Math.log10(@P@))-@Cw@,1)",
-            "Tsatb": "roundTo(@Bb@/(@Ab@-Math.log10(@P@))-@Cb@,1)",
-            "Tsatt": "roundTo(@Bt@/(@At@-Math.log10(@P@))-@Ct@,1)",
-            "Tsath": "roundTo(@Bh@/(@Ah@-Math.log10(@P@))-@Ch@,1)",
-            "Tsum": "@TsatW@ + @Tsat@org@@",
+            "TsatW": "roundTo(@BW@/(@AW@-Math.log10(@P@))-@CW@,1)",
+            "TsatO": "roundTo(@B@org@@/(@A@org@@-Math.log10(@P@))-@C@org@@,1)",
+            "Tsum": "@TsatW@ + @TsatO@",
             
-            "xc": "@Tsat@org@@ / @Tsum@",
+            "xc": "@TsatO@ / @Tsum@",
             "x1": "@xc@ / 2",
             "x2": "@xc@ * 4/6",
             "x3": "@xc@ * 5/6",
@@ -43,14 +41,14 @@ let problemController = new ProblemController(
             "y1": "@TsatW@ / (1 - @x1@)",
             "y2": "@TsatW@ / (1 - @x2@)",
             "y3": "@TsatW@ / (1 - @x3@)",
-            "y4": "@Tsat@org@@ / @x4@",
-            "y5": "@Tsat@org@@ / @x5@",
-            "y6": "@Tsat@org@@ / @x6@",
+            "y4": "@TsatO@ / @x4@",
+            "y5": "@TsatO@ / @x5@",
+            "y6": "@TsatO@ / @x6@",
         }
     }
 );
 
-const datalabel = "pressure = @P@ bar <br> tsats: T<sub>sat,W</sub> = @TsatW@ C, T<sub>sat,@org@</sub> = @Tsat@org@@ C";
+const datalabel = "pressure = @P@ bar <br> tsats: T<sub>sat,W</sub> = @TsatW@ C, T<sub>sat,@org@</sub> = @TsatO@ C";
 
 const watercolor = "blue";
 const organiccolor = "orange";
@@ -182,12 +180,12 @@ problemController.addQuestion(
                 },
                 "default": {
                     "line": [
-                        {"equation": "roundTo(Math.pow(10,@Aw@ - @Bw@ / (~x~ + @Cw@)),1)",
+                        {"equation": "roundTo(Math.pow(10,@AW@ - @BW@ / (~x~ + @CW@)),1)",
                          "independent": "x",
                          "dependent": "y",
                          "min": 130,
                          "max": 250,
-                         "steps": 13,
+                         "steps": 100,
                          "color": watercolor,
                          "showpoints": false},
                         {"equation": "roundTo(Math.pow(10,@A@org@@ - @B@org@@ / (~x~ + @C@org@@)),1)",
@@ -195,8 +193,16 @@ problemController.addQuestion(
                          "dependent": "y",
                          "min": 130,
                          "max": 250,
-                         "steps": 13,
+                         "steps": 100,
                          "color": organiccolor,
+                         "showpoints": false},
+                        {"equation": "roundTo(Math.pow(10,@AW@ - @BW@ / (~x~ + @CW@))+Math.pow(10,@A@org@@ - @B@org@@ / (~x~ + @C@org@@)),1)",
+                         "independent": "x",
+                         "dependent": "y",
+                         "min": 130,
+                         "max": 250,
+                         "steps": 100,
+                         "color": "purple",
                          "showpoints": false},
                     ],
                 },
