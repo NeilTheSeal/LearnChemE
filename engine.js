@@ -19,10 +19,17 @@ GraphElement
     
     graph/axis making page
     
+    allow multiple answers in textboxes
+    boolean to set case sensitivity
+    allow line construction with a function instead of points
+    allow region based on set of inequalities
+    
 */
 
 // ##### Constants (default values) #####
 
+const VAR = "@";
+const SPVAR = "~";
 const IDLENGTH = 16;
 const POINTRADIUS = 5;
 const POINTCOLOR = "black";
@@ -134,6 +141,27 @@ function recursiveNumberfy(obj) {
 }
 
 /*
+    Tests if a pattern exists on any string contained in an object
+    @param {object} obj Object to replace in
+    @param {string} pattern String to find
+*/
+function recursiveExists(obj, pattern) {
+    
+    if (typeof(obj) === "string") {
+        while (obj.indexOf(pattern) != -1) {
+            return true;
+        }
+    } else if (typeof(obj) === "object"){
+        for (let child of Object.keys(obj)) {
+            if (recursiveExists(obj[child], pattern)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/*
     Generate hash from string
 */
 String.prototype.hashCode = function() {
@@ -180,25 +208,72 @@ function minMax(x, a, b) {
     return Math.max(Math.min(x, max), min);
 }
 
+/*
+    Generates a dict of variable values
+    @param {dict} variables
+        @param {dict} constants Constant values
+        @param {dict} random Linear random variables
+            @param {num} min Minimum value
+            @param {num} max Maximum value
+            @param {num} digits Digits of precision
+        @param {dict} calculated Variables calculated from other variables
+*/
+function generateVariables(variables) {
+    let variablevalues = {};
+    // Assign constants
+    for (let name of Object.keys(variables.constants)) {
+        variablevalues[name] = variables.constants[name];
+    }
+    // Assign random variables
+    for (let name of Object.keys(variables.random)) {
+        let low = variables.random[name].min;
+        let high = variables.random[name].max;
+        let digits = variables.random[name].digits;
+        let r = getRandom(low, high);
+        variablevalues[name] = roundTo(r, digits);
+    }
+    // Assign calculated variables
+    for (let name of Object.keys(variables.calculated)) {
+        // Construct expression, fill in variable values
+        let exp = variables.calculated[name];
+        // Keep replacing until no variables remain
+        let maxloops = 10;
+        let loops = 0;
+        while (exp.indexOf(`${VAR}`) != -1 && loops < maxloops) {
+            for (let variable of Object.keys(variablevalues)) {
+                exp = exp.replace(`${VAR}${variable}${VAR}`, variablevalues[variable]);
+            }
+            loops++;
+        }
+        if (loops >= maxloops) {
+            console.log("Error, maximum loops exceeded, cannot resolve", name, "=", exp);
+        }
+        // Evaluate expression
+        //console.log("Evaluating",exp);
+        variablevalues[name] = eval(exp);
+    }
+    return variablevalues;
+}
+
 // ##### Canvas objects #####
 
+/*
+    rawx    <float> canvas-based x position of point
+    rawy    <float> canvas-based y position of point
+    x       <float> graph-based x position of point
+    y       <float> graph-based y position of point
+    movex   <bool> is point movable in the x direction?
+    movey   <bool> is point movable in the y direction?
+    cal     <dict> calibration data between canvas and graph
+    color   <str> color of point
+    radius  <float> radius of point
+    answer  <bool> should point be submitted as an answer
+    show    <bool> should point be shown as part of a line
+*/
 class Point {
-    /*
-        rawx    <float> canvas-based x position of point
-        rawy    <float> canvas-based y position of point
-        x       <float> graph-based x position of point
-        y       <float> graph-based y position of point
-        movex   <bool> is point movable in the x direction?
-        movey   <bool> is point movable in the y direction?
-        cal     <dict> calibration data between canvas and graph
-        color   <str> color of point
-        radius  <float> radius of point
-        answer  <bool> should point be submitted as an answer
-        show    <bool> should point be shown as part of a line
-    */
     constructor(args) {
-        this.ID = randomID(IDLENGTH);
         // Default values
+        this.ID = randomID(IDLENGTH);
         this.movex = false;
         this.movey = false;
         this.color = POINTCOLOR;
@@ -246,27 +321,6 @@ class Point {
         }
     }
     
-    
-    /*
-    calibratemissing(cal) {
-        if (this.rawx != undefined && this.rawy != undefined) {
-            this.calibrate(cal);
-        } else if (this.x != undefined && this.y != undefined) {
-            this.inversecalibrate(cal);
-        }
-    }
-    
-    calibrate(cal) {
-        this.x = (this.rawx - cal.pt1.rawx + cal.pt1.x) * cal.pt2.x / (cal.pt2.rawx - cal.pt1.rawx + cal.pt1.x);
-        this.y = (this.rawy - cal.pt1.rawy + cal.pt1.y) * cal.pt2.y / (cal.pt2.rawy - cal.pt1.rawy + cal.pt1.y);
-    }
-    
-    inversecalibrate(cal) {
-        this.rawx = (this.x - cal.pt1.x) / (cal.pt2.x - cal.pt1.x) * (cal.pt2.rawx - cal.pt1.rawx) + cal.pt1.rawx;
-        this.rawy = (this.y - cal.pt1.y) / (cal.pt2.y - cal.pt1.y) * (cal.pt2.rawy - cal.pt1.rawy) + cal.pt1.rawy;
-    }
-    */
-    
     get data() {
         let r = {};
         for (let k of Object.keys(this)) {
@@ -276,14 +330,14 @@ class Point {
     }
 }
 
+/*
+    points          <list> List of point constructor argument objects
+    color           <str> Color of line
+    width           <float> Width of line
+    answer          <bool> should point be submitted as an answer
+    correctanswer   <bool> is this a shown correct answer?
+*/
 class Line {
-    /*
-        points          <list> List of point constructor argument objects
-        color           <str> Color of line
-        width           <float> Width of line
-        answer          <bool> should point be submitted as an answer
-        correctanswer   <bool> is this a shown correct answer?
-    */
     constructor(args) {
         // Default values
         this.ID = randomID(IDLENGTH);
@@ -314,25 +368,6 @@ class Line {
             r[k] = this[k];
         }
         return r;
-    }
-}
-
-class Calibration {
-    constructor(args) {
-        // Argument values
-        for (let key of Object.keys(args)) {
-            this[key] = args[key];
-        }
-        // Convert other objects
-        if (this.pt1 === undefined && this.pt2 === undefined) {
-            this.pt1 = this.line[0];
-            this.pt2 = this.line[1];
-        } else if (this.line === undefined) {
-            this.line = new Line({"points":[this.pt1, this.pt2]});
-        }
-        // Calculate scaling values
-        this.scalex = Math.abs((this.pt2.rawx - this.pt1.rawx) / (this.pt2.x - this.pt1.x));
-        this.scaley = Math.abs((this.pt2.rawy - this.pt1.rawy) / (this.pt2.y - this.pt1.y));
     }
 }
 
@@ -429,6 +464,7 @@ class GraphInfo {
 class Text {
     constructor(args) {
         // Default values
+        this.ID = randomID(IDLENGTH);
         this.text = "";
         this.font = FONTSTYLE;
         this.align = "left";
@@ -453,6 +489,46 @@ class Text {
     }
 }
 
+// ##### Other classes #####
+
+/*
+    Stacked canvases for drawing on different layers
+    @param {int} width Width of canvases
+    @param {int} height Height of canvases
+    @param {int} layers Number of layers
+    @param {string} container ID of container element
+    @param {string} id Style of canvas, postpended with index
+    @param {string} class Classes added to each canvas
+*/
+class ZCanvas {
+    constructor(args) {
+        this.id = "zcanvas-";
+        for (let key of Object.keys(args)) {
+            this[key] = args[key];
+        }
+        this.canvas = [];
+        for (let i=0; i<this.layers; i++) {
+            let container = document.getElementById(this.container);
+            let html = `<canvas `;
+            if (this.id) {
+                html += `id="${this.id}${i}" `;
+            }
+            if (this.class) {
+                html += `class="${this.class}" `;
+            }
+            html += `style="z-index:${i}"></canvas>`;
+            container.insertAdjacentHTML("beforeend", html);
+            this.canvas[i] = document.getElementById(`${this.id}${i}`)
+            this.canvas[i].width = this.width;
+            this.canvas[i].height = this.height;
+        }
+    }
+    getContext(index) {
+        return this.canvas[index].getContext("2d");
+    }
+}
+
+
 // ##### Controllers #####
 
 class CanvasController {
@@ -473,10 +549,12 @@ class CanvasController {
         
         // HTML element ids
         this.index = index;
-        this.staticcanvasid = DOM.staticcanvasid.replace(/%id%/g, index);
-        this.dynamiccanvasid = DOM.dynamiccanvasid.replace(/%id%/g, index);
-        this.pointinfoid = DOM.canvaspointid.replace(/%id%/g, index);
-        this.modeinfoid = DOM.canvasmodeid.replace(/%id%/g, index);
+        const re = new RegExp(`${VAR}id${VAR}`, "g");
+        this.divid = DOM.canvasdivid.replace(re, index);
+        this.staticcanvasid = DOM.staticcanvasid.replace(re, index);
+        this.dynamiccanvasid = DOM.dynamiccanvasid.replace(re, index);
+        this.pointinfoid = DOM.canvaspointid.replace(re, index);
+        this.modeinfoid = DOM.canvasmodeid.replace(re, index);
         
         // DOM elements
         this.staticcanvas = document.getElementById(this.staticcanvasid);
@@ -487,7 +565,7 @@ class CanvasController {
         // Canvas objects
         this.height = this.graphinfo.height;
         this.width = this.graphinfo.width;
-        document.querySelector("."+DOM.canvasdivclass).style.height = this.height + "px";
+        document.getElementById(this.divid).style.height = this.height + "px"; // working
         this.staticcanvas.width = this.width;
         this.staticcanvas.height = this.height;
         this.dynamiccanvas.width = this.width;
@@ -529,10 +607,10 @@ class CanvasController {
         
         // Calibration setup
         if (this.mode === "calibrate") {
-            this.x1 = DOM.textboxid.replace(/%id%/g, 2);
-            this.y1 = DOM.textboxid.replace(/%id%/g, 3);
-            this.x2 = DOM.textboxid.replace(/%id%/g, 4);
-            this.y2 = DOM.textboxid.replace(/%id%/g, 5);
+            this.x1 = DOM.textboxid.replace(re, 2);
+            this.y1 = DOM.textboxid.replace(re, 3);
+            this.x2 = DOM.textboxid.replace(re, 4);
+            this.y2 = DOM.textboxid.replace(re, 5);
         }
   
         // Initialize
@@ -587,15 +665,42 @@ class CanvasController {
             return new Point(data);
         } else if (type === "line") {
             let ptlist = [];
-            for (let ptdata of data.points) {
-                ptdata.graphinfo = this.graphinfo;
-                let pt = new Point(ptdata);
-                ptlist.push(pt);
-                if (pt.show) {
-                    this.finished.push(pt);
+            if (data.points) {
+                // line constructed from list of points
+                for (let ptdata of data.points) {
+                    ptdata.graphinfo = this.graphinfo;
+                    let pt = new Point(ptdata);
+                    ptlist.push(pt);
+                    if (pt.show) {
+                        this.finished.push(pt);
+                    }
                 }
+                data.points = ptlist;
+            } else if (data.equation) {
+                // line constructed from equation
+                const dx = (data.max - data.min) / data.steps;
+                //for (let i=1; i<= data.steps; i++) {
+                for (let i=data.min; i<= data.max; i+=dx) {
+                    const ind = data.independent;
+                    const dep = data.dependent;
+                    const re = new RegExp(`${SPVAR}${data.independent}${SPVAR}`, "g");
+                    let ptdata = {};
+                    ptdata[ind] = i;
+                    ptdata[dep] = eval(data.equation.replace(re, i))
+                    ptdata["graphinfo"] = this.graphinfo
+                    if (data.showpoints) {
+                        ptdata.show = true;
+                    } else {
+                        ptdata.show = false;
+                    }
+                    let pt = new Point(ptdata);
+                    ptlist.push(pt);
+                    if (pt.show) {
+                        this.finished.push(pt);
+                    }
+                }
+                data.points = ptlist;
             }
-            data.points = ptlist;
             return new Line(data);
         } else if (type === "text") {
             data.position.graphinfo = this.graphinfo;
@@ -615,6 +720,11 @@ class CanvasController {
         // Constants
         const MajorAxisTickLength = 10;
         const MinorAxisTickLength = 5;
+        const LabelDigits = 3;
+        const LabelxDigits = LabelDigits;
+        const LabelyDigits = LabelDigits;
+        const Labelx2Digits = LabelDigits;
+        const Labely2Digits = LabelDigits;
         const GridColor = "lightgray";
         const GridThickness = 1;
         const TickColor = "gray";
@@ -660,10 +770,10 @@ class CanvasController {
                 this.staticctx.fillStyle = TextColor;
                 this.staticctx.font = TextFont;
                 this.staticctx.textAlign = "center";
-                this.staticctx.fillText(this.graphinfo.xRawToCal(x), x, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
+                this.staticctx.fillText(roundTo(this.graphinfo.xRawToCal(x), LabelxDigits), x, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
             }
             // Draw last number
-            this.staticctx.fillText(this.graphinfo.xRawToCal(this.graphinfo.width - this.graphinfo.padding.right), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
+            this.staticctx.fillText(roundTo(this.graphinfo.xRawToCal(this.graphinfo.width - this.graphinfo.padding.right), LabelxDigits), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
             // Draw label
             this.staticctx.fillText(this.graphinfo.x.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.height - this.graphinfo.padding.bottom + 40);
         }
@@ -697,10 +807,10 @@ class CanvasController {
                 this.staticctx.fillStyle = TextColor;
                 this.staticctx.font = TextFont;
                 this.staticctx.textAlign = "right";
-                this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(y),2), this.graphinfo.padding.left - 5, y + 7); // vertical align not working, 7 works for 20 pt font
+                this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(y), LabelyDigits), this.graphinfo.padding.left - 5, y + 7); // vertical align not working, 7 works for 20 pt font
             }
             // Draw last number
-            this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(this.height - this.graphinfo.padding.bottom),2), this.graphinfo.padding.left - 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
+            this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(this.height - this.graphinfo.padding.bottom), LabelyDigits), this.graphinfo.padding.left - 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
             // Draw label
             this.staticctx.save();
             this.staticctx.rotate(-Math.PI/2);
@@ -740,10 +850,10 @@ class CanvasController {
                 this.staticctx.fillStyle = TextColor;
                 this.staticctx.font = TextFont;
                 this.staticctx.textAlign = "center";
-                this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(x),1), x, this.graphinfo.padding.top - 15);
+                this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(x), Labelx2Digits), x, this.graphinfo.padding.top - 15);
             }
             // Draw last number
-            this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(this.graphinfo.width - this.graphinfo.padding.right),1), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.padding.top - 15);
+            this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(this.graphinfo.width - this.graphinfo.padding.right), Labelx2Digits), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.padding.top - 15);
             // Draw label
             this.staticctx.fillText(this.graphinfo.x2.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.padding.top - 37);
         }
@@ -777,10 +887,10 @@ class CanvasController {
                 this.staticctx.fillStyle = TextColor;
                 this.staticctx.font = TextFont;
                 this.staticctx.textAlign = "left";
-                this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(y),2), this.width - this.graphinfo.padding.right + 5, y + 7); // vertical align not working, 7 works for 20 pt font
+                this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(y), Labely2Digits), this.width - this.graphinfo.padding.right + 5, y + 7); // vertical align not working, 7 works for 20 pt font
             }
             // Draw last number
-            this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(this.height - this.graphinfo.padding.bottom),2), this.width - this.graphinfo.padding.right + 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
+            this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(this.height - this.graphinfo.padding.bottom), Labely2Digits), this.width - this.graphinfo.padding.right + 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
             // Draw label
             this.staticctx.save();
             this.staticctx.rotate(Math.PI/2);
@@ -807,6 +917,9 @@ class CanvasController {
         this.staticctx.drawImage(this.img, 0, 0);
     }
     draw(element) {
+        
+        // TODO only draw if object is within the boundaries
+        
         // Draws geometric elements to the canvas
         //console.log("Drawing:", element);
         this.dynamicctx.save();
@@ -967,16 +1080,16 @@ class CanvasController {
                     
                     let content = this.cursor.format;
                     if (this.graphinfo.x != undefined) {
-                        content = content.replace("%!x%", cursorpt.x.toFixed(this.cursor.digits.x));
+                        content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
                     }
                     if (this.graphinfo.y != undefined) {
-                        content = content.replace("%!y%", cursorpt.y.toFixed(this.cursor.digits.y));
+                        content = content.replace(`${SPVAR}y${SPVAR}`, cursorpt.y.toFixed(this.cursor.digits.y));
                     }
                     if (this.graphinfo.x2 != undefined) {
-                        content = content.replace("%!x2%", cursorpt.x2.toFixed(this.cursor.digits.x2));
+                        content = content.replace(`${SPVAR}x2${SPVAR}`, cursorpt.x2.toFixed(this.cursor.digits.x2));
                     }
                     if (this.graphinfo.y2 != undefined) {
-                        content = content.replace("%!y2%", cursorpt.y2.toFixed(this.cursor.digits.y2));
+                        content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
                     }
                     
                     this.draw(new Text({"text":content,
@@ -1127,8 +1240,8 @@ class CanvasController {
                         for (let j = 1; j < this.finished[i].points.length; j++) {
                             let pt1 = this.finished[i].points[j];
                             let pt2 = this.finished[i].points[j-1]
-                            // If neither point is movable, line isn't movable
-                            if (!pt1.movex && !pt1.movey && !pt2.movex && !pt2.movey) {
+                            // If either point is immovable, line isn't movable
+                            if ((!pt1.movex && !pt1.movey) || (!pt2.movex && !pt2.movey)) {
                                 break;
                             }
                             let minx = Math.min(pt1.rawx, pt2.rawx) + this.grabradius;
@@ -1231,11 +1344,15 @@ class GraphElement {
             }
         }
         if (this.answercount["line"] > 0) {
-            // Eachanswer being looked for
+            // Each answer being looked for
             for (let i in this.answer.line) {
                 score.max += 1;
+                let matchscore = 0;
+                let matchindex = 0;
                 // Each answer provided
                 for (let j in answer) {
+                    let mymatchscore = 0;
+                    let mymaxscore = 0;
                     if (answer[j] instanceof Line) {
                         // If unused
                         if (used.indexOf(j) === -1) {
@@ -1245,61 +1362,98 @@ class GraphElement {
                                 let fullmatch = true;
                                 // Each point in the line
                                 for (let k in answer[j].points) {
-                                    // If point is not close enough
-                                    let ansx = this.answer.line[i].points[k].x;
-                                    let inpx = answer[j].points[k].x;
-                                    let tolx = this.answer.line[i].tolerance.x;
-                                    let ansy = this.answer.line[i].points[k].y;
-                                    let inpy = answer[j].points[k].y;
-                                    let toly = this.answer.line[i].tolerance.y;
-                                    if (Math.abs(ansx - inpx) > tolx || Math.abs(ansy - inpy) > toly ) {
-                                        fullmatch = false;
-                                        break;
+                                    if (answer[j].points[k].movex || answer[j].points[k].movey) {
+                                        mymaxscore++;
+                                        // If point is not close enough
+                                        const ansx = this.answer.line[i].points[k].x;
+                                        const inpx = answer[j].points[k].x;
+                                        const tolx = this.answer.line[i].tolerance.x;
+                                        const ansy = this.answer.line[i].points[k].y;
+                                        const inpy = answer[j].points[k].y;
+                                        const toly = this.answer.line[i].tolerance.y;
+                                        if (Math.abs(ansx - inpx) <= tolx && Math.abs(ansy - inpy) <= toly) {
+                                            mymatchscore++;
+                                        }
                                     }
                                 }
-                                if (fullmatch) {
-                                    score.got += 1;
-                                    used.push(j);
-                                    break;
+                                if (mymatchscore > matchscore) {
+                                    mymatchscore = mymatchscore / mymaxscore;
+                                    matchscore = mymatchscore;
+                                    matchindex = j;
                                 }
                             }
                         }
                     }
+                }
+                if (matchscore > 0) {
+                    score.got += matchscore;
+                    used.push(matchindex);
                 }
             }
         }
         score.pct = score.got / score.max;
         return score.pct;
     }
-}
-
-class TextElement {
-    /*
-        Container class for text display
-    */
-    constructor(inputarguments) {
-        /*
-            label: Text to display before textbox
-            style: CSS style to apply
-        */
-        this.label = inputarguments.label;
-        this.style = inputarguments.style;
+    
+    insertHTML(DOM, id) {
+        let container = document.querySelector("#" + DOM.questiondivid);
+        
+        let html = `<div class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
+        html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
+        html += `<canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2"></canvas>`;
+        html += `<br>`;
+        html += `<div class="${DOM.canvasinfodivclass}">`;
+        //html += `<span class="${DOM.canvaspointclass}" id="${DOM.canvaspointid}">(x, y)</span>`;
+        //html += `<span class="${DOM.canvasmodeclass}" id="${DOM.canvasmodeid}">mode</span>`;
+        html += `</div></div>`;
+        
+        const re = new RegExp(`${VAR}id${VAR}`, "g");
+        html = html.replace(re, id);
+        
+        container.insertAdjacentHTML("beforeend", html);
+        
+        this.canvascontroller = new CanvasController(DOM, id, this);
     }
 }
 
-class TextboxElement {
-    /*
-        Container class for textbox-entry questions
-    */
+/*
+    Container class for text display
+    label: Text to display before textbox
+    style: CSS style to apply
+*/
+class TextElement {
+    
     constructor(inputarguments) {
-        /*
-            label: Text to display before textbox
-            placeholder: Placeholder text in textbox
-            answertype: "number" or "text"
-            answer: correct answer
-            tolerance: range above or below answer to count as correct
-            points: number of points question is worth
-        */
+        this.label = inputarguments.label;
+        this.style = inputarguments.style;
+    }
+    
+    insertHTML(DOM, id) {
+        let container = document.querySelector("#" + DOM.questiondivid);
+        
+        let html = `<span class="${DOM.textspanclass}`;
+        if (this.style != undefined) {
+            html += ` ${this.style}`;
+        }
+        html += `">${this.label}</span>`;
+        
+        container.insertAdjacentHTML("beforeend", html);
+    }
+}
+
+/*
+    Container class for textbox-entry questions
+    label: Text to display before textbox
+    placeholder: Placeholder text in textbox
+    answertype: "number" or "text"
+    answer: correct answer
+    tolerance: range above or below answer to count as correct
+    points: number of points question is worth
+*/
+class TextboxElement {
+    
+    constructor(inputarguments) {
+        
         this.label = inputarguments.label;
         this.placeholder = inputarguments.placeholder;
         this.answertype = inputarguments.answertype;
@@ -1323,66 +1477,36 @@ class TextboxElement {
             }
         }
     }
+    
+    insertHTML(DOM, id) {
+        let container = document.querySelector("#" + DOM.questiondivid);
+        let html = `<div class="${DOM.textboxdivclass}">`;
+        html += `<span class="${DOM.textboxspanclass}">${this.label}</span>`;
+        html += `<br>`;
+        html += `<input class="${DOM.textboxclass}" placeholder="${this.placeholder}" id="${DOM.textboxid}">`;
+        html += `<span class="${DOM.textboxanswerclass}" id="${DOM.textboxanswerid}"></span>`;
+        html+= `</input></div>`;
+        
+        const re = new RegExp(`${VAR}id${VAR}`, "g");
+        html = html.replace(re, id);
+        
+        container.insertAdjacentHTML("beforeend", html);
+    }
 }
 
+/*
+    Container class for each question
+    Consists of elements displayed sequentially on the page
+    variables: list of variables in problem
+    elements: array of question elements
+    requiredscore: required % score to move on
+*/
 class Question {
-    /*
-        Container class for each question
-        Consists of elements displayed sequentially on the page
-    */
     constructor(inputarguments) {
-        /*
-            variables: list of variables in problem
-            elements: array of question elements
-            requiredscore: required % score to move on
-        */
         this.elements = inputarguments.questionelements;
         this.variablevalues = {};
         this.inputvariables = inputarguments.variables;
         this.requiredscore = inputarguments.requiredscore;
-        
-        this.canvasControllers = {};
-    }
-    
-    importVariables(variables) {
-        for (let name of Object.keys(variables)) {
-            this.variablevalues[name] = variables[name];
-        }
-    }
-    
-    generateVariables() {
-        // Assign constants
-        for (let name of Object.keys(this.inputvariables.constants)) {
-            this.variablevalues[name] = this.inputvariables.constants[name];
-        }
-        // Assign random variables
-        for (let name of Object.keys(this.inputvariables.random)) {
-            let low = this.inputvariables.random[name].min;
-            let high = this.inputvariables.random[name].max;
-            let digits = this.inputvariables.random[name].digits;
-            let r = getRandom(low, high);
-            this.variablevalues[name] = roundTo(r, digits);
-        }
-        // Assign calculated variables
-        for (let name of Object.keys(this.inputvariables.calculated)) {
-            // Construct expression, fill in variable values
-            let exp = this.inputvariables.calculated[name];
-            // Keep replacing until no variables remain
-            let maxloops = 10;
-            let loops = 0;
-            while (exp.indexOf("%") != -1 && loops < maxloops) {
-                for (let variable of Object.keys(this.variablevalues)) {
-                    exp = exp.replace(`%${variable}%`, this.variablevalues[variable]);
-                }
-                loops++;
-            }
-            if (loops >= maxloops) {
-                console.log("Error, maximum loops exceeded, variable not found.");
-            }
-            // Evaluate expression
-            //console.log("Evaluating",exp);
-            this.variablevalues[name] = eval(exp);
-        }
     }
     
     get totalPoints() {
@@ -1398,9 +1522,11 @@ class Question {
     assignVariables() {
         // Replace variables with values in all elements
         for (let element of this.elements) {
-            for (let variable of Object.keys(this.variablevalues)) {
-                // Replace variable strings with values
-                element = recursiveReplace(element, `%${variable}%`, this.variablevalues[variable]);
+            while (recursiveExists(element, `${VAR}`)) {
+                for (let variable of Object.keys(this.variablevalues)) {
+                    // Replace variable strings with values
+                    element = recursiveReplace(element, `${VAR}${variable}${VAR}`, this.variablevalues[variable]);
+                }
             }
             // Convert number-like strings into numbers
             element = recursiveNumberfy(element);
@@ -1413,83 +1539,20 @@ class Question {
         }
     }
     
-    insertContainers(DOM) {
-        let container = document.querySelector("#" + DOM.questiondivid);
-        let html = `<div class="${DOM.elementdivclass}">`;
-        html += '</div>';
-        
-        container.insertAdjacentHTML("beforeend", html);
-    }
-    
-    insertCanvas(DOM, id, imgsrc) {
-        let container = document.querySelector("." + DOM.elementdivclass);
-        
-        let html = `<div class="${DOM.canvasdivclass}">`;
-        html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
-        html += `<canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2"></canvas>`;
-        html += `<br>`;
-        html += `<div class="${DOM.canvasinfodivclass}">`;
-        //html += `<span class="${DOM.canvaspointclass}" id="${DOM.canvaspointid}">(x, y)</span>`;
-        //html += `<span class="${DOM.canvasmodeclass}" id="${DOM.canvasmodeid}">mode</span>`;
-        html += `</div></div>`;
-        
-        html = html.replace(/%id%/g, id);
-        
-        container.insertAdjacentHTML("beforeend", html);
-    }
-    
-    insertTextbox(DOM, id, label, placeholder) {
-        let container = document.querySelector("." + DOM.elementdivclass);
-        
-        let html = `<div class="${DOM.textboxdivclass}">`;
-        html += `<span class="${DOM.textboxspanclass}">${label}</span>`;
-        html += `<br>`;
-        html += `<input class="${DOM.textboxclass}" placeholder="${placeholder}" id="${DOM.textboxid}">`;
-        html += `<span class="${DOM.textboxanswerclass}" id="${DOM.textboxanswerid}"></span>`;
-        html+= `</input></div>`;
-        
-        html = html.replace(/%id%/g, id);
-        
-        container.insertAdjacentHTML("beforeend", html);
-    }
-    
-    insertText(DOM, label, style) {
-        let container = document.querySelector("." + DOM.elementdivclass);
-        
-        let html = `<span class="${DOM.textspanclass}`;
-        if (style != undefined) {
-            html += ` ${style}`;
+    display(DOM, parentvariables) {
+        // Input variables from parent as constants
+        for (let name of Object.keys(parentvariables)) {
+            this.inputvariables.constants[name] = parentvariables[name];
         }
-        html += `">${label}</span>`;
-        
-        container.insertAdjacentHTML("beforeend", html);
-    }
-    
-    display(DOM, variables) {
-        // Assign and create variables
-        this.importVariables(variables);
-        this.generateVariables();
+        // Generate variable values
+        this.variablevalues = generateVariables(this.inputvariables);
+        // Replace variables in elements with values
         this.assignVariables();
         // Create display elements
-        this.insertContainers(DOM, this.instruction);
+        //this.insertContainers(DOM, this.instruction);
         for (let i in this.elements) {
-            let element = this.elements[i];
-            // Text
-            if (element instanceof TextElement) {
-                this.insertText(DOM, element.label, element.style);
-            // Textbox input
-            } else if (element instanceof TextboxElement) {
-                this.insertTextbox(DOM, i, element.label, element.placeholder);
-            // Graph input
-            } else if (element instanceof GraphElement) {
-                this.insertCanvas(DOM, i, element.imgsrc);
-                this.canvasControllers[i] = new CanvasController(DOM, i, element);
-            }
+            this.elements[i].insertHTML(DOM, i);
         }
-        //console.log(this.variablevalues);
-        //this.insertHintButton(DOM);
-        //this.removeNextButton(DOM);
-        //this.insertSubmitButton(DOM);
     }
     
     submit(DOM) {
@@ -1500,46 +1563,44 @@ class Question {
         for (let i in this.elements) {
             let element = this.elements[i];
             if (element instanceof TextboxElement) {
+                const re = new RegExp(`${VAR}id${VAR}`, "g");
                 // Disable textbox
-                document.getElementById(DOM.textboxid.replace(/%id%/g, i)).disabled = true;
+                document.getElementById(DOM.textboxid.replace(re, i)).disabled = true;
                 // Get answer from textbox
-                let ans = document.getElementById(DOM.textboxid.replace(/%id%/g, i)).value;
+                let ans = document.getElementById(DOM.textboxid.replace(re, i)).value;
                 // Check answer
                 score.max += element.points;
                 score.got += (element.points * element.checkanswer(ans));
-                document.getElementById(DOM.textboxanswerid.replace(/%id%/g, i)).textContent = element.answer;
+                document.getElementById(DOM.textboxanswerid.replace(re, i)).textContent = element.answer;
             } else if (element instanceof GraphElement) {
                 // Get answers from canvas
-                let ans = this.canvasControllers[i].getanswers();
+                let ans = element.canvascontroller.getanswers();
                 // Check answers
                 score.max += element.points;
                 score.got += (element.points * element.checkanswer(ans));
-                this.canvasControllers[i].showanswers(element.answer);
+                element.canvascontroller.showanswers(element.answer);
             }
             score.pct = score.got / score.max;
         }
-        //this.removeSubmitButton(DOM);
-        //this.insertNextButton(DOM);
         return score;
     }
 }
 
+/*
+    Master class for controlling page
+    Consists of a series of questions
+*/
 class ProblemController{
-    /*
-        Master class for controlling page
-        Consists of a series of questions
-    */
     constructor(title, variables) {
         this.title = title;
         this.DOM = this.getDOM;
-        //this.variablevalues = this.generateVariables(variables);
         
         this.questions = [];
         this.score = {};
         this.currentquestion = -1;
         this.inputvariables = variables;
         
-        // Set page title
+        // Set/insert heading title
         document.title = title;
         document.querySelector("#" + this.DOM.titledivid).insertAdjacentHTML("beforeend", title);
         // Catch keyboard events
@@ -1553,21 +1614,22 @@ class ProblemController{
             "titledivid": "title",
             "questiondivid": "question",
                 "canvasdivclass": "canvasarea",
+                "canvasdivid": "canvasarea--" + VAR + "id" + VAR,
                     "canvasclass": "canvas",
-                    "canvasid": "canvas--%id%",
-                    "staticcanvasid": "canvas--static--%id%",
-                    "dynamiccanvasid": "canvas--dynamic--%id%",
+                    "canvasid": "canvas--" + VAR + "id" + VAR,
+                    "staticcanvasid": "canvas--static--" + VAR + "id" + VAR,
+                    "dynamiccanvasid": "canvas--dynamic--" + VAR + "id" + VAR,
                     "canvasinfodivclass": "canvasinfo",
                         "canvaspointclass": "canvaspoint",
-                        "canvaspointid": "canvaspoint--%id%",
+                        "canvaspointid": "canvaspoint--" + VAR + "id" + VAR,
                         "canvasmodeclass": "canvasmode",
-                        "canvasmodeid": "canvasmode--%id%",
+                        "canvasmodeid": "canvasmode--" + VAR + "id" + VAR,
                 "textboxdivclass": "textentry",
                     "textboxspanclass": "textboxlabel",
                     "textboxclass": "textbox",
-                    "textboxid": "textbox--%id%",
+                    "textboxid": "textbox--" + VAR + "id" + VAR,
                     "textboxanswerclass": "textboxanswer",
-                    "textboxanswerid": "textboxanswer--%id%",
+                    "textboxanswerid": "textboxanswer--" + VAR + "id" + VAR,
                 "textspanclass": "textspan",
             "nextdivid": "next",
                 "hintbuttonid": "hintbutton",
@@ -1575,19 +1637,12 @@ class ProblemController{
                 "nextbuttonid": "nextbutton",
             "scoredivid": "score",
                 "scoretitleid": "scoretitle",
-            "restartdivid": "restart",
+            "restartdivid": "next", // "restart",
                 "restartbuttonid": "restartbutton",
         "footerdivid": "footer",
         "hiddentextclass": "hiddentext",
         "hiddenbuttonclass": "hiddenbutton"
         };
-    }
-    
-    refresh() {
-        if (confirm("Really start a new problem?")) {
-            // Refresh the page
-            location = location;
-        }
     }
     
     begin() {
@@ -1599,18 +1654,26 @@ class ProblemController{
         }
         
         // Create buttons
+        this.insertRestartButton(this.DOM);
         this.insertHintButton(this.DOM);
         this.insertSubmitButton(this.DOM);
         this.insertNextButton(this.DOM);
         this.toggleNextButton(this.DOM);
-        this.insertRestartButton(this.DOM);
         
         // Create variables
-        this.variablevalues = this.generateVariables(this.inputvariables);
+        //this.variablevalues = this.generateVariables(this.inputvariables);
+        this.variablevalues = generateVariables(this.inputvariables);
         
         // Start question sequence
         this.currentquestion = -1;
         this.nextQuestion();
+    }
+    
+    refresh() {
+        if (confirm("Really start a new problem?")) {
+            // Refresh the page
+            location = location;
+        }
     }
     
     nextQuestion() {
@@ -1618,44 +1681,7 @@ class ProblemController{
         this.currentquestion++;
         this.display();
     }
-    
-    generateVariables(variables) {
-        let variablevalues = {};
-        // Assign constants
-        for (let name of Object.keys(variables.constants)) {
-            variablevalues[name] = variables.constants[name];
-        }
-        // Assign random variables
-        for (let name of Object.keys(variables.random)) {
-            let low = variables.random[name].min;
-            let high = variables.random[name].max;
-            let digits = variables.random[name].digits;
-            let r = getRandom(low, high);
-            variablevalues[name] = roundTo(r, digits);
-        }
-        // Assign calculated variables
-        for (let name of Object.keys(variables.calculated)) {
-            // Construct expression, fill in variable values
-            let exp = variables.calculated[name];
-            // Keep replacing until no variables remain
-            let maxloops = 10;
-            let loops = 0;
-            while (exp.indexOf("%") != -1 && loops < maxloops) {
-                for (let variable of Object.keys(variablevalues)) {
-                    exp = exp.replace(`%${variable}%`, variablevalues[variable]);
-                }
-                loops++;
-            }
-            if (loops >= maxloops) {
-                console.log("Error, maximum loops exceeded, variable not found.");
-            }
-            // Evaluate expression
-            //console.log("Evaluating",exp);
-            variablevalues[name] = eval(exp);
-        }
-        return variablevalues;
-    }
-    
+
     keyEvent(e) {
         //console.log(`ProblemController: pressed ${e.key}`);
         if (e.key === "Enter") {
@@ -1746,11 +1772,11 @@ class ProblemController{
         html += "<table>";
         html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
         for (let i in score) {
-            html += `<tr><td>${parseFloat(i)+1}</td><td>${score[i].got}</td><td>${score[i].max}</td><td>${score[i].pct*100}%</td></tr>`;
+            html += `<tr><td>${parseFloat(i)+1}</td><td>${roundTo(score[i].got, 2)}</td><td>${roundTo(score[i].max, 2)}</td><td>${roundTo(score[i].pct*100, 0)}%</td></tr>`;
             sumscore += score[i].got;
             sumpoints += score[i].max;
         }
-        html += `<tr><td>Total</td><td>${sumscore}</td><td>${sumpoints}</td><td>${roundTo(sumscore/sumpoints*100,0)}%</td></tr>`;
+        html += `<tr><td>Total</td><td>${roundTo(sumscore, 2)}</td><td>${roundTo(sumpoints, 2)}</td><td>${roundTo(sumscore/sumpoints*100,0)}%</td></tr>`;
         html += "</table>";
         
         container.insertAdjacentHTML("beforeend", html);
@@ -1762,16 +1788,20 @@ class ProblemController{
         this.clearPage();
         if (this.currentquestion > -1) {
             // Add current question objects to html
-            this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
-            // Add listening event to buttons
-            //document.querySelector("#" + this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
+            if (this.currentquestion < this.questions.length) {
+                // TODO remove this if wrapper, instead remove event from Next button
+                this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
+            }
         }
         this.updateScores(this.DOM, this.score);
+        // Slide scores off screen
         document.getElementById(this.DOM.scoredivid).classList.remove("showscore");
     }
     
     showhint() {
+        // Prevent multiple clicks
         this.disableHintButton(this.DOM);
+        // Loop through all hints, remove hidden text class
         let elements = document.getElementsByClassName(this.DOM.hiddentextclass);
         while (elements[0]) {
             elements[0].classList.remove(this.DOM.hiddentextclass);
@@ -1785,16 +1815,12 @@ class ProblemController{
         // Update score for this question, call Question.submit
         this.score[this.currentquestion] = this.questions[this.currentquestion].submit(this.DOM);
         if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
-            // Add listening event to Next button
-            //document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
-            // Adjust label to Finish if on last question
+            // If on last question, adjust button label and click event
             if (this.currentquestion == this.questions.length - 1) {
                 document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Finish";
+                document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.finish(e));
             }
         } else {
-            // Add listening event to Next button
-            //document.querySelector("#" + this.DOM.nextbuttonid).addEventListener("click", e => this.repeat(e));
-            // Adjust label to Retry
             document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Retry";
         }
         this.toggleSubmitButton(this.DOM);
@@ -1815,11 +1841,7 @@ class ProblemController{
         this.toggleSubmitButton(this.DOM);
         this.toggleNextButton(this.DOM);
         this.enableHintButton(this.DOM);
-        if (this.currentquestion < this.questions.length - 1) {
-            this.nextQuestion();
-        } else {
-            this.finish();
-        }
+        this.nextQuestion();
     }
     
     finish() {

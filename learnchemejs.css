@@ -28,6 +28,7 @@ body {
 
 #header {
     color: #CFB87C;
+    padding: 5px;
     background-color: #222222;
     width: 100%;
     height: 60px;
@@ -45,7 +46,8 @@ body {
 }
 
 #footer {
-    color: #CFB87C;
+    color: #DDDDDD;
+    padding: 5px;
     background-color: black;
     position:absolute;
     bottom: 0;
