@@ -135,7 +135,9 @@ problemController.addQuestion(
                 "default": {
                     "line": [
                         {"points":[{"x":0, "y":4, "movey":true, "show":false},
-                                   {"x":1, "y":4, "movey":true, "show":false}], "color":graycolor, "answer":true}
+                                   {"x":1, "y":4, "movey":true, "show":false}], "color":graycolor, "answer":true, "altcursor": {"format": "P = ~y~",
+                                                                                                                                "digits": {"y": 1,
+                                                                                                                                          }}},
                     ],
                     "text": [
                         {"text":"region A", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},

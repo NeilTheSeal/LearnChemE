@@ -1050,6 +1050,47 @@ class CanvasController {
             this.draw(answer);
         }
     }
+    drawCursor(cursorpt, cursordata) {
+        let cursoralign = "";
+        // Constants align box position around crosshair cursor nicely
+        if (cursorpt.rawx < this.dynamiccanvas.width/2) {
+            // Left
+            cursoralign = "left";
+            cursorpt.rawx += 4;
+        } else {
+            // Right
+            cursoralign = "right";
+            cursorpt.rawx -= 5;
+        }
+        if (cursorpt.rawy < this.dynamiccanvas.height/2) {
+            // Top
+            cursorpt.rawy += 15;
+        } else {
+            // Bottom
+            cursorpt.rawy -= 5;
+
+        }
+
+        let content = cursordata.format;
+        if (this.graphinfo.x != undefined) {
+            content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
+        }
+        if (this.graphinfo.y != undefined) {
+            content = content.replace(`${SPVAR}y${SPVAR}`, cursorpt.y.toFixed(this.cursor.digits.y));
+        }
+        if (this.graphinfo.x2 != undefined) {
+            content = content.replace(`${SPVAR}x2${SPVAR}`, cursorpt.x2.toFixed(this.cursor.digits.x2));
+        }
+        if (this.graphinfo.y2 != undefined) {
+            content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
+        }
+
+        this.draw(new Text({"text":content,
+                            "color":"black",
+                            "font":"bold 16px arial",
+                            "align":cursoralign,
+                            "position":cursorpt}));
+    }
     mouseMove(e) {
         // Whenever the mouse is moved over the canvas object
         this.currentpoint = this.getMousePoint(e);
@@ -1062,41 +1103,15 @@ class CanvasController {
                 if (isBetween(pt.x, this.graphinfo.x.min, this.graphinfo.x.max) &&
                     isBetween(pt.y, this.graphinfo.y.min, this.graphinfo.y.max)) {
                     let cursorpt = new Point(pt.data);
-                    let cursoralign = "";
-                    // Constants align box position around crosshair cursor nicely
-                    if (cursorpt.rawx < this.dynamiccanvas.width/2) {
-                        cursoralign = "left";
-                        cursorpt.rawx += 5;
+                    if (this.held) {
+                        if (this.held.altcursor) {
+                            this.drawCursor(cursorpt, this.held.altcursor);
+                        } else {
+                            this.drawCursor(cursorpt, this.cursor);
+                        }
                     } else {
-                        cursoralign = "right";
-                        cursorpt.rawx -= 5;
+                        this.drawCursor(cursorpt, this.cursor);
                     }
-                    if (cursorpt.rawy < this.dynamiccanvas.height/2) {
-                        cursorpt.rawy += 13;
-                    } else {
-                        cursorpt.rawy -= 5;
-
-                    }
-                    
-                    let content = this.cursor.format;
-                    if (this.graphinfo.x != undefined) {
-                        content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
-                    }
-                    if (this.graphinfo.y != undefined) {
-                        content = content.replace(`${SPVAR}y${SPVAR}`, cursorpt.y.toFixed(this.cursor.digits.y));
-                    }
-                    if (this.graphinfo.x2 != undefined) {
-                        content = content.replace(`${SPVAR}x2${SPVAR}`, cursorpt.x2.toFixed(this.cursor.digits.x2));
-                    }
-                    if (this.graphinfo.y2 != undefined) {
-                        content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
-                    }
-                    
-                    this.draw(new Text({"text":content,
-                                        "color":"black",
-                                        "font":"bold 14px arial",
-                                        "align":cursoralign,
-                                        "position":cursorpt}));
                 }
             }
             if (this.mode === "move") {
