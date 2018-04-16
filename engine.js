@@ -30,14 +30,17 @@ GraphElement
 
 const VAR = "@";
 const SPVAR = "~";
+const HIDESCOREWINDOWWIDTH = 975;
 const IDLENGTH = 16;
 const POINTRADIUS = 5;
 const POINTCOLOR = "black";
 const LINEWIDTH = 2;
 const LINECOLOR = "black";
 const GRABRADIUS = 10;
-const FONTSTYLE = "20px Arial";
+const FONTSTYLE = "20px sans-serif";
 const FONTCOLOR = "black";
+const CURSORCOLOR = "black";
+const CURSORSTYLE = "bold 16px sans-serif";
 
 // ##### Misc functions #####
 
@@ -456,7 +459,7 @@ class GraphInfo {
 /*
     Text element for display through CanvasController
     @param {string} text Text to display
-    @param {string} font ex. "italic 20px Arial"
+    @param {string} font ex. "italic 20px sans-serif"
     @param {string} align "left", "right", or "center"
     @param {string} color Color of text
     @param {Point} position Location on canvas
@@ -1085,11 +1088,11 @@ class CanvasController {
             content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
         }
 
-        this.draw(new Text({"text":content,
-                            "color":"black",
-                            "font":"bold 16px arial",
-                            "align":cursoralign,
-                            "position":cursorpt}));
+        this.draw(new Text({"text": content,
+                            "color": CURSORCOLOR,
+                            "font": CURSORSTYLE,
+                            "align": cursoralign,
+                            "position": cursorpt}));
     }
     mouseMove(e) {
         // Whenever the mouse is moved over the canvas object
@@ -1783,7 +1786,7 @@ class ProblemController{
         let sumpoints = 0;
         
         // Create new score object
-        let html = `<span id=${DOM.scoretitleid}>SCORES</span>`;
+        let html = `<span id=${DOM.scoretitleid}>SCORE</span>`;
         html += "<table>";
         html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
         for (let i in score) {
@@ -1868,3 +1871,12 @@ class ProblemController{
         document.getElementById(this.DOM.scoredivid).classList.add("showscore");
     }
 }
+
+// Score box will hide on narrow windows
+document.getElementsByTagName("BODY")[0].onresize = function myFunction() {
+    if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
+        document.getElementById("score").classList.add("hidescore")
+    } else {
+        document.getElementById("score").classList.remove("hidescore")
+    }
+};

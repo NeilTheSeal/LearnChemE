@@ -71,8 +71,13 @@ body {
     display: inline-block;
     width: 260px;
     top: 100px;
-    right: -220px;
+    right: 0px;
     transition: 0.3s;
+    z-index: 2;
+}
+
+#score.hidescore {
+    right: -220px;
 }
 
 #score.showscore {
@@ -95,6 +100,7 @@ table {
     position: relative;
     left: 20px;
     display: inline-block;
+    background: white;
     border: 1px solid black;
     border-collapse: collapse;
     color: #444444;
