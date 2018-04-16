@@ -102,7 +102,7 @@ let detailedcursor = {"format": "x@org@ = ~x~, P = ~y~",
                       "digits": {"x": 2,
                                  "y": 2,
                                 }};
-/*
+
 problemController.addQuestion(
     new Question({
         "variables": {
@@ -274,7 +274,7 @@ problemController.addQuestion(
         ],
         "requiredscore": 0.00
     })
-);*/
+);
 
 problemController.addQuestion(
     new Question({
