@@ -23,7 +23,7 @@ GraphElement
     boolean to set case sensitivity
     allow line construction with a function instead of points
     allow region based on set of inequalities
-    
+    add user score submission at the end
 */
 
 // ##### Constants (default values) #####
@@ -36,7 +36,7 @@ const POINTRADIUS = 5;
 const POINTCOLOR = "black";
 const LINEWIDTH = 2;
 const LINECOLOR = "black";
-const GRABRADIUS = 10;
+const GRABRADIUS = 5;
 const FONTSTYLE = "20px sans-serif";
 const FONTCOLOR = "black";
 const CURSORCOLOR = "black";
@@ -58,7 +58,7 @@ function getDist(pt1, pt2, mode="cal") {
     }
 }
 
-/*
+/**
     Gets a random float between two values
     @param {float} low Lowest value
     @param {float} high Highest value
@@ -67,7 +67,7 @@ function getRandom(low, high) {
     return Math.random() * (high - low) + low;
 }
 
-/*
+/**
     Rounds a float to a given number of decimal places
     @param {float} num Number to round
     @param {int} digits Number of digits to round to
@@ -77,7 +77,7 @@ function roundTo(num, digits) {
     return Math.round(num * mul) / mul;
 }
 
-/*
+/**
     Returns one of two results based on a condition
     @param {string} condition
     @param {} iftrue
@@ -91,7 +91,7 @@ function ifTF(condition, iftrue, iffalse) {
     }
 }
 
-/*
+/**
     Generates a string of random digits
     @param {int} digits Number of digits in ID
 */
@@ -115,7 +115,7 @@ function isIterable(obj) {
     return typeof obj[Symbol.iterator] === 'function';
 }
 
-/*
+/**
     Performs a replacement on all strings contained in an object
     @param {object} obj Object to replace in
     @param {string} pattern String to find
@@ -135,7 +135,7 @@ function recursiveReplace(obj, pattern, replacement) {
     return obj;
 }
 
-/*
+/**
     Recursively converts all number-like strings into numbers
     @param {object} obj Object to numberfy
 */
@@ -150,7 +150,7 @@ function recursiveNumberfy(obj) {
     return obj;
 }
 
-/*
+/**
     Tests if a pattern exists on any string contained in an object
     @param {object} obj Object to replace in
     @param {string} pattern String to find
@@ -171,7 +171,7 @@ function recursiveExists(obj, pattern) {
     return false;
 }
 
-/*
+/**
     Attempts to find a pattern in any string contained in an object
     @param {object} obj Object to replace in
     @param {string} pattern String to find
@@ -200,18 +200,17 @@ function recursiveFind(obj, pattern) {
 }
 
 
-/*
+/**
     Generate hash from string
 */
 String.prototype.hashCode = function() {
-    var hash = 0;
-    if (this.length == 0) {
-        return hash;
-    }
-    for (var i = 0; i < this.length; i++) {
-        var char = this.charCodeAt(i);
-        hash = ((hash<<5)-hash)+char;
-        hash = hash & hash; // Convert to 32bit integer
+    let hash = 0;
+    if (this.length > 0) {
+        for (let i = 0; i < this.length; i++) {
+            const char = this.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
     }
     return hash;
 }
@@ -225,7 +224,7 @@ console.log('hashing', s, s.hashCode());
 */
 
 
-/*
+/**
     Returns true if x is between a and b (or equal to either)
     @param {num} x Test number
     @param {num} a First boundary
@@ -235,7 +234,7 @@ function isBetween(x, a, b) {
     return (a <= x && x <= b) || (a >= x && x >= b)
 }
 
-/*
+/**
     Returns x if between a and b, otherwise whichever boundary is closer
     @param {num} x Test number
     @param {num} a First boundary
@@ -247,7 +246,7 @@ function minMax(x, a, b) {
     return Math.max(Math.min(x, max), min);
 }
 
-/*
+/**
     Generates a dict of variable values
     @param {dict} variables
         @param {dict} constants Constant values
@@ -294,9 +293,50 @@ function generateVariables(variables) {
     return variablevalues;
 }
 
+/**
+    Creates a new cookie for this page
+*/
+function setCookie(cname, cvalue, milliseconds) {
+    var d = new Date();
+    d.setTime(d.getTime() + milliseconds);
+    var expires = "expires=" + d.toGMTString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+/**
+    Retrieves a cookie for this page
+*/
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return undefined;
+}
+
+function checkCookie() {
+    var user=getCookie("username");
+    if (user != "") {
+        alert("Welcome again " + user);
+    } else {
+       user = prompt("Please enter your name:","");
+       if (user != "" && user != null) {
+           setCookie("username", user, 5*1000);
+       }
+    }
+}
+
 // ##### Canvas objects #####
 
-/*
+/**
     rawx    <float> canvas-based x position of point
     rawy    <float> canvas-based y position of point
     x       <float> graph-based x position of point
@@ -369,7 +409,7 @@ class Point {
     }
 }
 
-/*
+/**
     points          <list> List of point constructor argument objects
     color           <str> Color of line
     width           <float> Width of line
@@ -410,7 +450,7 @@ class Line {
     }
 }
 
-/*
+/**
     Container class for graph/calibration data
     @param {int} graphheight Height (in px) of the vertical (y) axes
     @param {int} graphwidth Width (in px) of the horizontal (x) axes
@@ -496,7 +536,7 @@ class GraphInfo {
     }
 }
 
-/*
+/**
     Text element for display through CanvasController
     @param {string} text Text to display
     @param {string} font ex. "italic 20px sans-serif"
@@ -534,7 +574,7 @@ class Text {
 
 // ##### Other classes #####
 
-/*
+/**
     Stacked canvases for drawing on different layers
     @param {int} width Width of canvases
     @param {int} height Height of canvases
@@ -575,7 +615,7 @@ class ZCanvas {
 // ##### Controllers #####
 
 class CanvasController {
-    /*
+    /**
         Controller class for HTML canvas objects
     */
     constructor(DOM, index, args) {
@@ -608,7 +648,7 @@ class CanvasController {
         // Canvas objects
         this.height = this.graphinfo.height;
         this.width = this.graphinfo.width;
-        document.getElementById(this.divid).style.height = this.height + "px"; // working
+        document.getElementById(this.divid).style.height = this.height + "px";
         this.staticcanvas.width = this.width;
         this.staticcanvas.height = this.height;
         this.dynamiccanvas.width = this.width;
@@ -695,7 +735,7 @@ class CanvasController {
             }
         }
     }
-    /*
+    /**
         Creates geometric class object from input data
         @param {string} type "point", "line", or "text"
         @param {dict} data Dict of input arguments for object
@@ -750,7 +790,7 @@ class CanvasController {
             return new Text(data);
         }
     }
-    /*
+    /**
         Returns a point object at the current location of the cursor
         @param {event} e Mouse event
     */
@@ -949,7 +989,7 @@ class CanvasController {
         this.staticctx.stroke();
     }
     drawAxis(axis) {
-        
+        // TODO abstract above method
     }
     drawImage() {
         /*this.img.onload = function(a) {
@@ -967,23 +1007,25 @@ class CanvasController {
         //console.log("Drawing:", element);
         this.dynamicctx.save();
         if (element instanceof Point) {
-            // Black border
-            this.dynamicctx.beginPath();
-            this.dynamicctx.fillStyle = "black";
-            this.dynamicctx.globalAlpha = 1;
-            this.dynamicctx.arc(element.rawx, element.rawy, element.radius, 2*Math.PI, false);
-            this.dynamicctx.fill();
-            // Colored interior
-            this.dynamicctx.beginPath();
-            this.dynamicctx.fillStyle = element.color;
-            this.dynamicctx.arc(element.rawx, element.rawy, element.radius-1, 2*Math.PI, false);
-            this.dynamicctx.fill();
-            if (element.correctanswer) {
+            if (isBetween(element.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
+                isBetween(element.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+                // Black border
                 this.dynamicctx.beginPath();
-                this.dynamicctx.strokeStyle = "green";
-                //this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.imgcalibration.scalex, element.tolerance.y*this.imgcalibration.scaley, 0, 0, 2*Math.PI, false);
-                this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.graphinfo.scaleX, element.tolerance.y*-this.graphinfo.scaleY, 0, 0, 2*Math.PI, false);
-                this.dynamicctx.stroke();
+                this.dynamicctx.fillStyle = "black";
+                this.dynamicctx.globalAlpha = 1;
+                this.dynamicctx.arc(element.rawx, element.rawy, element.radius, 2*Math.PI, false);
+                this.dynamicctx.fill();
+                // Colored interior
+                this.dynamicctx.beginPath();
+                this.dynamicctx.fillStyle = element.color;
+                this.dynamicctx.arc(element.rawx, element.rawy, element.radius-1, 2*Math.PI, false);
+                this.dynamicctx.fill();
+                if (element.correctanswer) {
+                    this.dynamicctx.beginPath();
+                    this.dynamicctx.strokeStyle = "green";
+                    this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.graphinfo.scaleX, element.tolerance.y*-this.graphinfo.scaleY, 0, 0, 2*Math.PI, false);
+                    this.dynamicctx.stroke();
+                }
             }
         } else if (element instanceof Line) {
             // Connect points
@@ -994,8 +1036,8 @@ class CanvasController {
             let first = true;
             //console.log(element);
             for (let pt of element.points) {
-                if (this.graphinfo.graphleft <= pt.rawx && pt.rawx <= this.graphinfo.graphright && this.graphinfo.graphtop <= pt.rawy && pt.rawy <= this.graphinfo.graphbottom) {
-                    
+                if (isBetween(pt.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
+                    isBetween(pt.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
                     if (first) {
                         // Move to start of line
                         this.dynamicctx.moveTo(pt.rawx, pt.rawy);
@@ -1011,11 +1053,13 @@ class CanvasController {
             //this.dynamicctx.globalAlpha = 0.1;
             //this.dynamicctx.fill();
         } else if (element instanceof Text) {
-            this.dynamicctx.fillStyle = element.color;
-            this.dynamicctx.globalAlpha = 1;
-            this.dynamicctx.font = element.font;
-            this.dynamicctx.textAlign = element.align;
-            this.dynamicctx.fillText(element.text, element.position.rawx, element.position.rawy);
+            if (this.graphinfo.graphleft <= element.position.rawx && element.position.rawx <= this.graphinfo.graphright && this.graphinfo.graphtop <= element.position.rawy && element.position.rawy <= this.graphinfo.graphbottom) {
+                this.dynamicctx.fillStyle = element.color;
+                this.dynamicctx.globalAlpha = 1;
+                this.dynamicctx.font = element.font;
+                this.dynamicctx.textAlign = element.align;
+                this.dynamicctx.fillText(element.text, element.position.rawx, element.position.rawy);
+            }
         }
         this.dynamicctx.restore();
     }
@@ -1098,67 +1142,64 @@ class CanvasController {
         }
     }
     drawCursor(cursorpt, cursordata) {
-        let cursoralign = "";
-        // Constants align box position around crosshair cursor nicely
-        if (cursorpt.rawx < this.dynamiccanvas.width/2) {
-            // Left
-            cursoralign = "left";
-            cursorpt.rawx += 4;
-        } else {
-            // Right
-            cursoralign = "right";
-            cursorpt.rawx -= 5;
-        }
-        if (cursorpt.rawy < this.dynamiccanvas.height/2) {
-            // Top
-            cursorpt.rawy += 15;
-        } else {
-            // Bottom
-            cursorpt.rawy -= 5;
+        if (isBetween(cursorpt.x, this.graphinfo.x.min, this.graphinfo.x.max) &&
+            isBetween(cursorpt.y, this.graphinfo.y.min, this.graphinfo.y.max)) {
+            let cursoralign = "";
+            // Constants align box position around crosshair cursor nicely
+            if (cursorpt.rawx < this.dynamiccanvas.width/2) {
+                // Left
+                cursoralign = "left";
+                cursorpt.rawx += 4;
+            } else {
+                // Right
+                cursoralign = "right";
+                cursorpt.rawx -= 5;
+            }
+            if (cursorpt.rawy < this.dynamiccanvas.height/2) {
+                // Top
+                cursorpt.rawy += 15;
+            } else {
+                // Bottom
+                cursorpt.rawy -= 5;
 
-        }
+            }
 
-        let content = cursordata.format;
-        if (this.graphinfo.x != undefined) {
-            content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
-        }
-        if (this.graphinfo.y != undefined) {
-            content = content.replace(`${SPVAR}y${SPVAR}`, cursorpt.y.toFixed(this.cursor.digits.y));
-        }
-        if (this.graphinfo.x2 != undefined) {
-            content = content.replace(`${SPVAR}x2${SPVAR}`, cursorpt.x2.toFixed(this.cursor.digits.x2));
-        }
-        if (this.graphinfo.y2 != undefined) {
-            content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
-        }
+            let content = cursordata.format;
+            if (this.graphinfo.x != undefined) {
+                content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
+            }
+            if (this.graphinfo.y != undefined) {
+                content = content.replace(`${SPVAR}y${SPVAR}`, cursorpt.y.toFixed(this.cursor.digits.y));
+            }
+            if (this.graphinfo.x2 != undefined) {
+                content = content.replace(`${SPVAR}x2${SPVAR}`, cursorpt.x2.toFixed(this.cursor.digits.x2));
+            }
+            if (this.graphinfo.y2 != undefined) {
+                content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
+            }
 
-        this.draw(new Text({"text": content,
-                            "color": CURSORCOLOR,
-                            "font": CURSORSTYLE,
-                            "align": cursoralign,
-                            "position": cursorpt}));
+            this.draw(new Text({"text": content,
+                                "color": CURSORCOLOR,
+                                "font": CURSORSTYLE,
+                                "align": cursoralign,
+                                "position": cursorpt}));
+        }
     }
     mouseMove(e) {
         // Whenever the mouse is moved over the canvas object
-        this.currentpoint = this.getMousePoint(e);
         if (this.interactable) {
             this.update();
             let pt = this.getMousePoint(e);
             if (this.cursor != undefined) {
-                // Check if cursor is between bounding limits
-                //console.log(pt.x, this.graphinfo.x.min, this.graphinfo.x.max, pt.y, this.graphinfo.y.min, this.graphinfo.y.max);
-                if (isBetween(pt.x, this.graphinfo.x.min, this.graphinfo.x.max) &&
-                    isBetween(pt.y, this.graphinfo.y.min, this.graphinfo.y.max)) {
-                    let cursorpt = new Point(pt.data);
-                    if (this.held) {
-                        if (this.held.altcursor) {
-                            this.drawCursor(cursorpt, this.held.altcursor);
-                        } else {
-                            this.drawCursor(cursorpt, this.cursor);
-                        }
+                let cursorpt = new Point(pt.data);
+                if (this.held) {
+                    if (this.held.altcursor) {
+                        this.drawCursor(cursorpt, this.held.altcursor);
                     } else {
                         this.drawCursor(cursorpt, this.cursor);
                     }
+                } else {
+                    this.drawCursor(cursorpt, this.cursor);
                 }
             }
             if (this.mode === "move") {
@@ -1341,6 +1382,7 @@ class CanvasController {
                 this.drawing = true;
             }
             this.update();
+            this.draw(this.held);
         }
     }
     
@@ -1360,11 +1402,11 @@ class CanvasController {
 // ##### Problem/question classes #####
 
 class GraphElement {
-    /*
+    /**
         Container class for graph-entry questions
     */
     constructor(inputarguments) {
-        /*
+        /**
             imgsrc: image source file
             imgcal: calibration for image file
             mode: mode for the canvascontroller to be in
@@ -1458,7 +1500,7 @@ class GraphElement {
     }
     
     insertHTML(DOM, id) {
-        let container = document.querySelector("#" + DOM.questiondivid);
+        let container = document.getElementById(DOM.questiondivid);
         
         let html = `<div class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
@@ -1478,7 +1520,7 @@ class GraphElement {
     }
 }
 
-/*
+/**
     Container class for text display
     label: Text to display before textbox
     style: CSS style to apply
@@ -1491,7 +1533,7 @@ class TextElement {
     }
     
     insertHTML(DOM, id) {
-        let container = document.querySelector("#" + DOM.questiondivid);
+        let container = document.getElementById(DOM.questiondivid);
         
         let html = `<span class="${DOM.textspanclass}`;
         if (this.style != undefined) {
@@ -1503,7 +1545,7 @@ class TextElement {
     }
 }
 
-/*
+/**
     Container class for textbox-entry questions
     label: Text to display before textbox
     placeholder: Placeholder text in textbox
@@ -1541,7 +1583,7 @@ class TextboxElement {
     }
     
     insertHTML(DOM, id) {
-        let container = document.querySelector("#" + DOM.questiondivid);
+        let container = document.getElementById(DOM.questiondivid);
         let html = `<div class="${DOM.textboxdivclass}">`;
         html += `<span class="${DOM.textboxspanclass}">${this.label}</span>`;
         html += `<br>`;
@@ -1556,7 +1598,7 @@ class TextboxElement {
     }
 }
 
-/*
+/**
     Container class for each question
     Consists of elements displayed sequentially on the page
     variables: list of variables in problem
@@ -1655,7 +1697,7 @@ class Question {
     }
 }
 
-/*
+/**
     Master class for controlling page
     Consists of a series of questions
 */
@@ -1671,7 +1713,9 @@ class ProblemController{
         
         // Set/insert heading title
         document.title = title;
-        document.querySelector("#" + this.DOM.titledivid).insertAdjacentHTML("beforeend", title);
+        document.getElementById(this.DOM.titledivid).insertAdjacentHTML("beforeend", title);
+        // Score box will hide if window is resized too narrowly
+        this.pagesetup(this.DOM);
         // Catch keyboard events
         document.addEventListener("keydown", e => this.keyEvent(e));
     }
@@ -1700,17 +1744,44 @@ class ProblemController{
                     "textboxanswerclass": "textboxanswer",
                     "textboxanswerid": "textboxanswer--" + VAR + "id" + VAR,
                 "textspanclass": "textspan",
-            "nextdivid": "next",
+            "buttonsdivid": "buttons",
+                "restartbuttonid": "restartbutton",
                 "hintbuttonid": "hintbutton",
                 "submitbuttonid": "submitbutton",
                 "nextbuttonid": "nextbutton",
             "scoredivid": "score",
                 "scoretitleid": "scoretitle",
-            "restartdivid": "next", // "restart",
-                "restartbuttonid": "restartbutton",
+            "gradedivid": "submitgrade",
+                "nametextid": "nametext",
+                "cuidtextid": "cuidtext",
+                "gradebuttonid": "gradebutton",
         "footerdivid": "footer",
         "hiddentextclass": "hiddentext",
-        "hiddenbuttonclass": "hiddenbutton"
+        "hiddenbuttonclass": "hiddenbutton",
+        "hidescoreclass": "hidescore",
+        
+        "tipboxdivclass" : "tipbox",
+        "tipboxdivid" : "tipbox--" + VAR + "id" + VAR,
+        "tipboxtextclass" : "tiptext",
+        "tipboxcheckid" : "tipcheck--" + VAR + "id" + VAR,
+        "tipboxdontshowclass" : "tipdontshow",
+        "tipboxbuttonclass" : "tipbutton",
+        "tipboxbuttonid" : "tipbutton--" + VAR + "id" + VAR,
+        };
+    }
+    
+    pagesetup(DOM) {
+        if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
+            document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
+        } else {
+            document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
+        }
+        document.getElementsByTagName("BODY")[0].onresize = function() {
+            if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
+                document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
+            } else {
+                document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
+            }
         };
     }
     
@@ -1769,86 +1840,159 @@ class ProblemController{
     
     clearPage() {
         // Clear question objects from html
-        let container = document.querySelector("#" + this.DOM.questiondivid);
+        let container = document.getElementById(this.DOM.questiondivid);
         while (container.hasChildNodes()) {
             container.firstChild.remove();
         }
     }
     
-    insertHintButton(DOM) {
-        let container = document.querySelector("#" + DOM.nextdivid);
-        let html = `<button id="${DOM.hintbuttonid}">Hint</button>`;
+    insertScoreInput() {
+        let container = document.getElementById(this.DOM.gradedivid);
+        let html = `<div class="${this.DOM.textboxdivclass}">`;
+        html += `<span class="${this.DOM.textboxspanclass}">Name:</span>`;
+        html += `<br>`;
+        html += `<input class="${this.DOM.textboxclass}" id="${this.DOM.nametextid}">`;
+        html += `</input></div>`;
+        html += `<div class="${this.DOM.textboxdivclass}">`;
+        html += `<span class="${this.DOM.textboxspanclass}">Student ID:</span>`;
+        html += `<br>`;
+        html += `<input class="${this.DOM.textboxclass}" id="${this.DOM.cuidtextid}">`;
+        html += `</input></div>`;
+        html += `<button id="${this.DOM.gradebuttonid}">Submit for Grade</button>`;
+        html += "<br><br><br><br>"
+        container.insertAdjacentHTML("beforeend", html);
+        document.getElementById(this.DOM.gradebuttonid).addEventListener("click", e => this.submitforgrade(e));
+    }
+    
+    submitforgrade() {
+        const name = document.getElementById(this.DOM.nametextid).value;
+        const cuid = document.getElementById(this.DOM.cuidtextid).value;
+        const score = roundTo(this.sumScore(this.score).pct*100, 0);
+        console.log(name, cuid, score);
+        let ss = name + cuid + score;
+        console.log(ss.hashCode());
+    }
+    
+    insertHintButton() {
+        let container = document.getElementById(this.DOM.buttonsdivid);
+        let html = `<button id="${this.DOM.hintbuttonid}">Hint</button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.hintbuttonid).addEventListener("click", e => this.showhint(e));
     }
     
-    insertSubmitButton(DOM) {
-        let container = document.querySelector("#" + DOM.nextdivid);
-        let html = `<button id="${DOM.submitbuttonid}">Submit Answers</button>`;
+    insertSubmitButton() {
+        let container = document.getElementById(this.DOM.buttonsdivid);
+        let html = `<button id="${this.DOM.submitbuttonid}">Submit Answers</button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
     }
     
-    insertNextButton(DOM) {
-        let container = document.querySelector("#" + DOM.nextdivid);
-        let html = `<button id="${DOM.nextbuttonid}">Next Part</button>`;
+    insertNextButton() {
+        let container = document.getElementById(this.DOM.buttonsdivid);
+        let html = `<button id="${this.DOM.nextbuttonid}">Next Part</button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
     }
     
-    insertRestartButton(DOM) {
+    insertRestartButton() {
         // Add button
-        let container = document.querySelector("#" + DOM.restartdivid);
-        let html = `<button id="${DOM.restartbuttonid}">New Problem</button>`;
+        let container = document.getElementById(this.DOM.buttonsdivid);
+        let html = `<button id="${this.DOM.restartbuttonid}">New Problem</button>`;
         container.insertAdjacentHTML("beforeend", html);
         // Add event listener to button
-        document.querySelector("#" + this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
+        document.getElementById(this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
     }
     
-    enableHintButton(DOM) {
-        document.getElementById(DOM.hintbuttonid).disabled = false;
+    enableHintButton() {
+        document.getElementById(this.DOM.hintbuttonid).disabled = false;
     }
     
-    disableHintButton(DOM) {
-        document.getElementById(DOM.hintbuttonid).disabled = true;
+    disableHintButton() {
+        document.getElementById(this.DOM.hintbuttonid).disabled = true;
     }
     
-    toggleSubmitButton(DOM) {
-        document.getElementById(DOM.submitbuttonid).classList.toggle(DOM.hiddenbuttonclass);
+    toggleSubmitButton() {
+        document.getElementById(this.DOM.submitbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
     }
     
-    toggleNextButton(DOM) {
-        document.getElementById(DOM.nextbuttonid).classList.toggle(DOM.hiddenbuttonclass);
+    toggleNextButton() {
+        document.getElementById(this.DOM.nextbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
     }
     
-    toggleHintButton(DOM) {
-        document.getElementById(DOM.hintbuttonid).classList.toggle(DOM.hiddenbuttonclass);
+    toggleHintButton() {
+        document.getElementById(this.DOM.hintbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
     }
     
-    updateScores(DOM, score, show) {
-        let container = document.querySelector("#" + DOM.scoredivid);
+    sumScore(score) {
+        let sumscore = 0;
+        let sumpoints = 0;
+        for (let i in score) {
+            sumscore += score[i].got;
+            sumpoints += score[i].max;
+        }
+        return {
+            "got": sumscore,
+            "max": sumpoints,
+            "pct": sumscore / sumpoints,
+        };
+    }
+    
+    updateScores(score) {
+        let container = document.getElementById(this.DOM.scoredivid);
         
         // Clear score objects from html
         while (container.hasChildNodes()) {
             container.firstChild.remove();
         }
         
-        let sumscore = 0;
-        let sumpoints = 0;
-        
         // Create new score object
-        let html = `<span id=${DOM.scoretitleid}>SCORE</span>`;
+        let html = `<span id=${this.DOM.scoretitleid}>SCORE</span>`;
         html += "<table>";
         html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
         for (let i in score) {
             html += `<tr><td>${parseFloat(i)+1}</td><td>${roundTo(score[i].got, 2)}</td><td>${roundTo(score[i].max, 2)}</td><td>${roundTo(score[i].pct*100, 0)}%</td></tr>`;
-            sumscore += score[i].got;
-            sumpoints += score[i].max;
         }
-        html += `<tr><td>Total</td><td>${roundTo(sumscore, 2)}</td><td>${roundTo(sumpoints, 2)}</td><td>${roundTo(sumscore/sumpoints*100,0)}%</td></tr>`;
+        const sumscore = this.sumScore(score);
+        html += `<tr><td>Total</td><td>${roundTo(sumscore.got, 2)}</td><td>${roundTo(sumscore.max, 2)}</td><td>${roundTo(sumscore.pct * 100,0)}%</td></tr>`;
         html += "</table>";
         
         container.insertAdjacentHTML("beforeend", html);
+    }
+    
+    insertTipBox(tip, left, top, uuid) {
+        const COOKIEEXPIRATION = 30*1000; // In milliseconds
+        let container = document.getElementById(this.DOM.bodydivid);
+        // Generate uuid from tip string
+        uuid = tip.hashCode();
+        // If haven't been told to not show
+        if (!getCookie(uuid) === true) {
+            // Create id strings
+            const re = new RegExp(`${VAR}id${VAR}`, "g");
+            const divid = this.DOM.tipboxdivid.replace(re, uuid);
+            const checkid = this.DOM.tipboxcheckid.replace(re, uuid);
+            const buttonid = this.DOM.tipboxbuttonid.replace(re, uuid);
+            // Create html payload for tip
+            let html = `<div class="${this.DOM.tipboxdivclass}" id="${divid}" style="left: ${left}px; top:${top}px;">
+                        <span class="${this.DOM.tipboxtextclass}">${tip}</span>
+                        <br>
+                        <input type="checkbox" id="${checkid}">
+                        <span class="${this.DOM.tipboxdontshowclass}">don't show this again</span>
+                        <button class="${this.DOM.tipboxbuttonclass}" id="${buttonid}">OK</button>
+                        </div>`;
+            // Function for closing tip and creating cookie
+            let f = function() {
+                //console.log("I am tip #", uuid);
+                // Set cookie if told to not show again
+                if (document.getElementById(checkid).checked) {
+                    setCookie(uuid, true, COOKIEEXPIRATION);
+                }
+                document.getElementById(divid).remove();
+            }
+            // Add box to html
+            container.insertAdjacentHTML("beforeend", html);
+            // Create event listener on button
+            document.getElementById(buttonid).addEventListener("click", e => f(e));
+        }
     }
     
     display() {
@@ -1862,18 +2006,28 @@ class ProblemController{
                 this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
             }
         }
-        this.updateScores(this.DOM, this.score);
+        this.updateScores(this.score);
         // Slide scores off screen
         document.getElementById(this.DOM.scoredivid).classList.remove("showscore");
+        
+        
+        this.insertTipBox("Interact with the graph by clicking and dragging elements", 270, 300);
+        
+        this.insertTipBox("Type answers into text fields (case insensitive)", 530, 720); 
+        
+        this.insertTipBox("Click here to start over with new values", 2, 890);
+        
+        this.insertTipBox("Click here to get a hint on the current step", 206, 890);
+        
+        this.insertTipBox("Click here to check your answers and move on to the next step", 410, 890);
     }
     
     showhint() {
         // Prevent multiple clicks
-        this.disableHintButton(this.DOM);
+        this.disableHintButton();
         // Loop through all hints, remove hidden text class
         let elements = document.getElementsByClassName(this.DOM.hiddentextclass);
         while (elements[0]) {
-            console.log('looping');
             elements[0].classList.remove(this.DOM.hiddentextclass);
         }
     }
@@ -1887,16 +2041,16 @@ class ProblemController{
         if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
             // If on last question, adjust button label and click event
             if (this.currentquestion == this.questions.length - 1) {
-                document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Finish";
+                document.getElementById(this.DOM.nextbuttonid).textContent = "Finish";
                 document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.finish(e));
             }
         } else {
-            document.querySelector("#" + this.DOM.nextbuttonid).textContent = "Retry";
+            document.getElementById(this.DOM.nextbuttonid).textContent = "Retry";
         }
-        this.toggleSubmitButton(this.DOM);
-        this.toggleNextButton(this.DOM);
+        this.toggleSubmitButton();
+        this.toggleNextButton();
         this.showhint();
-        this.updateScores(this.DOM, this.score);
+        this.updateScores(this.score);
         document.getElementById(this.DOM.scoredivid).classList.add("showscore");
     }
     
@@ -1908,27 +2062,21 @@ class ProblemController{
     
     next() {
         // End question, go to next
-        this.toggleSubmitButton(this.DOM);
-        this.toggleNextButton(this.DOM);
-        this.enableHintButton(this.DOM);
+        this.toggleSubmitButton();
+        this.toggleNextButton();
+        this.enableHintButton();
         this.nextQuestion();
     }
     
     finish() {
         // End problem
         this.clearPage();
-        this.updateScores(this.DOM, this.score);
-        document.getElementById(this.DOM.nextdivid).remove();
+        document.getElementById(this.DOM.hintbuttonid).remove();
+        document.getElementById(this.DOM.submitbuttonid).remove();
+        document.getElementById(this.DOM.nextbuttonid).remove();
+        this.insertScoreInput();
+        this.updateScores(this.score);
         this.finishquestion.display(this.DOM, this.variablevalues);
         document.getElementById(this.DOM.scoredivid).classList.add("showscore");
     }
 }
-
-// Score box will hide on narrow windows
-document.getElementsByTagName("BODY")[0].onresize = function myFunction() {
-    if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
-        document.getElementById("score").classList.add("hidescore")
-    } else {
-        document.getElementById("score").classList.remove("hidescore")
-    }
-};

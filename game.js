@@ -1,18 +1,40 @@
 const FPS = 50;
-const FIELD_WIDTH = 640;
-const FIELD_HEIGHT = 640;
+const FIELD_WIDTH = 800;
+const FIELD_HEIGHT = 800;
 const NUM_LAYERS = 4;
-const PI = 3.141592654;
 const CONTROLLER_DEADZONE = 0.15;
-const BARREL_SIZE = 15;
-const FIRE_COOLDOWN = 30;
 const BULLET_SPEED = 10;
 const FIRE_BUTTON = 7;
 const HP_BORDER = 1;
+
+const PLAYERSIZE = 5;
+const BARREL_SIZE = 15;
 const PLAYER_HP = 100;
-const COLLISION_DAMAGE = 10;
-const ASTEROID_SCORE = 100;
-const NUM_ASTEROIDS = 40;
+const PLAYERSPEED = 1;
+const FIRE_COOLDOWN = 30;
+const BULLETSIZE = 2;
+
+const NUM_ASTEROIDS = 20;
+const COLLISION_DAMAGE = 20;
+const ASTEROIDSPEED = 0.25;
+const ASTEROIDSIZEMEAN = 20;
+const ASTEROIDSIZEDEV = 10;
+const CIRCLEDRAWSTEPS = 100;
+
+const ASTEROID_SCORE = 1000;
+const BULLET_SCORE = -100;
+
+// Button testing
+let drawmode = 1;
+document.getElementById("btn1").addEventListener("click", function() {
+    drawmode = 1;
+});
+document.getElementById("btn2").addEventListener("click", function() {
+    drawmode = 2;
+});
+document.getElementById("btn3").addEventListener("click", function() {
+    drawmode = 3;
+});
 
 /*
     Controls all aspects of the game
@@ -78,11 +100,11 @@ class GameController {
     createPlayer() {
         this.player = new Player({"x": this.width/2,
                                   "y": this.height/2,
-                                  "speed": 5,
-                                  "sizer":7,
-                                  "aim": PI/2,
+                                  "speed": PLAYERSPEED,
+                                  "sizer": PLAYERSIZE,
+                                  "aim": Math.PI/2,
                                   "color":"red",
-                                  "bounds":{"right":this.width, "bottom":this.height}});
+                                  "bounds":{"width":this.width, "height":this.height}});
         this.entities.push(this.player);
     }
     
@@ -152,7 +174,7 @@ class GameController {
             if (dx >= 0) {
                 this.player.aim = Math.atan(dy / dx);
             } else if (dx < 0) {
-                this.player.aim = Math.atan(dy / dx) + PI;
+                this.player.aim = Math.atan(dy / dx) + Math.PI;
             }
         } else if (e.type === "mousedown") {
             let b = this.player.fire();
@@ -218,6 +240,7 @@ class GameController {
             //let y2axis = Math.abs(this.gamepad[i].axes[3]) > CONTROLLER_DEADZONE ? this.gamepad[i].axes[3] : 0;
             let x2axis = this.gamepad[i].axes[2];
             let y2axis = this.gamepad[i].axes[3];
+            
             // Set player speed
             this.player.vx = this.player.speed * x1axis;
             this.player.vy = this.player.speed * y1axis;
@@ -226,15 +249,17 @@ class GameController {
                 if (x2axis >= 0) {
                     this.player.aim = Math.atan(y2axis / x2axis);
                 } else if (x2axis < 0) {
-                    this.player.aim = Math.atan(y2axis / x2axis) + PI;
+                    this.player.aim = Math.atan(y2axis / x2axis) + Math.PI;
                 }
             }
+            // Press fire
             if (this.gamepad[i].buttons[FIRE_BUTTON].pressed) {
                 let b = this.player.fire();
                 if (b) { this.entities.push(b); }
             }
         }
         
+        // Loop through entities
         for (let i = 0; i < this.entities.length; i++) {
             // Update each entity
             if (this.entities[i].update()) {
@@ -277,7 +302,17 @@ class GameController {
         this.context[1].clearRect(0, 0, this.width, this.height);
         // Draw entities
         for (var i=0; i < this.entities.length; i++) {
-            this.entities[i].draw(this.context[1]);
+            if (this.entities[i] instanceof Player || this.entities[i] instanceof Bullet) {
+                this.entities[i].draw(this.context[1]);
+            } else {
+                if (drawmode === 1) {
+                    this.entities[i].drawrelative(this.context[1], this.player);
+                } else if (drawmode === 2) {
+                    this.entities[i].drawrelativealt(this.context[1], this.player);
+                } else if (drawmode === 3) {
+                    this.entities[i].drawrelativeband(this.context[1], this.player);
+                }
+            }
         }
         // Draw healthbar
         this.context[3].clearRect(0, 0, this.width, this.height);
@@ -287,18 +322,23 @@ class GameController {
                                  (this.width * 4 / 5 - HP_BORDER*2) * this.player.hp / this.player.hpmax,
                                  this.height / 100 - HP_BORDER*2);
         // Draw score
-        this.context[3].fillStyle = "black";
+        
         this.context[3].globalAlpha = 1;
-        this.context[3].font = "20px Arial";
-        this.context[3].textAlign = "left";
-        this.context[3].fillText(this.player.score, 10, this.height-20);
+        this.context[3].font = "bold 40px Arial";
+        this.context[3].textAlign = "center";
+        this.context[3].strokeStyle = "red";
+        this.context[3].lineWidth = 4;
+        this.context[3].fillText(this.player.score, this.width/2, 40);
+        this.context[3].strokeStyle = "black";
+        this.context[3].lineWidth = 2;
+        this.context[3].strokeText(this.player.score, this.width/2, 40);
     }
     
     /*
         Adds a rectangle to the game
     */
     addAsteroid() {
-        Game.entities.push(new Asteroid({"sizer": 15, "speed": 1, "color": "#444444", "bounds":{"right":this.width, "bottom":this.height}}));
+        Game.entities.push(new Asteroid({"sizer": ASTEROIDSIZEMEAN, "speed": ASTEROIDSPEED, "color": "#444444", "bounds":{"width":this.width, "height":this.height}}));
     }
 }
 
@@ -415,16 +455,13 @@ class Entity {
 
 class RectEntity extends Entity {
     constructor(args) {
-        // Default arguments
-        args.sizex = 10;
-        args.sizey = 10;
         // Load arguments
         super(args);
         // Calculate arguments
         this.bounds.left = this.sizex / 2;
         this.bounds.top = this.sizey / 2;
-        this.bounds.right -= this.sizex / 2;
-        this.bounds.bottom -= this.sizey / 2;
+        this.bounds.right = this.bounds.width - this.sizex / 2;
+        this.bounds.bottom = this.bounds.height - this.sizey / 2;
     }
     
     draw(context) {
@@ -446,8 +483,8 @@ class CircleEntity extends Entity {
         // Calculate arguments
         this.bounds.left = this.sizer;
         this.bounds.top = this.sizer;
-        this.bounds.right -= this.sizer;
-        this.bounds.bottom -= this.sizer;
+        this.bounds.right = this.bounds.width - this.sizer / 2;
+        this.bounds.bottom = this.bounds.height - this.sizer / 2;
     }
     
     draw(context) {
@@ -458,8 +495,47 @@ class CircleEntity extends Entity {
             context.fillStyle = this.color;
         }
         context.beginPath();
-        context.arc(this.x, this.y, this.sizer, 2*Math.PI, false);
+        context.arc(this.x, this.y, this.sizer, 2 * Math.PI, false);
         context.fill();
+        context.restore();
+    }
+    
+    drawrelative(context, base) {
+        context.save();
+        context.lineWidth = 1;
+        const dist = Math.pow(Math.pow(this.x - base.x, 2) + Math.pow(this.y - base.y, 2), 0.5);
+        //context.arc(base.x, base.y, dist, 2*Math.Math.PI, false);
+        for (let i=0; i<CIRCLEDRAWSTEPS; i++) {
+            const angle = i * 2 * Math.PI / CIRCLEDRAWSTEPS;
+            context.beginPath();
+            context.arc(base.x + dist * Math.cos(angle), base.y + dist * Math.sin(angle), this.sizer, 2 * Math.PI, false);
+            context.stroke();
+        }
+        context.restore();
+    }
+    
+    drawrelativealt(context, base) {
+        context.save();
+        context.lineWidth = 1;
+        const dist = Math.pow(Math.pow(this.x - base.x, 2) + Math.pow(this.y - base.y, 2), 0.5);
+        const steps = dist / 4;
+        //context.arc(base.x, base.y, dist, 2*Math.Math.PI, false);
+        for (let i=0; i<steps; i++) {
+            const angle = i * 2 * Math.PI / steps;//CIRCLEDRAWSTEPS;
+            context.beginPath();
+            context.arc(base.x + dist * Math.cos(angle), base.y + dist * Math.sin(angle), this.sizer, 2 * Math.PI, false);
+            context.stroke();
+        }
+        context.restore();
+    }
+    
+    drawrelativeband(context, base) {
+        context.save();
+        context.lineWidth = this.sizer*2;
+        const dist = Math.pow(Math.pow(this.x - base.x, 2) + Math.pow(this.y - base.y, 2), 0.5);
+        context.beginPath();
+        context.arc(base.x, base.y, dist, 2 * Math.PI, false);
+        context.stroke();
         context.restore();
     }
 }
@@ -497,11 +573,12 @@ class Player extends CircleEntity {
     fire() {
         if (this.cooldowns["fire"] === undefined) {
             this.cooldowns["fire"] = FIRE_COOLDOWN;
+            this.score += BULLET_SCORE;
             return new Bullet({"x": this.x + BARREL_SIZE * Math.cos(this.aim),
                                "y": this.y + BARREL_SIZE * Math.sin(this.aim),
                                "vx": BULLET_SPEED * Math.cos(this.aim),
                                "vy": BULLET_SPEED * Math.sin(this.aim),
-                               "sizer": 2,
+                               "sizer": BULLETSIZE,
                                "bounds": this.bounds});
         } else {
             return false;
@@ -527,7 +604,7 @@ class Bullet extends CircleEntity {
 
 class Asteroid extends CircleEntity {
     constructor(args) {
-        args.sizer = (Math.random() - 0.5) * 10 + 20;
+        args.sizer = (Math.random() - 0.5) * ASTEROIDSIZEDEV + ASTEROIDSIZEMEAN;
         super(args);
         this.x = Math.floor(Math.random() * (this.bounds.right - this.bounds.left) + this.bounds.left);
         this.y = Math.floor(Math.random() * (this.bounds.bottom - this.bounds.top) + this.bounds.top);
