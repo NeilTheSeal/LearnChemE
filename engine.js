@@ -949,14 +949,17 @@ class CanvasController {
         }
     }
     /**
-        Returns a point object at the current location of the cursor
         @param {event} e Mouse event
+        @return {Point} Point object at the current location of the mouse cursor
     */
     getMousePoint(e) {
         return new Point({"rawx":e.pageX - this.dynamiccanvas.offsetParent.offsetLeft,
                           "rawy":e.pageY - this.dynamiccanvas.offsetParent.offsetTop,
                           "graphinfo":this.graphinfo});
     }
+    /**
+        Draws the background of the graph (background colors, axes, labels)
+    */
     drawGraph() {
         // Constants
         const MajorAxisTickLength = 10;
