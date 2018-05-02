@@ -9,7 +9,7 @@ const answercolor = "green";
 const regionAy = 6.6;
 const regionBy = 0.1;
 
-let graphinfo = {
+const graphinfo = {
     "graphheight": 400,
     "graphwidth": 600,
     "padding": {
@@ -45,18 +45,21 @@ let graphinfo = {
         "gridline": 0.05,
     },
 };
-let pointtolerance = {
+
+const pointtolerance = {
     "x":0.025,
     "y":0.2
 };
-let normalcursor = {
+
+const normalcursor = {
     "format": "x@org@ = ~x~, P = ~y~",
     "digits": {
         "x": 2,
         "y": 1,
     }
 };
-let detailedcursor = {
+
+const detailedcursor = {
     "format": "x@org@ = ~x~, P = ~y~",
     "digits": {
         "x": 2,
@@ -64,7 +67,7 @@ let detailedcursor = {
     }
 };
 
-let p = {
+const problem = {
     "pagetitle": "Construct a Pressure-Composition Diagram for Immiscible Liquids",
     "variables": {
         "constants": {
@@ -118,6 +121,7 @@ let p = {
     },
     "questions": [
         {
+            "type": "question",
             "variables": {
                 "constants": {},
                 "random": {},
@@ -190,8 +194,9 @@ let p = {
                 },
             ],
             "requiredscore": 0.00
-        },
+        }, // question
         {
+            "type": "question",
             "variables": {
                 "constants": {},
                 "random": { },
@@ -202,12 +207,12 @@ let p = {
                     "type": "text",
                     "label": "2) Drag the blue point to where pure water is in VLE, and drag the orange point to where pure benzene is in VLE. <br>",
                     "style": "prompt"
-                },
+                }, // element
                 {
                     "type": "text",
                     "label": datalabel,
                     "style": "data"
-                },
+                }, // element
                 {
                     "type": "graph",
                     "graphinfo": graphinfo,
@@ -238,16 +243,17 @@ let p = {
                     },
                     "cursor": normalcursor,
                     "points": 20
-                },
+                }, // element
                 {
                     "type": "text",
                     "label": "Hint: pure component saturation pressures",
                     "style": "hiddentext hint"
-                },
-            ],
+                }, // element
+            ], // questionelements
             "requiredscore": 0.00
-        },
+        }, // question
         {
+            "type": "question",
             "variables": {
                 "constants": {},
                 "random": { },
@@ -258,12 +264,12 @@ let p = {
                     "type": "text",
                     "label": "3) Drag the point to where vapor is in equilibrium with two liquid phases. <br>",
                     "style": "prompt"
-                },
+                }, // element
                 {
                     "type": "text",
                     "label": datalabel,
                     "style": "data"
-                },
+                }, // element
                 {
                     "type": "graph",
                     "graphinfo": graphinfo,
@@ -294,109 +300,100 @@ let p = {
                     },
                     "cursor": normalcursor,
                     "points": 10
-                },
+                }, // element
                 {
                     "type": "text",
                     "label": "Hint: each liquid exerts its saturation pressure",
                     "style": "hiddentext hint"
-                },
-            ],
+                }, // element
+            ], // questionelements
             "requiredscore": 0.00
-        },
-        {},
-        {},
-        {},
-        {},
-    ],
-};
-
-
-problemController.addQuestion(
-    new Question()
-);
-
-problemController.addQuestion(
-    new Question({
-        "variables": {
-            "constants": {},
-            "random": { },
-            "calculated": { }
-        },
-        "questionelements": [
-            new TextElement({
-                "label": "4) Drag each point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
-                "style": "prompt"
-            }),
-            new TextElement({
-                "label": datalabel,
-                "style": "data"
-            }),
-            new GraphElement({
-                "graphinfo": graphinfo,
-                "mode": "move",
-                "answercount": {
-                    "point": 0,
-                    "line": 2
-                },
-                "answer": {
-                    "line":[{"points":[{"x":"0", "y":"@Psum@", "show":false},
+        }, // question
+        {
+            "type": "question",
+            "variables": {
+                "constants": {},
+                "random": { },
+                "calculated": { }
+            },
+            "questionelements": [
+                {
+                    "type": "text",
+                    "label": "4) Drag each point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
+                    "style": "prompt"
+                }, // element
+                {
+                    "type": "text",
+                    "label": datalabel,
+                    "style": "data"
+                }, // element
+                {
+                    "type": "graph",
+                    "graphinfo": graphinfo,
+                    "mode": "move",
+                    "answercount": {
+                        "point": 0,
+                        "line": 2
+                    },
+                    "answer": {
+                        "line":[{"points":[{"x":"0", "y":"@Psum@", "show":false},
+                                           {"x":"0", "y":"@PsatW@", "color":watercolor},
+                                           {"x":"@x1@", "y":"@y1@"},
+                                           {"x":"@x2@", "y":"@y2@"},
+                                           {"x":"@x3@", "y":"@y3@"},
+                                           {"x":"@xc@", "y":"@Psum@"}], "tolerance":pointtolerance, "color":answercolor},
+                                {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
+                                           {"x":"@x4@", "y":"@y4@"},
+                                           {"x":"@x5@", "y":"@y5@"},
+                                           {"x":"@x6@", "y":"@y6@"},
+                                           {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
+                                           {"x":"1", "y":"@Psum@", "show":false}], "tolerance":pointtolerance, "color":answercolor}
+                                ]
+                    },
+                    "default": {
+                        "point": [],
+                        "line": [
+                            {"points":[{"x":0, "y":"@Psum@", "radius":1, "show":false},
+                                       {"x":1, "y":"@Psum@", "radius":1, "show":false}], "color":graycolor},
+                            {"points":[{"x":"0", "y":"@Psum@", "show":false},
                                        {"x":"0", "y":"@PsatW@", "color":watercolor},
-                                       {"x":"@x1@", "y":"@y1@"},
-                                       {"x":"@x2@", "y":"@y2@"},
-                                       {"x":"@x3@", "y":"@y3@"},
-                                       {"x":"@xc@", "y":"@Psum@"}], "tolerance":pointtolerance, "color":answercolor},
+                                       {"x":"@x1@", "y":"@PsatW@", "movey":true},
+                                       {"x":"@x2@", "y":"@PsatW@", "movey":true},
+                                       {"x":"@x3@", "y":"@PsatW@", "movey":true},
+                                       {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor, "answer":true},
                             {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
-                                       {"x":"@x4@", "y":"@y4@"},
-                                       {"x":"@x5@", "y":"@y5@"},
-                                       {"x":"@x6@", "y":"@y6@"},
+                                       {"x":"@x4@", "y":"@Psat@org@@", "movey":true},
+                                       {"x":"@x5@", "y":"@Psat@org@@", "movey":true},
+                                       {"x":"@x6@", "y":"@Psat@org@@", "movey":true},
                                        {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
-                                       {"x":"1", "y":"@Psum@", "show":false}], "tolerance":pointtolerance, "color":answercolor}
-                            ]
-                },
-                "default": {
-                    "point": [],
-                    "line": [
-                        {"points":[{"x":0, "y":"@Psum@", "radius":1, "show":false},
-                                   {"x":1, "y":"@Psum@", "radius":1, "show":false}], "color":graycolor},
-                        {"points":[{"x":"0", "y":"@Psum@", "show":false},
-                                   {"x":"0", "y":"@PsatW@", "color":watercolor},
-                                   {"x":"@x1@", "y":"@PsatW@", "movey":true},
-                                   {"x":"@x2@", "y":"@PsatW@", "movey":true},
-                                   {"x":"@x3@", "y":"@PsatW@", "movey":true},
-                                   {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor, "answer":true},
-                        {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
-                                   {"x":"@x4@", "y":"@Psat@org@@", "movey":true},
-                                   {"x":"@x5@", "y":"@Psat@org@@", "movey":true},
-                                   {"x":"@x6@", "y":"@Psat@org@@", "movey":true},
-                                   {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
-                                   {"x":"1", "y":"@Psum@", "show":false}], "color":graycolor, "answer":true}
-                    ],
-                    "text": [
-                        {"text":"liquid + liquid", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
-                    ]
-                },
-                "cursor": detailedcursor,
-                "points": 20
-            }),
-            new TextElement({
-                "label": "Hint: the vapor mole fraction for component i is P<sub>i</sub><sup>sat</sup> / P",
-                "style": "hiddentext hint"
-            }),
-        ],
-        "requiredscore": 0.00
-    })
-);
-
-problemController.setFinish(
-    new Question({
+                                       {"x":"1", "y":"@Psum@", "show":false}], "color":graycolor, "answer":true}
+                        ],
+                        "text": [
+                            {"text":"liquid + liquid", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
+                            {"text":"vapor", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
+                        ]
+                    },
+                    "cursor": detailedcursor,
+                    "points": 20
+                }, // element
+                {
+                    "type": "text",
+                    "label": "Hint: the vapor mole fraction for component i is P<sub>i</sub><sup>sat</sup> / P",
+                    "style": "hiddentext hint"
+                }, // element
+            ], // questionelements
+            "requiredscore": 0.00
+        }, // question
+    ], // questions
+    "finish": {
         "variables": {
             "constants": {},
             "random": { },
             "calculated": { }
         },
         "questionelements": [
-            new GraphElement({
+            {
+                "type": "graph",
                 "graphinfo": graphinfo,
                 "mode": "move",
                 "answercount": {
@@ -428,13 +425,7 @@ problemController.setFinish(
                     ]
                 },
                 "cursor": detailedcursor,
-                "points": 60
-            }),
-        ],
-        "requiredscore": 0.00
-    })
-);
-
-
-// Start
-problemController.begin();
+            },
+        ] // questionelements
+    } // finish
+};
