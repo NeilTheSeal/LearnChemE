@@ -26,6 +26,10 @@ GraphElement
     add user score submission at the end
 */
 
+
+// var p = JSON.parse(json_string);
+
+
 // ##### Constants (default values) #####
 
 const VAR = "@";
@@ -35,10 +39,6 @@ const IDLENGTH = 16;
 const LINEWIDTH = 2;
 const LINECOLOR = "black";
 const GRABRADIUS = 5;
-const FONTSTYLE = "20px sans-serif";
-const FONTCOLOR = "black";
-const CURSORCOLOR = "black";
-const CURSORSTYLE = "bold 16px sans-serif";
 
 // ##### Misc functions #####
 
@@ -263,18 +263,18 @@ function constrain(x, a, b) {
 }
 
 /**
-    Generates a dict of variable values from a dict of parameters. Example:<br>
+    Generates a object of variable values from a object of parameters. Example:<br>
     {"constants": {"x": 1, "y": 2},<br>
     "random": {"z": {"min": -3, "max": 3, "digits": 1}},<br>
     "calculated": {"sum": "@x@+@y@", "f": "myfunction(@z@)"}}<br>
-    @param {dict} variables
-    @param {dict} variables.constants Constant values
-    @param {dict} variables.random Linear random variables
+    @param {object} variables
+    @param {object} variables.constants Constant values
+    @param {object} variables.random Linear random variables
     @param {num} variables.random.min Minimum value
     @param {num} variables.random.max Maximum value
     @param {num} variables.random.digits Digits of precision
-    @param {dict} variables.calculated Variables calculated from other variables, referenced by surrounding in @ symbols
-    @return {dict} Dictionary of variable names and values
+    @param {object} variables.calculated Variables calculated from other variables, referenced by surrounding in @ symbols
+    @return {object} Objectionary of variable names and values
 */
 function generateVariables(variables) {
     let variablevalues = {};
@@ -368,8 +368,8 @@ function checkCookie() {
 */
 class Point {
     /**
-        @param {dict} args Dict-like object of input arguments.
-        @param {dict} args.graphinfo
+        @param {object} args Object of input arguments.
+        @param {object} args.graphinfo
         @param {float} args.rawx
         @param {float} args.rawy
         @param {float} args.x
@@ -502,7 +502,7 @@ class Point {
         }
     }
     /**
-        @return {dict} The internal data of the point
+        @return {object} The internal data of the point
     */
     data() {
         let r = {};
@@ -514,7 +514,7 @@ class Point {
 }
 
 /**
-    @param {dict} args Dict-like object of input arguments.
+    @param {object} args Object-like object of input arguments.
     @param {list} args.points List of {@link Point} constructor argument objects
     @param {string} [args.color="black"]
     @param {float} [args.width=1]
@@ -569,9 +569,9 @@ class Line {
         return this.points.length-1;
     }
     /**
-        @return {float} The total length of the line
+        @return {float} The total distance covered by the line from point to point
     */
-    length() {
+    distance() {
         sum = 0;
         for (let i = 1; i < this.points.length; i++) {
             sum += getDist(this.points[i-1], this.points[i]);
@@ -579,7 +579,7 @@ class Line {
         return sum;
     }
     /**
-        @return {dict} The internal data of the line
+        @return {object} The internal data of the line
     */
     data() {
         let r = {};
@@ -592,26 +592,26 @@ class Line {
 
 /**
     Container class for graph/calibration data
-    @param {dict} args Dict-like object of input arguments.
+    @param {object} args Object of input arguments.
     @param {int} args.graphheight Height (in px) of the vertical (y) axes
     @param {int} args.graphwidth Width (in px) of the horizontal (x) axes
     @param {string} args.graphbackground Color of the area within the axes
     @param {string} args.axesbackground Color of the area around the graph
-    @param {dict} args.padding Container for padding size around the plot
+    @param {object} args.padding Container for padding size around the plot
         @param {int} args.padding.top Height (in px) of the region above the plot
         @param {int} args.padding.left Width (in px) of the region to the left of the plot
         @param {int} args.padding.bottom Height (in px) of the region below the plot
         @param {int} args.padding.right Width (in px) of the region to the right of the plot
-    @param {dict} args.x Container for information about the primary x axis
+    @param {object} args.x Container for information about the primary x axis
         @param {string} args.x.label Text to label the axis
         @param {float} args.x.min Left/bottom value on the axis
         @param {float} args.x.max Right/top value on the axis
         @param {float} args.x.majortick Increment to draw major tick marks on the axis
         @param {float} args.x.minortick Increment to draw minor tick marks on the axis
         @param {float} args.x.gridline Increent to draw gridlines across the plot
-    @param {dict} args.y Container for information about the primary y axis (same arguments as {@link x})
-    @param {dict} args.x2 Container for information about the secondary x axis (same arguments as {@link x})
-    @param {dict} args.y2 Container for information about the secondary y axis (same arguments as {@link x})
+    @param {object} args.y Container for information about the primary y axis (same arguments as {@link x})
+    @param {object} args.x2 Container for information about the secondary x axis (same arguments as {@link x})
+    @param {object} args.y2 Container for information about the secondary y axis (same arguments as {@link x})
 */
 class GraphInfo {
     constructor(args) {
@@ -683,7 +683,7 @@ class GraphInfo {
 /**
     Text element for display through CanvasController
     @param {string} text Text to display
-    @param {string} font ex. "italic 20px sans-serif"
+    @param {string} [font="20px sans-serif"] ex. "italic 20px sans-serif"
     @param {string} align "left", "right", or "center"
     @param {string} color Color of text
     @param {Point} position Location of text on canvas
@@ -693,9 +693,9 @@ class Text {
         // Default values
         this.ID = randomID(IDLENGTH);
         this.text = "";
-        this.font = FONTSTYLE;
+        this.font = "20px sans-serif";
         this.align = "left";
-        this.color = FONTCOLOR;
+        this.color = "black";
         // Argument values
         for (let key of Object.keys(args)) {
             this[key] = args[key];
@@ -707,9 +707,9 @@ class Text {
         
     }
     /**
-        @return {dict} The internal data of the text
+        @return {object} The internal data of the text
     */
-    get data() {
+    data() {
         let r = {};
         for (let k of Object.keys(this)) {
             r[k] = this[k];
@@ -765,15 +765,15 @@ class ZCanvas {
 */
 class CanvasController {
     /**
-        @param {dict} DOM DOM name associations
+        @param {object} DOM DOM name associations
         @param {int} index Index to identify canvas
-        @param {dict} args Dict-like object of input arguments
-        @param {dict} args.cursor Cursor display information
-        @param {dict} args.mode Interaction mode
-        @param {dict} args.answercount Maximum number of elements to allow on graph
+        @param {object} args Object of input arguments
+        @param {object} args.cursor Cursor display information
+        @param {object} args.mode Interaction mode
+        @param {object} args.answercount Maximum number of elements to allow on graph
         @param {int} args.answercount.point 
         @param {int} args.answercount.line 
-        @param {dict} args.default Default elements that exist on graph
+        @param {object} args.default Default elements that exist on graph
         @param {list} args.default.point 
         @param {list} args.default.line 
     */
@@ -789,33 +789,27 @@ class CanvasController {
             this.cursor = args.cursor;
         }
         
-        // HTML element ids
+        // Unique number for this canvas
         this.index = index;
         const re = new RegExp(`${VAR}id${VAR}`, "g");
-        this.divid = DOM.canvasdivid.replace(re, index);
-        this.staticcanvasid = DOM.staticcanvasid.replace(re, index);
-        this.dynamiccanvasid = DOM.dynamiccanvasid.replace(re, index);
-        this.pointinfoid = DOM.canvaspointid.replace(re, index);
-        this.modeinfoid = DOM.canvasmodeid.replace(re, index);
+        // Retrieve DOM elements
+        this.div = document.getElementById(DOM.canvasdivid.replace(re, index));
+        this.staticcanvas = document.getElementById(DOM.staticcanvasid.replace(re, index));
+        this.dynamiccanvas = document.getElementById(DOM.dynamiccanvasid.replace(re, index));
         
-        // DOM elements
-        this.staticcanvas = document.getElementById(this.staticcanvasid);
-        this.dynamiccanvas = document.getElementById(this.dynamiccanvasid);
-        this.pointspan = document.getElementById(this.pointinfoid);
-        this.modespan = document.getElementById(this.modeinfoid);
-        
-        // Canvas objects
+        // Set up canvas size
         this.height = this.graphinfo.height;
         this.width = this.graphinfo.width;
-        document.getElementById(this.divid).style.height = this.height + "px";
         this.staticcanvas.width = this.width;
         this.staticcanvas.height = this.height;
         this.dynamiccanvas.width = this.width;
         this.dynamiccanvas.height = this.height;
+        // Set div to correct height
+        this.div.style.height = this.height + "px";
+        // Context objects for drawing
         this.staticctx = this.staticcanvas.getContext('2d');
         this.dynamicctx = this.dynamiccanvas.getContext('2d');
         
-        // Draw graph
         this.drawGraph();
         
         // State variables
@@ -825,15 +819,14 @@ class CanvasController {
         // Constants
         this.grabradius = GRABRADIUS;
         
-        // Graph element variables
+        this.max = [];
+        this.finished = [];
+        // Set max elements of each type, if specified
         if (args.answercount != undefined) {
             this.max = args.answercount;
-        } else {
-            this.max = [];
         }
-        this.finished = [];
+        // Set default elements of each type, if specified
         if (args.default != undefined) {
-            //console.log("Creating defaults:",defaults);
             this.default = [];
             for (let type of Object.keys(args.default)) {
                 for (let d of args.default[type]) {
@@ -842,7 +835,7 @@ class CanvasController {
             }
         }
         
-        // Setup mouse events
+        // Set up mouse events
         this.dynamiccanvas.addEventListener("mousemove", e => this.mouseMove(e));
         this.dynamiccanvas.addEventListener("mousedown", e => this.mouseDown(e));
         this.dynamiccanvas.addEventListener("mouseup", e => this.mouseUp(e));
@@ -894,7 +887,7 @@ class CanvasController {
     /**
         Creates geometric class object from input data
         @param {string} type "point", "line", or "text"
-        @param {dict} data Dict of input arguments for object
+        @param {object} data Object of input arguments for object
         @return {Point|Line|Text} An instance of the chosen class
     */
     dataToElement(type, data) {
@@ -958,7 +951,8 @@ class CanvasController {
                           "graphinfo":this.graphinfo});
     }
     /**
-        Draws the background of the graph (background colors, axes, labels)
+        Draws the background of the graph (background colors, axes, labels)<br>
+        Needs serious revision
     */
     drawGraph() {
         // Constants
@@ -1149,9 +1143,17 @@ class CanvasController {
         this.staticctx.lineWidth = 1;
         this.staticctx.stroke();
     }
+    /**
+        Abstract method to replace drawGraph<br>
+        Not implemented yet
+    */
     drawAxis(axis) {
         // TODO abstract above method
     }
+    /**
+        Draws an image to the background canvas.<br>
+        Deprecated, but may reuse in future problems
+    */
     drawImage() {
         /*this.img.onload = function(a) {
             console.log('whats this');
@@ -1160,12 +1162,14 @@ class CanvasController {
         }*/
         this.staticctx.drawImage(this.img, 0, 0);
     }
+    /**
+        Draws an element to the foreground canvas<br>
+        To be replaced with Object.draw() calls
+        @param {Point|Line|Text} element Element to be drawn
+    */
     draw(element) {
-        
-        // TODO only draw if object is within the boundaries
-        
-        // Draws geometric elements to the canvas
-        //console.log("Drawing:", element);
+        // TODO give elements a draw method and call from here, passing context
+        // Save whatever state the context object is in
         this.dynamicctx.save();
         if (element instanceof Point) {
             if (isBetween(element.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
@@ -1222,10 +1226,13 @@ class CanvasController {
                 this.dynamicctx.fillText(element.text, element.position.rawx, element.position.rawy);
             }
         }
+        // Restore the context object to its previous state
         this.dynamicctx.restore();
     }
+    /**
+        Checks each type of element (point, line, etc) and removes the oldest member(s) if more than the maximum exist
+    */
     trimLists() {
-        // Removes the oldest element of each type if the limit is surpassed
         let quota = {};
         for (let type of Object.keys(this.max)) {
             quota[type] = this.max[type];
@@ -1253,30 +1260,30 @@ class CanvasController {
             }
         }
     }
+    /**
+        Finds a point in the list of drawn objects by its {@link Point#ID}
+        @return {Point}
+    */
     getPointByID(ID) {
         for (let pt of this.finished) {
             if (pt instanceof Point) {
                 if (pt.ID === ID) {
                     return pt;
-                }
-            }
-        }
-    }
+    }}}}
+    /**
+        Deletes a point in the list of drawn objects by its {@link Point#ID}
+    */
     deletePointByID(ID) {
         for (let pt of this.finished) {
             if (pt instanceof Point) {
                 if (pt.ID === ID) {
                     this.finished.splice(this.finished.indexOf(pt),1);
-                }
-            }
-        }
-    }
-    reportCurrentMode() {
-        // Prints current mode to sub-graph span
-        this.modespan.textContent = `${this.mode} mode`;
-    }
+    }}}}
+    /**
+        Returns all finished elements on the graph marked as answers ({@link Element#answer})
+        @return {list} A list of {@link Element}s
+    */
     getanswers() {
-        // Report user-submitted answers to GraphQuestion
         this.interactable = false;
         let answers = [];
         for (let element of this.finished) {
@@ -1286,6 +1293,10 @@ class CanvasController {
         }
         return answers;
     }
+    /**
+        Displays a set of elements as correct answers
+        @param {list} answers List of {@link Element}s
+    */
     showanswers(answers) {
         let answerselements = []
         // Convert answer data into geometric object elements
@@ -1298,14 +1309,28 @@ class CanvasController {
         }
         // Draw all answers
         for (let answer of answerselements) {
-            // Reverse calibration and draw
             this.draw(answer);
         }
     }
+    /**
+        Displays cursor data next to the mouse cursor
+        @param {Point} cursorpt Location of the cursor
+        @param {object} cursordata How the cursor data should look
+        @param {string} [cursordata.color="black"] What color the text is written in
+        @param {string} [cursordata.style="bold 16px sans-serif"] What style the text is written in
+        @param {string} cursordata.format Format of the string to display (use ~x~, ~x2~, ~y~, or ~y2~ for relevant coordinate)
+        @param {object} cursordata.digits How many digits to round to for each axis. If using an axis in cursordata.format, it must have a number of digits set.
+        @param {int} cursordata.digits.x
+        @param {int} cursordata.digits.x2
+        @param {int} cursordata.digits.y
+        @param {int} cursordata.digits.y2
+    */
     drawCursor(cursorpt, cursordata) {
         if (isBetween(cursorpt.x, this.graphinfo.x.min, this.graphinfo.x.max) &&
             isBetween(cursorpt.y, this.graphinfo.y.min, this.graphinfo.y.max)) {
             let cursoralign = "";
+            let cursorcolor = "black";
+            let cursorstyle = "bold 16px sans-serif"
             // Constants align box position around crosshair cursor nicely
             if (cursorpt.rawx < this.dynamiccanvas.width/2) {
                 // Left
@@ -1322,9 +1347,14 @@ class CanvasController {
             } else {
                 // Bottom
                 cursorpt.rawy -= 5;
-
             }
-
+            if (cursordata.color != undefined) {
+                cursorcolor = cursordata.color;
+            }
+            if (cursordata.style != undefined) {
+                cursorcolor = cursordata.style;
+            }
+            // Generate text based on cursordata format
             let content = cursordata.format;
             if (this.graphinfo.x != undefined) {
                 content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
@@ -1338,21 +1368,24 @@ class CanvasController {
             if (this.graphinfo.y2 != undefined) {
                 content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
             }
-
+            // Draw text
             this.draw(new Text({"text": content,
-                                "color": CURSORCOLOR,
-                                "font": CURSORSTYLE,
+                                "color": cursorcolor,
+                                "font": cursorstyle,
                                 "align": cursoralign,
                                 "position": cursorpt}));
         }
     }
+    /**
+        Whenever the mouse is moved over the canvas, update the dynamic layer.
+    */
     mouseMove(e) {
-        // Whenever the mouse is moved over the canvas object
         if (this.interactable) {
             this.update();
             let pt = this.getMousePoint(e);
+            // Draw cursor
             if (this.cursor != undefined) {
-                let cursorpt = new Point(pt.data);
+                let cursorpt = new Point(pt.data());
                 if (this.held) {
                     if (this.held.altcursor) {
                         this.drawCursor(cursorpt, this.held.altcursor);
@@ -1363,8 +1396,9 @@ class CanvasController {
                     this.drawCursor(cursorpt, this.cursor);
                 }
             }
+            // If moving objects
             if (this.mode === "move") {
-                // drag object
+                // Drag held object
                 if (this.held) {
                     if (this.held instanceof Point) {
                         // Copy current location data to point
@@ -1401,22 +1435,26 @@ class CanvasController {
                         this.draw(this.held);
                     }
                 }
+            // If drawing
             } else if (this.drawing) {
                 if (this.mode === "point") {
                     this.draw(pt);
                 } else if (this.mode === "line") {
-                    this.draw(new Line({"points":[this.pt1, pt]}));
+                    this.draw(new Line({"points":[this.pt, pt]}));
                 } else if (this.mode === "calibrate") {
-                    this.draw(new Line({"points":[this.pt1, pt]}));
+                    this.draw(new Line({"points":[this.pt, pt]}));
                 }
             }
         }
     }
+    /**
+        Whenever the mouse is released over the canvas
+    */
     mouseUp(e) {
         if (this.interactable) {
             let pt = this.getMousePoint(e);
             if (this.mode === "move") {
-                // drop held object
+                // Drop held object
                 if (this.held) {
                     if (this.held instanceof Point) {
                         // Copy current location data to point
@@ -1461,15 +1499,15 @@ class CanvasController {
                 if (this.mode === "point") {
                     this.finished.push(pt);
                 } else if (this.mode === "line") {
-                    this.finished.push(new Line({"points":[this.pt1, pt]}));
+                    this.finished.push(new Line({"points":[this.pt, pt]}));
                 } else if (this.mode === "calibrate") {
                     // calibration routine
-                    this.finished.push(new Line({"points":[this.pt1, pt]}));
+                    this.finished.push(new Line({"points":[this.pt, pt]}));
                     let x1 = document.getElementById(this.x1).value;
                     let y1 = document.getElementById(this.y1).value;
                     let x2 = document.getElementById(this.x2).value;
                     let y2 = document.getElementById(this.y2).value;
-                    let str = `let calibration = new Line({"points":[new Point({"rawx":${this.pt1.rawx}, "rawy":${this.pt1.rawy}, "x":${x1}, "y":${y1}})`
+                    let str = `let calibration = new Line({"points":[new Point({"rawx":${this.pt.rawx}, "rawy":${this.pt.rawy}, "x":${x1}, "y":${y1}})`
                     str += `, new Point({"rawx":${pt.rawx}, "rawy":${pt.rawy}, "x":${x2}, "y":${y2}})]});`;
                     console.log("Copy and paste the line between the bars to use this calibration:");
                     console.log("-----");
@@ -1479,8 +1517,10 @@ class CanvasController {
             }
         }
     }
+    /**
+        Whenever the mouse is clicked on the canvas object
+    */
     mouseDown(e) {
-        // Whenever the mouse is clicked on the canvas object
         if (this.interactable) {
             let pt = this.getMousePoint(e);
             if (this.mode === "move") {
@@ -1506,11 +1546,13 @@ class CanvasController {
                             let pt2 = this.finished[i].points[j-1]
                             // If either point is immovable, line isn't movable
                             if ((!pt1.movex && !pt1.movey) || (!pt2.movex && !pt2.movey)) {
+                                // If any point is immobile, the line cannot be moved
                                 break;
                             }
+                            // Shrink grabbing range for line (otherwise assume grabbing a point on either end)
                             let minx = Math.min(pt1.rawx, pt2.rawx) + this.grabradius;
                             let maxx = Math.max(pt1.rawx, pt2.rawx) - this.grabradius;
-                            // Check if x is between bounds
+                            // Check if clicked x is between bounds
                             if (pt.rawx > minx && pt.rawx < maxx) {
                                 let ytarget = (pt.rawx - pt1.rawx) * (pt2.rawy - pt1.rawy) / (pt2.rawx - pt1.rawx) + pt1.rawy;
                                 let d = Math.abs(pt.rawy - ytarget);
@@ -1520,12 +1562,7 @@ class CanvasController {
                                     if (d < grabdist) {
                                         grabindex = i;
                                         grabdist = d;
-                                    }
-                                }
-                            }                            
-                        }
-                    }
-                }
+                }}}}}}
                 if (grabindex > -1) {
                     this.grabpoint = pt;
                     this.held = this.finished[grabindex];
@@ -1533,7 +1570,7 @@ class CanvasController {
                     if (this.held instanceof Line) {
                         this.origins = {};
                         for (let p of this.held.points) {
-                            this.origins[p.ID] = new Point(p.data);
+                            this.origins[p.ID] = new Point(p.data());
                             this.deletePointByID(p.ID);
                         }
                     }
@@ -1546,7 +1583,10 @@ class CanvasController {
             this.draw(this.held);
         }
     }
-    
+    /**
+        Handle key-press events<br>
+        Must be forwarded from {@link ProblemController}
+    */
     keyPress(key) {
         this.drawing = false;
         this.calibrating = false;
@@ -1555,33 +1595,35 @@ class CanvasController {
         } else if (key === "l") {
             this.mode = "line";
         }
-        //this.reportCurrentMode()
         this.update();
     }
 }
 
 // ##### Problem/question classes #####
 
+/**
+    Container class for graph-entry questions
+*/
 class GraphElement {
     /**
-        Container class for graph-entry questions
+        @param {string} mode ("move, "point", "line")
+        mode: mode for the canvascontroller to be in
+        answercount: {"point": 1, "line": 0}, named list of expected
+        answer: correct answers
+        default: default graph objects
+        tolerance: range near answer to count as correct
+        points: number of points question is worth
+        @param {string} imgsrc (deprecated) Location of image source file
+        @param {Calibration} imgcal (deprecated) Calibration data for image
     */
     constructor(inputarguments) {
-        /**
-            imgsrc: image source file
-            imgcal: calibration for image file
-            mode: mode for the canvascontroller to be in
-            answercount: {"point": 1, "line": 0}, named list of expected
-            answer: correct answers
-            default: default graph objects
-            tolerance: range near answer to count as correct
-            points: number of points question is worth
-        */
         for (let key of Object.keys(inputarguments)) {
             this[key] = inputarguments[key];
         }
     }
-    
+    /**
+        Check submitted answers against correct answers
+    */
     checkanswer(answer) {
         let score = {"max": 0,
                      "got": 0,
@@ -2061,7 +2103,7 @@ class ProblemController {
         html += `<br>`;
         html += `<input class="${this.DOM.textboxclass}" id="${this.DOM.cuidtextid}">`;
         html += `</input></div>`;
-        html += `<button id="${this.DOM.gradebuttonid}">Submit for Grade</button>`;
+        html += `<button id="${this.DOM.gradebuttonid}">Submit for Grade (optional)</button>`;
         html += "<br><br><br><br>"
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.gradebuttonid).addEventListener("click", e => this.submitforgrade(e));
@@ -2071,9 +2113,17 @@ class ProblemController {
         const name = document.getElementById(this.DOM.nametextid).value;
         const cuid = document.getElementById(this.DOM.cuidtextid).value;
         const score = roundTo(this.sumScore(this.score).pct*100, 0);
-        console.log(name, cuid, score);
-        let ss = name + cuid + score;
-        console.log(ss.hashCode());
+        const hash = this.generateHash(name, cuid, score);
+        console.log(name, cuid, score, hash);
+        alert(`Submission information:\n|${name}|\n|${cuid}|\n|${score}|\n|${hash}|`);
+    }
+    
+    generateHash() {
+        let str = "";
+        for (let i = 0; i < arguments.length; i++) {
+            str += arguments[i];
+        }
+        return str.hashCode();
     }
     
     insertHintButton() {
@@ -2100,7 +2150,7 @@ class ProblemController {
     insertRestartButton() {
         // Add button
         let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.restartbuttonid}">New Problem</button>`;
+        let html = `<button id="${this.DOM.restartbuttonid}">Restart Problem</button>`;
         container.insertAdjacentHTML("beforeend", html);
         // Add event listener to button
         document.getElementById(this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
