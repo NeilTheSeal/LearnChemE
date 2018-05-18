@@ -451,9 +451,7 @@ class Point {
         this.generateCal();
         this.generateRaw();
     }
-    /**
- * @param {Canvas#context}  context stuff
- */
+
     draw(context) {
         if (isBetween(this.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
                 isBetween(this.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
@@ -2063,13 +2061,15 @@ class ProblemController {
         @param {list} inputarguments.questions List of objects containing data for each {@link Question}
         @param {object} inputarguments.finish Object containing data for display of finishing page
     */
-    constructor(inputarguments) {
+    constructor(inputarguments, containerid) {
         /**
             @name ProblemController#currentquestion
             @type int
             @desc Index of the {@link Question} currently displayed to the user
         */
         this.DOM = this.getDOM;
+        // Insert problem onto page here
+        this.pagesetup(this.DOM, containerid);
         // Load problem data
         this.title = inputarguments.pagetitle;
         this.inputvariables = inputarguments.variables;
@@ -2086,8 +2086,6 @@ class ProblemController {
         // Set/insert heading title
         document.title = this.title;
         document.getElementById(this.DOM.titledivid).insertAdjacentHTML("beforeend", this.title);
-        // Score box will hide if window is resized too narrowly
-        this.pagesetup(this.DOM);
         // Catch keyboard events
         document.addEventListener("keydown", e => this.keyEvent(e));
     }
@@ -2147,7 +2145,18 @@ class ProblemController {
         Show or hide scores box based on window width, and set up listening event to do so on page resizing
         @param {object} DOM Document object model name associations
     */
-    pagesetup(DOM) {
+    pagesetup(DOM, containerid) {
+        // Insert main page elements
+        let html = ``;
+        html += `<div id="${DOM.titledivid}"></div>`;
+        html += `<div id="${DOM.questiondivid}"></div>`;
+        html += `<div id="${DOM.buttonsdivid}"></div>`;
+        html += `<div id="${DOM.scoredivid}"></div>`;
+        html += `<hr>`;
+        html += `<div id="${DOM.gradedivid}"></div>`;
+        document.getElementById(containerid).insertAdjacentHTML("beforeend", html);
+
+        // Set up score box
         if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
             document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
         } else {

@@ -20,33 +20,7 @@
                 </div>
             </div>
             <div id="body">
-                <div id="title">
-                    <!--
-                    Title is inserted here
-                    -->
-                </div>
-                <div id="question">
-                    <!--
-                    Question elements are inserted here
-                    -->
-                </div>
-                <hr>
-                <div id="buttons">
-                    <!--
-                    Submit/next buttons inserted here
-                    -->
-                </div>
-                <div id="scorediv">
-                    <!--
-                    Score summary inserted here
-                    -->
-                </div>
-                <hr>
-                <div id="submitgrade">
-                    <!--
-                    Restart button inserted here
-                    -->
-                </div>
+
             </div>
             <div id="footer">
 
@@ -56,7 +30,7 @@
     <script src="engine.js"></script>
     <script src="immicibleP.js"></script>
     <script>
-        let problemController = new ProblemController(problem);
+        let problemController = new ProblemController(problem, "body");
         problemController.begin();
     </script>
 </html>
