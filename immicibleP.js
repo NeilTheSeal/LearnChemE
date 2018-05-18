@@ -150,8 +150,8 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"0", "y":"@Psum@"},
-                                       {"x":"1", "y":"@Psum@"}], "tolerance":pointtolerance, "color":answercolor}
+                            {"points":[{"x":"0", "y":"@Psum@", "answer":true},
+                                       {"x":"1", "y":"@Psum@", "answer":true}], "tolerance":pointtolerance, "color":answercolor}
                         ]
                     },
                     "default": {
@@ -338,37 +338,43 @@ const problem = {
                         "line": 2
                     },
                     "answer": {
-                        "line":[{"points":[{"x":"0", "y":"@PsatW@", "color":watercolor},
-                                           {"x":"@x1@", "y":"@y1@"},
-                                           {"x":"@x2@", "y":"@y2@"},
-                                           {"x":"@x3@", "y":"@y3@"},
+                        "line":[{"points":[{"x":"0", "y":"@Psum@"},
+                                           {"x":"0", "y":"@PsatW@", "color":watercolor},
+                                           {"x":"@x1@", "y":"@y1@", "answer":true},
+                                           {"x":"@x2@", "y":"@y2@", "answer":true},
+                                           {"x":"@x3@", "y":"@y3@", "answer":true},
                                            {"x":"@xc@", "y":"@Psum@"}], "tolerance":pointtolerance, "color":answercolor},
                                 {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
-                                           {"x":"@x4@", "y":"@y4@"},
-                                           {"x":"@x5@", "y":"@y5@"},
-                                           {"x":"@x6@", "y":"@y6@"},
-                                           {"x":"1", "y":"@Psat@org@@", "color":organiccolor}], "tolerance":pointtolerance, "color":answercolor}
+                                           {"x":"@x4@", "y":"@y4@", "answer":true},
+                                           {"x":"@x5@", "y":"@y5@", "answer":true},
+                                           {"x":"@x6@", "y":"@y6@", "answer":true},
+                                           {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
+                                           {"x":"1", "y":"@Psum@", "grade":false}], "tolerance":pointtolerance, "color":answercolor}
                                 ]
                     },
                     "default": {
-                        "point": [],
                         "line": [
                             {"points":[{"x":0, "y":"@Psum@", "radius":1, "show":false},
-                                       {"x":1, "y":"@Psum@", "radius":1, "show":false}], "color":graycolor},
+                                       {"x":1, "y":"@Psum@", "radius":1, "show":false}],
+                             "color":graycolor},
                             {"points":[{"x":"0", "y":"@Psum@", "show":false},
                                        {"x":"0", "y":"@PsatW@", "color":watercolor},
                                        {"x":"@x1@", "y":"@PsatW@", "movey":true},
                                        {"x":"@x2@", "y":"@PsatW@", "movey":true},
                                        {"x":"@x3@", "y":"@PsatW@", "movey":true},
-                                       {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor, "answer":true,
-                                       "fill":{"color":watercolor, "opacity":0.2}},
+                                       {"x":"@xc@", "y":"@Psum@", "color":"green"}],
+                             "color":graycolor,
+                             "answer":true,
+                             "fill":{"color":watercolor, "opacity":0.2}},
                             {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
                                        {"x":"@x4@", "y":"@Psat@org@@", "movey":true},
                                        {"x":"@x5@", "y":"@Psat@org@@", "movey":true},
                                        {"x":"@x6@", "y":"@Psat@org@@", "movey":true},
                                        {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
-                                       {"x":"1", "y":"@Psum@", "show":false}], "color":graycolor, "answer":true,
-                                       "fill":{"color":organiccolor, "opacity":0.2}}
+                                       {"x":"1", "y":"@Psum@", "show":false}],
+                             "color":graycolor,
+                             "answer":true,
+                             "fill":{"color":organiccolor, "opacity":0.2}}
                         ],
                         "text": [
                             {"text":"liquid @compound@ + liquid water", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},

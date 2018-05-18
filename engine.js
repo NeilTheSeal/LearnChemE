@@ -451,7 +451,9 @@ class Point {
         this.generateCal();
         this.generateRaw();
     }
-    
+    /**
+ * @param {Canvas#context}  context stuff
+ */
     draw(context) {
         if (isBetween(this.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
                 isBetween(this.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
@@ -1289,6 +1291,7 @@ class CanvasController {
     */
     getanswers() {
         this.interactable = false;
+        this.update();
         let answers = [];
         for (let element of this.finished) {
             if (element.answer) {
@@ -1694,9 +1697,12 @@ class GraphElement extends QuestionElement {
                 }
             }
         }
+        console.clear();
+        console.log('checking answer',answer);
         if (this.answercount["line"] > 0) {
             // Each answer being looked for
             for (let i in this.answer.line) {
+                console.log(' vs',this.answer.line[i]);
                 score.max += 1;
                 let matchscore = 0;
                 let matchindex = 0;
@@ -1709,11 +1715,9 @@ class GraphElement extends QuestionElement {
                         if (used.indexOf(j) === -1) {
                             // If same line size
                             if (this.answer.line[i].points.length === answer[j].points.length) {
-                                // Assume line matches
-                                let fullmatch = true;
                                 // Each point in the line
                                 for (let k in answer[j].points) {
-                                    if (answer[j].points[k].movex || answer[j].points[k].movey) {
+                                    if ((answer[j].points[k].movex || answer[j].points[k].movey) && this.answer.line[i].points[k].answer) {
                                         mymaxscore++;
                                         // If point is not close enough
                                         const ansx = this.answer.line[i].points[k].x;
@@ -1894,16 +1898,9 @@ class Question {
         @param {float} inputarguments.requiredscore Required % score to move on (0 to 1)
     */
     constructor(inputarguments) {
-        /*
-        for (let e of inputarguments.questionelements) {
-            this.elements.push(this.createElement(e));
-        }
-        */
-        
         for (let key of Object.keys(inputarguments)) {
             this[key] = inputarguments[key];
         }
-        
         this.elements = [];
         this.html = "";
         this.createHTML(inputarguments.questionelements);
@@ -1993,9 +1990,18 @@ class Question {
         // Generate variable values
         this.variablevalues = generateVariables(this.variables);
         // Replace variables in html
-        
-        for (let variable of Object.keys(this.variablevalues)) {
-            this.html = this.html.replace(`${VAR}${variable}${VAR}`, this.variablevalues[variable]);
+        const maxloops = 100;
+        let loops = 0;
+        while (this.html.indexOf(`${VAR}`) > -1) {
+            for (let variable of Object.keys(this.variablevalues)) {
+                this.html = this.html.replace(`${VAR}${variable}${VAR}`, this.variablevalues[variable]);
+            }
+            loops++;
+            if (loops >= maxloops) {
+                console.log('assign variables in html failed:', this.html);
+                console.log(`${this.html.indexOf(VAR)}`);
+                break;
+            }
         }
         // Replace variables in elements
         this.assignVariables();

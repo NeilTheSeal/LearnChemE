@@ -231,10 +231,10 @@ button:hover {
 }
 
 ::-webkit-input-placeholder {
-    opacity: 0.3;
+    opacity: 0.4;
 }
 ::-moz-input-placeholder {
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
 /* ########## Row/column layout ########## */
