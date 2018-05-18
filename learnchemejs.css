@@ -59,6 +59,8 @@ body {
 
 #question {
     padding: 10px;
+    width: 100%;
+    
 }
 
 #next {
@@ -67,44 +69,50 @@ body {
 
 /* ########## Score ########## */
 
-#score {
-    position: absolute;
+#scorediv {
+    position: fixed;
     display: inline-block;
     width: 260px;
-    top: 100px;
+    bottom: 0px;
     right: 0px;
     transition: 0.3s;
     z-index: 2;
 }
 
-#score.hidescore {
-    right: -220px;
+#scorediv.hidescore {
+    bottom: -200px;
 }
 
-#score.showscore {
-    right: 0px;
+#scorediv.showscore {
+    bottom: 0px;
 }
 
-#score:hover {
-    right: 0px;
+#scorediv:hover {
+    bottom: 0px;
 }
 
 #scoretitle {
     position: absolute;
     width: 100%;
+    text-align: center;
+    background: #DDDDDD;
+    border: 1px solid black;
+    width: 225px;
+    top: -25px;
+    left: 20px;
     font-size: 20px;
     font-weight: bold;
-    -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+/*    -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);*/
 }
 
 table {
     position: relative;
     left: 20px;
     display: inline-block;
-    background: white;
+    background: #DDDDDD;
     border: 1px solid black;
     border-collapse: collapse;
-    color: #444444;
+    color: #222222;
     font-size: 20px;
     box-shadow: 2px 2px black;
 }
@@ -205,7 +213,8 @@ button:hover {
 }
 
 .hint {
-    color: limegreen;
+    color: darkblue;
+    font-weight: bold;
     margin: 10px;
 }
 
@@ -228,33 +237,33 @@ button:hover {
     opacity: 0.3;
 }
 
+/* ########## Row/column layout ########## */
+
+.row {
+    display: flex;
+    flex-direction: row;
+    padding: 1px;
+}
+.column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1px;
+}
+
 /* ########## Canvas ########## */
 
 .canvasarea {
     position: relative;
+    flex: 1;
+/*    margin: 2px;*/
 }
-
 .canvasarea canvas {
     position: absolute;
 }
-
 .canvas {
     cursor: crosshair;
     border: 1px solid black;
-}
-
-.canvaspoint {
-    font-size: 16px;
-    display: inline-block;
-    width: 290px;
-    text-align: left;
-}
-
-.canvasmode {
-    font-size: 16px;
-    display: inline-block;
-    width: 290px;
-    text-align: right;
 }
 
 /* Tip boxes */

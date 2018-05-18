@@ -12,6 +12,12 @@
         <div id="page">
             <div id="header">
                 <img src="boulder-one-line-reverse.png" height=60>
+                <div style="position: absolute; text-align: right; right: 0px; display: inline-block;">
+                    Created by: <br>
+                    Sky Chrastina <br>
+                    John L Falconer <br>
+                    Univeristy of Colorado Boulder - Department of Chemical and Biological Engineering
+                </div>
             </div>
             <div id="body">
                 <div id="title">
@@ -30,7 +36,7 @@
                     Submit/next buttons inserted here
                     -->
                 </div>
-                <div id="score">
+                <div id="scorediv">
                     <!--
                     Score summary inserted here
                     -->
@@ -43,13 +49,14 @@
                 </div>
             </div>
             <div id="footer">
-                Created by: <br>
-                Sky Chrastina <br>
-                John L Falconer <br>
-                Univeristy of Colorado Boulder - Department of Chemical and Biological Engineering
+
             </div>
         </div>
     </body>
     <script src="engine.js"></script>
     <script src="immicibleT.js"></script>
+    <script>
+        let problemController = new ProblemController(problem);
+        problemController.begin();
+    </script>
 </html>

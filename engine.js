@@ -3,7 +3,7 @@
     
     ProblemController
         Question[]
-            Element[]
+            QuestionElement[]
 */
 
 /*
@@ -34,11 +34,9 @@ GraphElement
 
 const VAR = "@";
 const SPVAR = "~";
-const HIDESCOREWINDOWWIDTH = 975;
+const HIDESCOREWINDOWWIDTH = 875;
 const IDLENGTH = 16;
-const LINEWIDTH = 2;
-const LINECOLOR = "black";
-const GRABRADIUS = 5;
+const GRABRADIUS = 10;
 
 // ##### Misc functions #####
 
@@ -132,7 +130,6 @@ function isIterable(obj) {
     @return {object} Post-replacement object
 */
 function recursiveReplace(obj, pattern, replacement) {
-    
     if (typeof(obj) === "string") {
         while (obj.indexOf(pattern) != -1) {
             obj = obj.replace(pattern, replacement);
@@ -214,7 +211,7 @@ function recursiveFind(obj, pattern) {
 
 
 /**
-    Generate naive hash from string
+    Generate hash from string <br>
     Bad, need to redo
 */
 String.prototype.hashCode = function() {
@@ -228,15 +225,6 @@ String.prototype.hashCode = function() {
     }
     return hash;
 }
-/*
-s = "105209964" + "101" + "10";
-console.log('hashing', s, s.hashCode());
-s = "105209964" + "101" + "20";
-console.log('hashing', s, s.hashCode());
-s = "105209964" + "101" + "30";
-console.log('hashing', s, s.hashCode());
-*/
-
 
 /**
     Returns true if x is between a and b (or equal to either)
@@ -463,6 +451,34 @@ class Point {
         this.generateCal();
         this.generateRaw();
     }
+    
+    draw(context) {
+        if (isBetween(this.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
+                isBetween(this.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+            if (this.correctanswer) {
+                // Draw ellipse
+                context.beginPath();
+                context.strokeStyle = "green";
+                context.ellipse(this.rawx, this.rawy, this.tolerance.x*this.graphinfo.scaleX, this.tolerance.y*-this.graphinfo.scaleY, 0, 0, 2*Math.PI, false);
+                context.stroke();
+                // Fill circle
+                context.fillStyle = "green";
+                context.globalAlpha = 0.3;
+                context.fill();
+            }
+            // Black border
+            context.beginPath();
+            context.fillStyle = "black";
+            context.globalAlpha = 1;
+            context.arc(this.rawx, this.rawy, this.radius, 2*Math.PI, false);
+            context.fill();
+            // Colored interior
+            context.beginPath();
+            context.fillStyle = this.color;
+            context.arc(this.rawx, this.rawy, this.radius-1, 2*Math.PI, false);
+            context.fill();
+        }
+    }
     /**
         Sets calibrated values ({@link Point#x}, {@link Point#y}) from raw values ({@link Point#rawx}, {@link Point#rawy}) using {@link Point#graphinfo}.
     */
@@ -520,6 +536,9 @@ class Point {
     @param {float} [args.width=1]
     @param {boolean} [args.answer=false]
     @param {boolean} [args.correctanswer=false]
+    @param {object} [args.fill] Fill the region enclosed by the line
+    @param {string} args.fill.color Color to fill the region
+    @param {float} args.fill.opacity Opacity of the color (0 to 1)
 */
 class Line {
     constructor(args) {
@@ -551,15 +570,43 @@ class Line {
         */
         this.answer = false;
         /**
-            @name Point#answer
+            @name Line#correctanswer
             @type boolean
             @default false
-            @desc Is this line shown as an answer to the question?
+            @desc Is this line a correct answer?
         */
         this.correctanswer = false;
         // Fill values from provided arguments
         for (let key of Object.keys(args)) {
             this[key] = args[key];
+        }
+    }
+    
+    draw(context) {
+        context.beginPath();
+        context.globalAlpha = 1;
+        context.strokeStyle = this.color;
+        context.lineWidth = this.width;
+        let first = true;
+        // Connect points
+        for (let pt of this.points) {
+            if (isBetween(pt.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
+                isBetween(pt.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+                if (first) {
+                    // Move to start of line
+                    context.moveTo(pt.rawx, pt.rawy);
+                } else {
+                    // Draw segment
+                    context.lineTo(pt.rawx, pt.rawy);
+                    context.stroke();
+                }
+                first = false;
+            }
+        }
+        if (this.fill) {
+            context.fillStyle = this.fill.color;
+            context.globalAlpha = this.fill.opacity;
+            context.fill();
         }
     }
     /**
@@ -587,6 +634,67 @@ class Line {
             r[k] = this[k];
         }
         return r;
+    }
+}
+
+/**
+    Text element for display through CanvasController
+    @param {string} text Text to display
+    @param {string} [font="20px sans-serif"] ex. "italic 20px sans-serif"
+    @param {string} align "left", "right", or "center"
+    @param {string} color Color of text
+    @param {Point} position Location of text on canvas
+*/
+class Text {
+    constructor(args) {
+        // Default values
+        this.ID = randomID(IDLENGTH);
+        this.text = "";
+        this.font = "20px sans-serif";
+        this.align = "left";
+        this.color = "black";
+        // Argument values
+        for (let key of Object.keys(args)) {
+            this[key] = args[key];
+        }
+        // Convert data to point if not
+        if (!(this.position instanceof Point)) {
+            this.position = new Point(this.position);
+        }
+        
+    }
+    /**
+        @return {object} The internal data of the text
+    */
+    data() {
+        let r = {};
+        for (let k of Object.keys(this)) {
+            r[k] = this[k];
+        }
+        return r;
+    }
+    
+    draw(context) {
+        // example for breaking text into fragments
+        // http://jsfiddle.net/A3KYH/
+        /*
+            function texter(str, x, y){
+                for(var i = 0; i <= str.length; ++i){
+                    var ch = str.charAt(i);
+                    ctx.filslStyle = randomColor();
+                    ctx.fillText(str.charAt(i), x, y);
+                    x += ctx.measureText(ch).width;
+                }
+            }
+        */
+        
+        if (this.position.graphinfo.graphleft <= this.position.rawx && this.position.rawx <= this.position.graphinfo.graphright && this.position.graphinfo.graphtop <= this.position.rawy && this.position.rawy <= this.position.graphinfo.graphbottom) {
+            context.fillStyle = this.color;
+            context.globalAlpha = 1;
+            context.font = this.font;
+            context.textAlign = this.align;
+            context.fillText(this.text, this.position.rawx, this.position.rawy);
+        }
     }
 }
 
@@ -680,44 +788,6 @@ class GraphInfo {
     }
 }
 
-/**
-    Text element for display through CanvasController
-    @param {string} text Text to display
-    @param {string} [font="20px sans-serif"] ex. "italic 20px sans-serif"
-    @param {string} align "left", "right", or "center"
-    @param {string} color Color of text
-    @param {Point} position Location of text on canvas
-*/
-class Text {
-    constructor(args) {
-        // Default values
-        this.ID = randomID(IDLENGTH);
-        this.text = "";
-        this.font = "20px sans-serif";
-        this.align = "left";
-        this.color = "black";
-        // Argument values
-        for (let key of Object.keys(args)) {
-            this[key] = args[key];
-        }
-        // Convert data to point if not
-        if (!(this.position instanceof Point)) {
-            this.position = new Point(this.position);
-        }
-        
-    }
-    /**
-        @return {object} The internal data of the text
-    */
-    data() {
-        let r = {};
-        for (let k of Object.keys(this)) {
-            r[k] = this[k];
-        }
-        return r;
-    }
-}
-
 // ##### Other classes #####
 
 /**
@@ -765,10 +835,10 @@ class ZCanvas {
 */
 class CanvasController {
     /**
-        @param {object} DOM DOM name associations
+        @param {object} DOM Document object model name associations
         @param {int} index Index to identify canvas
         @param {object} args Object of input arguments
-        @param {object} args.cursor Cursor display information
+        @param {object} args.cursor Object describing how the cursor should look (used as cursordata for {@link CanvasController#drawCursor})
         @param {object} args.mode Interaction mode
         @param {object} args.answercount Maximum number of elements to allow on graph
         @param {int} args.answercount.point 
@@ -778,13 +848,12 @@ class CanvasController {
         @param {list} args.default.line 
     */
     constructor(DOM, index, args) {
-        // Load arguments
-        this.graphinfo = new GraphInfo(args.graphinfo)
         //this.img = new Image();
         //this.img.src = args.imgsrc;
         //this.imgcalibration = args.imgcal;
         /* Valid modes are "move", "point", "line", "calibrate" */
         this.mode = args.mode;
+        this.graphinfo = args.graphinfo
         if (args.cursor != undefined) {
             this.cursor = args.cursor;
         }
@@ -839,14 +908,6 @@ class CanvasController {
         this.dynamiccanvas.addEventListener("mousemove", e => this.mouseMove(e));
         this.dynamiccanvas.addEventListener("mousedown", e => this.mouseDown(e));
         this.dynamiccanvas.addEventListener("mouseup", e => this.mouseUp(e));
-        
-        // Calibration setup
-        if (this.mode === "calibrate") {
-            this.x1 = DOM.textboxid.replace(re, 2);
-            this.y1 = DOM.textboxid.replace(re, 3);
-            this.x2 = DOM.textboxid.replace(re, 4);
-            this.y2 = DOM.textboxid.replace(re, 5);
-        }
   
         // Initialize
         this.update();
@@ -912,7 +973,7 @@ class CanvasController {
             } else if (data.equation) {
                 // line constructed from equation
                 const dx = (data.max - data.min) / data.steps;
-                //for (let i=1; i<= data.steps; i++) {
+                // Replace variables
                 for (let i=data.min; i<= data.max; i+=dx) {
                     const ind = data.independent;
                     const dep = data.dependent;
@@ -1165,68 +1226,11 @@ class CanvasController {
     /**
         Draws an element to the foreground canvas<br>
         To be replaced with Object.draw() calls
-        @param {Point|Line|Text} element Element to be drawn
+        @param {Point|Line|Text} element QuestionElement to be drawn
     */
     draw(element) {
-        // TODO give elements a draw method and call from here, passing context
-        // Save whatever state the context object is in
         this.dynamicctx.save();
-        if (element instanceof Point) {
-            if (isBetween(element.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
-                isBetween(element.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
-                // Black border
-                this.dynamicctx.beginPath();
-                this.dynamicctx.fillStyle = "black";
-                this.dynamicctx.globalAlpha = 1;
-                this.dynamicctx.arc(element.rawx, element.rawy, element.radius, 2*Math.PI, false);
-                this.dynamicctx.fill();
-                // Colored interior
-                this.dynamicctx.beginPath();
-                this.dynamicctx.fillStyle = element.color;
-                this.dynamicctx.arc(element.rawx, element.rawy, element.radius-1, 2*Math.PI, false);
-                this.dynamicctx.fill();
-                if (element.correctanswer) {
-                    this.dynamicctx.beginPath();
-                    this.dynamicctx.strokeStyle = "green";
-                    this.dynamicctx.ellipse(element.rawx, element.rawy, element.tolerance.x*this.graphinfo.scaleX, element.tolerance.y*-this.graphinfo.scaleY, 0, 0, 2*Math.PI, false);
-                    this.dynamicctx.stroke();
-                }
-            }
-        } else if (element instanceof Line) {
-            // Connect points
-            this.dynamicctx.beginPath();
-            this.dynamicctx.globalAlpha = 1;
-            this.dynamicctx.strokeStyle = element.color;
-            this.dynamicctx.lineWidth = element.width;
-            let first = true;
-            //console.log(element);
-            for (let pt of element.points) {
-                if (isBetween(pt.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
-                    isBetween(pt.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
-                    if (first) {
-                        // Move to start of line
-                        this.dynamicctx.moveTo(pt.rawx, pt.rawy);
-                    } else {
-                        // Draw segment
-                        this.dynamicctx.lineTo(pt.rawx, pt.rawy);
-                        this.dynamicctx.stroke();
-                    }
-                    first = false;
-                }
-            }
-            //this.dynamicctx.fillStyle = "black";
-            //this.dynamicctx.globalAlpha = 0.1;
-            //this.dynamicctx.fill();
-        } else if (element instanceof Text) {
-            if (this.graphinfo.graphleft <= element.position.rawx && element.position.rawx <= this.graphinfo.graphright && this.graphinfo.graphtop <= element.position.rawy && element.position.rawy <= this.graphinfo.graphbottom) {
-                this.dynamicctx.fillStyle = element.color;
-                this.dynamicctx.globalAlpha = 1;
-                this.dynamicctx.font = element.font;
-                this.dynamicctx.textAlign = element.align;
-                this.dynamicctx.fillText(element.text, element.position.rawx, element.position.rawy);
-            }
-        }
-        // Restore the context object to its previous state
+        element.draw(this.dynamicctx);
         this.dynamicctx.restore();
     }
     /**
@@ -1280,8 +1284,8 @@ class CanvasController {
                     this.finished.splice(this.finished.indexOf(pt),1);
     }}}}
     /**
-        Returns all finished elements on the graph marked as answers ({@link Element#answer})
-        @return {list} A list of {@link Element}s
+        Returns all finished elements on the graph marked as answers ({@link QuestionElement#answer})
+        @return {list} A list of {@link QuestionElement}s
     */
     getanswers() {
         this.interactable = false;
@@ -1295,7 +1299,7 @@ class CanvasController {
     }
     /**
         Displays a set of elements as correct answers
-        @param {list} answers List of {@link Element}s
+        @param {list} answers List of {@link QuestionElement}s
     */
     showanswers(answers) {
         let answerselements = []
@@ -1326,55 +1330,67 @@ class CanvasController {
         @param {int} cursordata.digits.y2
     */
     drawCursor(cursorpt, cursordata) {
-        if (isBetween(cursorpt.x, this.graphinfo.x.min, this.graphinfo.x.max) &&
-            isBetween(cursorpt.y, this.graphinfo.y.min, this.graphinfo.y.max)) {
-            let cursoralign = "";
-            let cursorcolor = "black";
-            let cursorstyle = "bold 16px sans-serif"
-            // Constants align box position around crosshair cursor nicely
-            if (cursorpt.rawx < this.dynamiccanvas.width/2) {
-                // Left
-                cursoralign = "left";
-                cursorpt.rawx += 4;
-            } else {
-                // Right
-                cursoralign = "right";
-                cursorpt.rawx -= 5;
-            }
-            if (cursorpt.rawy < this.dynamiccanvas.height/2) {
-                // Top
-                cursorpt.rawy += 15;
-            } else {
-                // Bottom
-                cursorpt.rawy -= 5;
-            }
-            if (cursordata.color != undefined) {
-                cursorcolor = cursordata.color;
-            }
-            if (cursordata.style != undefined) {
-                cursorcolor = cursordata.style;
-            }
-            // Generate text based on cursordata format
-            let content = cursordata.format;
-            if (this.graphinfo.x != undefined) {
-                content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
-            }
-            if (this.graphinfo.y != undefined) {
-                content = content.replace(`${SPVAR}y${SPVAR}`, cursorpt.y.toFixed(this.cursor.digits.y));
-            }
-            if (this.graphinfo.x2 != undefined) {
-                content = content.replace(`${SPVAR}x2${SPVAR}`, cursorpt.x2.toFixed(this.cursor.digits.x2));
-            }
-            if (this.graphinfo.y2 != undefined) {
-                content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
-            }
-            // Draw text
-            this.draw(new Text({"text": content,
-                                "color": cursorcolor,
-                                "font": cursorstyle,
-                                "align": cursoralign,
-                                "position": cursorpt}));
+        // Bound cursor within graph
+        if (cursorpt.x) {
+            cursorpt.x = constrain(cursorpt.x, this.graphinfo.x.min, this.graphinfo.x.max);
         }
+        if (cursorpt.y) {
+            cursorpt.y = constrain(cursorpt.y, this.graphinfo.y.min, this.graphinfo.y.max);
+        }
+        if (cursorpt.x2) {
+            cursorpt.x2 = constrain(cursorpt.x2, this.graphinfo.x2.min, this.graphinfo.x2.max);
+        }
+        if (cursorpt.y2) {
+            cursorpt.y2 = constrain(cursorpt.y2, this.graphinfo.y2.min, this.graphinfo.y2.max);
+        }
+        cursorpt.generateRaw();
+
+        let cursoralign = "";
+        let cursorcolor = "black";
+        let cursorstyle = "bold 16px sans-serif"
+        // Constants align box position around crosshair cursor nicely
+        if (cursorpt.rawx < this.dynamiccanvas.width/2) {
+            // Left
+            cursoralign = "left";
+            cursorpt.rawx += 4;
+        } else {
+            // Right
+            cursoralign = "right";
+            cursorpt.rawx -= 5;
+        }
+        if (cursorpt.rawy < this.dynamiccanvas.height/2) {
+            // Top
+            cursorpt.rawy += 15;
+        } else {
+            // Bottom
+            cursorpt.rawy -= 5;
+        }
+        if (cursordata.color != undefined) {
+            cursorcolor = cursordata.color;
+        }
+        if (cursordata.style != undefined) {
+            cursorcolor = cursordata.style;
+        }
+        // Generate text based on cursordata format
+        let content = cursordata.format;
+        if (this.graphinfo.x != undefined) {
+            content = content.replace(`${SPVAR}x${SPVAR}`, cursorpt.x.toFixed(this.cursor.digits.x));
+        }
+        if (this.graphinfo.y != undefined) {
+            content = content.replace(`${SPVAR}y${SPVAR}`, cursorpt.y.toFixed(this.cursor.digits.y));
+        }
+        if (this.graphinfo.x2 != undefined) {
+            content = content.replace(`${SPVAR}x2${SPVAR}`, cursorpt.x2.toFixed(this.cursor.digits.x2));
+        }
+        if (this.graphinfo.y2 != undefined) {
+            content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
+        }
+        // Draw text
+        this.draw(new Text({"text": content,
+                            "color": cursorcolor,
+                            "font": cursorstyle,
+                            "align": cursoralign,
+                            "position": cursorpt}));
     }
     /**
         Whenever the mouse is moved over the canvas, update the dynamic layer.
@@ -1580,7 +1596,9 @@ class CanvasController {
                 this.drawing = true;
             }
             this.update();
-            this.draw(this.held);
+            if (this.held) {
+                this.draw(this.held);
+            }
         }
     }
     /**
@@ -1602,27 +1620,53 @@ class CanvasController {
 // ##### Problem/question classes #####
 
 /**
-    Container class for graph-entry questions
+    Generic element for display on page
 */
-class GraphElement {
-    /**
-        @param {string} mode ("move, "point", "line")
-        mode: mode for the canvascontroller to be in
-        answercount: {"point": 1, "line": 0}, named list of expected
-        answer: correct answers
-        default: default graph objects
-        tolerance: range near answer to count as correct
-        points: number of points question is worth
-        @param {string} imgsrc (deprecated) Location of image source file
-        @param {Calibration} imgcal (deprecated) Calibration data for image
-    */
+class QuestionElement {
     constructor(inputarguments) {
         for (let key of Object.keys(inputarguments)) {
             this[key] = inputarguments[key];
         }
     }
     /**
-        Check submitted answers against correct answers
+        Inserts the HTML for a QuestionElement onto the page
+        @param {string} containerid HTML id of parent element
+        @param {string} html The HTML representation of the desired element
+    */
+    insertHTML(containerid, html) {
+        let container = document.getElementById(containerid);
+        container.insertAdjacentHTML("beforeend", html);
+    }
+}
+
+/**
+    Container class for graph-entry questions
+*/
+class GraphElement extends QuestionElement {
+    /**
+        @param {object} inputarguments
+        @param {string} inputarguments.mode ("move, "point", "line")
+        @param {object} inputarguments.answercount Number of elements allowed on graph at time
+        @param {object} inputarguments.answercount.point
+        @param {object} inputarguments.answercount.line
+        @param {list} inputarguments.answer Correct answers
+        @param {list} inputarguments.default {@link QuestionElements} that appear on graph by default
+        @param {object} inputarguments.tolerance Range above and below answer to accept
+        @param {float} inputarguments.tolerance.x
+        @param {float} inputarguments.tolerance.y
+        @param {int} inputarguments.points How many points this element is worth
+        @param {string} inputarguments.imgsrc (deprecated) Location of image source file
+        @param {Calibration} inputarguments.imgcal (deprecated) Calibration data for image
+    */
+    constructor(inputarguments) {
+        super(inputarguments);
+        // Convert graphinfo data into class instance
+        this.graphinfo = new GraphInfo(this.graphinfo)
+    }
+    /**
+        Check user-submitted answers against correct answers
+        @param {Element} answer The correct answer
+        @return The score as a percentage (0 to 1)
     */
     checkanswer(answer) {
         let score = {"max": 0,
@@ -1701,74 +1745,101 @@ class GraphElement {
         score.pct = score.got / score.max;
         return score.pct;
     }
-    
-    insertHTML(DOM, id) {
-        let container = document.getElementById(DOM.questiondivid);
-        
-        let html = `<div class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
+    /**
+        Generates the HTML for this element <br>
+        Includes a style tag to set the min-width to the graph width
+        @param {object} DOM Document object model name associations
+        @param {string} containerid HTML id of parent element
+        @param {int} id Unique id to be included in the HTML elements
+    */
+    getHTML(DOM, containerid, id) {
+        // qwert
+        let html = `<div style="min-width:${this.graphinfo.width}px" class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2"></canvas>`;
         html += `<br>`;
         html += `<div class="${DOM.canvasinfodivclass}">`;
-        //html += `<span class="${DOM.canvaspointclass}" id="${DOM.canvaspointid}">(x, y)</span>`;
-        //html += `<span class="${DOM.canvasmodeclass}" id="${DOM.canvasmodeid}">mode</span>`;
         html += `</div></div>`;
-        
-        const re = new RegExp(`${VAR}id${VAR}`, "g");
-        html = html.replace(re, id);
-        
-        container.insertAdjacentHTML("beforeend", html);
-        
+        html = html.replace(new RegExp(`${VAR}id${VAR}`, "g"), id);
+        return html;
+    }
+    /**
+        Inserts the HTML for a GraphElement onto the page
+        @param {object} DOM Document object model name associations
+        @param {string} containerid HTML id of parent element
+        @param {int} id Unique id to be included in the HTML elements
+    */
+    insertHTML(DOM, containerid, id) {
+        super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
+        // qwert
+        this.canvascontroller = new CanvasController(DOM, id, this);
+    }
+    
+    init(DOM, id) {
         this.canvascontroller = new CanvasController(DOM, id, this);
     }
 }
 
 /**
-    Container class for text display
-    label: Text to display before textbox
-    style: CSS style to apply
+    Container class for basic text display
 */
-class TextElement {
-    
+class TextElement extends QuestionElement{
+    /**
+        @param {object} inputarguments
+        @param {string} inputarguments.label Text to display
+        @param {string} inputarguments.style CSS style to apply
+    */
     constructor(inputarguments) {
-        this.label = inputarguments.label;
-        this.style = inputarguments.style;
+        super(inputarguments);
     }
-    
-    insertHTML(DOM, id) {
-        let container = document.getElementById(DOM.questiondivid);
-        
+    /**
+        Generates the HTML for this element
+        @param {object} DOM Document object model name associations
+        @param {string} containerid HTML id of parent element
+        @param {int} id Unique id to be included in the HTML elements
+    */
+    getHTML(DOM, containerid, id) {
         let html = `<span class="${DOM.textspanclass}`;
         if (this.style != undefined) {
             html += ` ${this.style}`;
         }
         html += `">${this.label}</span>`;
-        
-        container.insertAdjacentHTML("beforeend", html);
+        return html;
+    }
+    /**
+        Inserts the HTML for a this element
+        @param {object} DOM Document object model name associations
+        @param {string} containerid HTML id of parent element
+        @param {int} id Unique id to be included in the HTML elements
+    */
+    insertHTML(DOM, containerid, id) {
+        super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
     }
 }
 
 /**
     Container class for textbox-entry questions
-    label: Text to display before textbox
-    placeholder: Placeholder text in textbox
-    answertype: "number" or "text"
-    answer: correct answer
-    tolerance: range above or below answer to count as correct
-    points: number of points question is worth
 */
-class TextboxElement {
-    
+class TextboxElement extends QuestionElement{
+    /**
+        @param {object} inputarguments
+        @param {string} inputarguments.label Text to display before textbox
+        @param {string} inputarguments.placeholder Placeholder text in textbox
+        @param {string} inputarguments.answertype "number" or "text"
+        @param {float|string} inputarguments.answer Correct answer
+        @param {object} inputarguments.tolerance Range above or below answer to count as correct
+        @param {float} inputarguments.tolerance.x
+        @param {float} inputarguments.tolerance.y
+        @param {int} inputarguments.points Number of points question is worth
+    */
     constructor(inputarguments) {
-        
-        this.label = inputarguments.label;
-        this.placeholder = inputarguments.placeholder;
-        this.answertype = inputarguments.answertype;
-        this.answer = inputarguments.answer;
-        this.tolerance = inputarguments.tolerance;
-        this.points = inputarguments.points;
+        super(inputarguments);
     }
-    
+    /**
+        Checks the answer of the TextboxElement
+        @param {float|string} answer The user-submitted answer
+        @return {float} Correctness (0 to 1)
+    */
     checkanswer(answer) {
         if (this.answertype === "number") {
             if (parseFloat(answer) >= this.answer - this.tolerance && parseFloat(answer) <= this.answer + this.tolerance) {
@@ -1784,53 +1855,99 @@ class TextboxElement {
             }
         }
     }
-    
-    insertHTML(DOM, id) {
-        let container = document.getElementById(DOM.questiondivid);
+    /**
+        Generates the HTML for this element
+        @param {object} DOM Document object model name associations
+        @param {string} containerid HTML id of parent element
+        @param {int} id Unique id to be included in the HTML elements
+    */
+    getHTML(DOM, containerid, id) {
         let html = `<div class="${DOM.textboxdivclass}">`;
         html += `<span class="${DOM.textboxspanclass}">${this.label}</span>`;
         html += `<br>`;
         html += `<input class="${DOM.textboxclass}" placeholder="${this.placeholder}" id="${DOM.textboxid}">`;
         html += `<span class="${DOM.textboxanswerclass}" id="${DOM.textboxanswerid}"></span>`;
-        html+= `</input></div>`;
-        
-        const re = new RegExp(`${VAR}id${VAR}`, "g");
-        html = html.replace(re, id);
-        
-        container.insertAdjacentHTML("beforeend", html);
+        html += `</input></div>`;
+        html = html.replace(new RegExp(`${VAR}id${VAR}`, "g"), id);
+        return html;
+    }
+    /**
+        Inserts the HTML for this element
+        @param {object} DOM Document object model name associations
+        @param {string} containerid HTML id of parent element
+        @param {int} id Unique id to be included in the HTML elements
+    */
+    insertHTML(DOM, containerid, id) {
+        super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
     }
 }
 
 /**
-    Container class for each question
+    Container class for each question <br>
     Consists of elements displayed sequentially on the page
-    variables: list of variables in problem
-    elements: array of question elements
-    requiredscore: required % score to move on
 */
 class Question {
+    /**
+        @param {object} inputarguments
+        @param {object} inputarguments.variables: Data for variables used in problem
+        @param {list} inputarguments.questionelements List of question element data objects
+        @param {float} inputarguments.requiredscore Required % score to move on (0 to 1)
+    */
     constructor(inputarguments) {
-        this.elements = [];
+        /*
         for (let e of inputarguments.questionelements) {
             this.elements.push(this.createElement(e));
         }
-        this.variablevalues = {};
-        this.inputvariables = inputarguments.variables;
-        this.requiredscore = inputarguments.requiredscore;
-    }
-    
-    createElement(elementdata) {
-        let element;
-        if (elementdata.type === "textbox") {
-            element = new TextboxElement(elementdata);
-        } else if (elementdata.type === "graph") {
-            element = new GraphElement(elementdata);
-        } else if (elementdata.type === "text") {
-            element = new TextElement(elementdata);
+        */
+        
+        for (let key of Object.keys(inputarguments)) {
+            this[key] = inputarguments[key];
         }
-        return element;
+        
+        this.elements = [];
+        this.html = "";
+        this.createHTML(inputarguments.questionelements);
     }
-    
+    /**
+        Creates the appropriate class for a given element
+        @param {object} elementdata The data object containing everything about the element
+        @param {string} elementdata.type "text", "graph", or "textbox"
+        @return {TextElement|GraphElement|TextboxElement} The class instance for the element
+    */
+    createElement(elementdata) {
+        if (elementdata.type === "textbox") {
+            return new TextboxElement(elementdata);
+        } else if (elementdata.type === "graph") {
+            return new GraphElement(elementdata);
+        } else if (elementdata.type === "text") {
+            return new TextElement(elementdata);
+        }
+    }
+    /**
+        TODO
+    */
+    createHTML(inputelements, recursion = 0) {
+        for (let element of inputelements) {
+            // Swap between rows and columns
+            if (recursion % 2 == 0) {
+                this.html += `<div class="row">`;
+            } else {
+                this.html += `<div class="column">`;
+            }
+            // If an array is found, call recursively, otherwise add element html
+            if (element instanceof Array) {
+                this.createHTML(element, recursion+1);
+            } else {
+                this.elements.push(this.createElement(element));
+                this.html += this.elements[this.elements.length - 1].getHTML(this.DOM, this.DOM.questiondivid, this.elements.length-1);
+            }
+            // Finish row/column
+            this.html += `</div>`;
+        }
+    }
+    /**
+        The total point worth of the question
+    */
     get totalPoints() {
         let total = 0;
         for (let element of this.elements) {
@@ -1840,10 +1957,12 @@ class Question {
         }
         return total;
     }
-    
+    /**
+        Replace variable placeholders with values in all contained elements
+    */
     assignVariables() {
-        // Replace variables with values in all elements
         for (let element of this.elements) {
+            // Prevent infinite recursion
             const maxloops = 100;
             let loops = 0;
             while (recursiveExists(element, `${VAR}`)) {
@@ -1861,29 +1980,39 @@ class Question {
             element = recursiveNumberfy(element);
         }
     }
-    
-    keyPress(key) {
-        if (key === "q") {
-            console.log("Question: pressed q");
-        }
-    }
-    
+    /**
+        Display this question
+        @param {object} DOM Document object model name associations
+        @param {object} parentvariables Variable values from parent (ProblemController)
+    */
     display(DOM, parentvariables) {
         // Input variables from parent as constants
         for (let name of Object.keys(parentvariables)) {
-            this.inputvariables.constants[name] = parentvariables[name];
+            this.variables.constants[name] = parentvariables[name];
         }
         // Generate variable values
-        this.variablevalues = generateVariables(this.inputvariables);
-        // Replace variables in elements with values
+        this.variablevalues = generateVariables(this.variables);
+        // Replace variables in html
+        
+        for (let variable of Object.keys(this.variablevalues)) {
+            this.html = this.html.replace(`${VAR}${variable}${VAR}`, this.variablevalues[variable]);
+        }
+        // Replace variables in elements
         this.assignVariables();
-        // Create display elements
-        //this.insertContainers(DOM, this.instruction);
+        // Insert question HTML
+        document.getElementById(DOM.questiondivid).insertAdjacentHTML("beforeend", this.html);
+        // Create CanvasController objects for each GraphElement
         for (let i in this.elements) {
-            this.elements[i].insertHTML(DOM, i);
+            if (this.elements[i] instanceof GraphElement) {
+                this.elements[i].init(DOM, i);
+            }
         }
     }
-    
+    /**
+        Check answers and display correct ones
+        @param {object} DOM Document object model name associations
+        @return {score} Score object containing "got", "max", and "pct" keys
+    */
     submit(DOM) {
         // Add up score and reveal answers
         let score = {"max": 0,
@@ -1916,21 +2045,36 @@ class Question {
 }
 
 /**
-    Master class for controlling page
+    Master class for controlling page <br>
     Consists of a series of questions
+    
 */
 class ProblemController {
-    constructor(problemdata) {
-        // Load problem data
-        this.title = problemdata.pagetitle;
-        this.inputvariables = problemdata.variables;
-        this.questions = [];
-        for (let q of problemdata.questions) {
-            this.questions.push(this.createQuestion(q));
-        }
-        this.finishquestion = this.createQuestion(problemdata.finish);
-        // Initialize local data
+    /**
+        @param {object} inputarguments
+        @param {string} inputarguments.title Title to be displayed at the top of the page and as the html page title
+        @param {object} inputarguments.inputvariables Data for variables used in problem
+        @param {list} inputarguments.questions List of objects containing data for each {@link Question}
+        @param {object} inputarguments.finish Object containing data for display of finishing page
+    */
+    constructor(inputarguments) {
+        /**
+            @name ProblemController#currentquestion
+            @type int
+            @desc Index of the {@link Question} currently displayed to the user
+        */
         this.DOM = this.getDOM;
+        // Load problem data
+        this.title = inputarguments.pagetitle;
+        this.inputvariables = inputarguments.variables;
+        this.questions = [];
+        for (let q of inputarguments.questions) {
+            q.DOM = this.DOM;
+            this.questions.push(new Question(q));
+        }
+        inputarguments.finish.DOM = this.DOM;
+        this.finishquestion = new Question(inputarguments.finish);
+        // Initialize local data
         this.score = {};
         this.currentquestion = -1;
         // Set/insert heading title
@@ -1941,29 +2085,9 @@ class ProblemController {
         // Catch keyboard events
         document.addEventListener("keydown", e => this.keyEvent(e));
     }
-    /*
-    constructor(title, variables) {
-        this.title = title;
-        this.DOM = this.getDOM;
-        
-        //let testargs = JSON.parse("immiciblePtest.js");
-        console.log(testargs);
-        
-        this.questions = [];
-        this.score = {};
-        this.currentquestion = -1;
-        this.inputvariables = variables;
-        
-        // Set/insert heading title
-        document.title = title;
-        document.getElementById(this.DOM.titledivid).insertAdjacentHTML("beforeend", title);
-        // Score box will hide if window is resized too narrowly
-        this.pagesetup(this.DOM);
-        // Catch keyboard events
-        document.addEventListener("keydown", e => this.keyEvent(e));
-    }
-    //*/
-    
+    /**
+        Document object model for the page
+    */
     get getDOM() {
         return {
         "headerdivid": "header",
@@ -1993,7 +2117,7 @@ class ProblemController {
                 "hintbuttonid": "hintbutton",
                 "submitbuttonid": "submitbutton",
                 "nextbuttonid": "nextbutton",
-            "scoredivid": "score",
+            "scoredivid": "scorediv",
                 "scoretitleid": "scoretitle",
             "gradedivid": "submitgrade",
                 "nametextid": "nametext",
@@ -2013,7 +2137,10 @@ class ProblemController {
         "tipboxbuttonid" : "tipbutton--" + VAR + "id" + VAR,
         };
     }
-    
+    /**
+        Show or hide scores box based on window width, and set up listening event to do so on page resizing
+        @param {object} DOM Document object model name associations
+    */
     pagesetup(DOM) {
         if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
             document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
@@ -2028,7 +2155,9 @@ class ProblemController {
             }
         };
     }
-    
+    /**
+        Create HTML elements and set initial variable values
+    */
     begin() {
         // Initialize scores
         for (let i in this.questions) {
@@ -2052,37 +2181,42 @@ class ProblemController {
         this.currentquestion = -1;
         this.nextQuestion();
     }
-    
-    createQuestion(questiondata) {
-        let q = new Question(questiondata);
-        return q;
-    }
-    
+    /**
+        Refresh the page, starting a new problem
+    */
     refresh() {
         if (confirm("Really start a new problem?")) {
-            // Refresh the page
+            // One of many ways to refresh the page
             location = location;
         }
     }
-    
+    /**
+        Proceed to the next question in the problem
+    */
     nextQuestion() {
-        // Proceed to next question in sequence
         this.currentquestion++;
         this.display();
+        // Move to top of page
+        window.scrollTo(0,0);
     }
-
+    /**
+        Handler for keypress events
+    */
     keyEvent(e) {
         //console.log(`ProblemController: pressed ${e.key}`);
         if (e.key === "Enter") {
-            //this.submit();
+            if (this.currentquestion < this.questions.length) {
+                if (!document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.hiddenbuttonclass)) {
+                    document.getElementById(this.DOM.submitbuttonid).click();
+                } else {
+                    document.getElementById(this.DOM.nextbuttonid).click();
+                }
+            }
         }
     }
-    
-    addQuestion(question) {
-        // Adds a question to the problem in sequence
-        this.questions.push(question)
-    }
-    
+    /**
+        Removes all html elements from the question div, clearing the page for the next question
+    */
     clearPage() {
         // Clear question objects from html
         let container = document.getElementById(this.DOM.questiondivid);
@@ -2090,7 +2224,9 @@ class ProblemController {
             container.firstChild.remove();
         }
     }
-    
+    /**
+        Inserts the HTML for grading submission input
+    */
     insertScoreInput() {
         let container = document.getElementById(this.DOM.gradedivid);
         let html = `<div class="${this.DOM.textboxdivclass}">`;
@@ -2108,16 +2244,21 @@ class ProblemController {
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.gradebuttonid).addEventListener("click", e => this.submitforgrade(e));
     }
-    
+    /**
+        Placeholder grade submission function <br>
+        Should be replaced with server communication
+    */
     submitforgrade() {
         const name = document.getElementById(this.DOM.nametextid).value;
         const cuid = document.getElementById(this.DOM.cuidtextid).value;
-        const score = roundTo(this.sumScore(this.score).pct*100, 0);
+        const score = roundTo(this.sumScore().pct*100, 0);
         const hash = this.generateHash(name, cuid, score);
         console.log(name, cuid, score, hash);
         alert(`Submission information:\n|${name}|\n|${cuid}|\n|${score}|\n|${hash}|`);
     }
-    
+    /**
+        Concatenate a series of strings then run them through a simple hash function
+    */
     generateHash() {
         let str = "";
         for (let i = 0; i < arguments.length; i++) {
@@ -2125,28 +2266,36 @@ class ProblemController {
         }
         return str.hashCode();
     }
-    
+    /**
+        Insert HTML for the Hint button
+    */
     insertHintButton() {
         let container = document.getElementById(this.DOM.buttonsdivid);
         let html = `<button id="${this.DOM.hintbuttonid}">Hint</button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.hintbuttonid).addEventListener("click", e => this.showhint(e));
     }
-    
+    /**
+        Insert HTML for the Submit button
+    */
     insertSubmitButton() {
         let container = document.getElementById(this.DOM.buttonsdivid);
         let html = `<button id="${this.DOM.submitbuttonid}">Submit Answers</button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
     }
-    
+    /**
+        Insert HTML for the Next button
+    */
     insertNextButton() {
         let container = document.getElementById(this.DOM.buttonsdivid);
         let html = `<button id="${this.DOM.nextbuttonid}">Next Part</button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
     }
-    
+    /**
+        Insert HTML for the Restart button
+    */
     insertRestartButton() {
         // Add button
         let container = document.getElementById(this.DOM.buttonsdivid);
@@ -2155,33 +2304,46 @@ class ProblemController {
         // Add event listener to button
         document.getElementById(this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
     }
-    
+    /**
+        Make Hint button clickable
+    */
     enableHintButton() {
         document.getElementById(this.DOM.hintbuttonid).disabled = false;
     }
-    
+    /**
+        Make Hint button un-clickable
+    */
     disableHintButton() {
         document.getElementById(this.DOM.hintbuttonid).disabled = true;
     }
-    
+    /**
+        Hide/show Submit button
+    */
     toggleSubmitButton() {
         document.getElementById(this.DOM.submitbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
     }
-    
+    /**
+        Hide/show Next button
+    */
     toggleNextButton() {
         document.getElementById(this.DOM.nextbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
     }
-    
+    /**
+        Hide/show Hint button
+    */
     toggleHintButton() {
         document.getElementById(this.DOM.hintbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
     }
-    
-    sumScore(score) {
+    /**
+        Gets the total score for the problem
+        return {object} Score object containing "got", "max", and "pct" keys
+    */
+    sumScore() {
         let sumscore = 0;
         let sumpoints = 0;
-        for (let i in score) {
-            sumscore += score[i].got;
-            sumpoints += score[i].max;
+        for (let i in this.score) {
+            sumscore += this.score[i].got;
+            sumpoints += this.score[i].max;
         }
         return {
             "got": sumscore,
@@ -2189,8 +2351,10 @@ class ProblemController {
             "pct": sumscore / sumpoints,
         };
     }
-    
-    updateScores(score) {
+    /**
+        Update score summary table on page
+    */
+    updateScores() {
         let container = document.getElementById(this.DOM.scoredivid);
         
         // Clear score objects from html
@@ -2199,19 +2363,25 @@ class ProblemController {
         }
         
         // Create new score object
-        let html = `<span id=${this.DOM.scoretitleid}>SCORE</span>`;
+        let html = `<div id=${this.DOM.scoretitleid}>SCORE</div>`;
         html += "<table>";
         html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
-        for (let i in score) {
-            html += `<tr><td>${parseFloat(i)+1}</td><td>${roundTo(score[i].got, 2)}</td><td>${roundTo(score[i].max, 2)}</td><td>${roundTo(score[i].pct*100, 0)}%</td></tr>`;
+        for (let i in this.score) {
+            html += `<tr><td>${parseFloat(i)+1}</td><td>${roundTo(this.score[i].got, 2)}</td><td>${roundTo(this.score[i].max, 2)}</td><td>${roundTo(this.score[i].pct*100, 0)}%</td></tr>`;
         }
-        const sumscore = this.sumScore(score);
+        const sumscore = this.sumScore();
         html += `<tr><td>Total</td><td>${roundTo(sumscore.got, 2)}</td><td>${roundTo(sumscore.max, 2)}</td><td>${roundTo(sumscore.pct * 100,0)}%</td></tr>`;
         html += "</table>";
         
         container.insertAdjacentHTML("beforeend", html);
     }
-    
+    /**
+        Insert a dismissable tip box on the page
+        @param {string} tip Text content
+        @param {int} left Left position of box (in px)
+        @param {int} top Top position of box (in px)
+        @param {string} uuid Unique id
+    */
     insertTipBox(tip, left, top, uuid) {
         const COOKIEEXPIRATION = 30*1000; // In milliseconds
         let container = document.getElementById(this.DOM.bodydivid);
@@ -2247,9 +2417,10 @@ class ProblemController {
             document.getElementById(buttonid).addEventListener("click", e => f(e));
         }
     }
-    
+    /**
+        Display current question to page
+    */
     display() {
-        // Display current question
         // Clear current page elements
         this.clearPage();
         if (this.currentquestion > -1) {
@@ -2259,7 +2430,7 @@ class ProblemController {
                 this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
             }
         }
-        this.updateScores(this.score);
+        this.updateScores();
         // Slide scores off screen
         document.getElementById(this.DOM.scoredivid).classList.remove("showscore");
         
@@ -2271,7 +2442,9 @@ class ProblemController {
         this.insertTipBox("Click here to check your answers and move on to the next step", 410, 890);
         //*/
     }
-    
+    /**
+        Show the hints for the current {@link Question}
+    */
     showhint() {
         // Prevent multiple clicks
         this.disableHintButton();
@@ -2281,11 +2454,10 @@ class ProblemController {
             elements[0].classList.remove(this.DOM.hiddentextclass);
         }
     }
-    
+    /**
+        Check user-submitted answers, show correct answers, update score
+    */
     submit() {
-        // Submit current answers
-        // Clear previous output
-        //console.clear(); TODO
         // Update score for this question, call Question.submit
         this.score[this.currentquestion] = this.questions[this.currentquestion].submit(this.DOM);
         if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
@@ -2300,32 +2472,35 @@ class ProblemController {
         this.toggleSubmitButton();
         this.toggleNextButton();
         this.showhint();
-        this.updateScores(this.score);
+        this.updateScores();
         document.getElementById(this.DOM.scoredivid).classList.add("showscore");
     }
-    
+    /**
+        Repeat the current question
+    */
     repeat() {
-        // Repeat current question
         this.currentquestion--;
         this.nextQuestion();
     }
-    
+    /**
+        Finish reviewing correct answers, move on to the next question
+    */
     next() {
-        // End question, go to next
         this.toggleSubmitButton();
         this.toggleNextButton();
         this.enableHintButton();
         this.nextQuestion();
     }
-    
+    /**
+        Finish the problem, display the finishing page
+    */
     finish() {
-        // End problem
         this.clearPage();
         document.getElementById(this.DOM.hintbuttonid).remove();
         document.getElementById(this.DOM.submitbuttonid).remove();
         document.getElementById(this.DOM.nextbuttonid).remove();
         this.insertScoreInput();
-        this.updateScores(this.score);
+        this.updateScores();
         this.finishquestion.display(this.DOM, this.variablevalues);
         document.getElementById(this.DOM.scoredivid).classList.add("showscore");
     }

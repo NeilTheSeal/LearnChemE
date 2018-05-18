@@ -132,7 +132,7 @@ const problem = {
             "questionelements": [
                 {
                     "type": "text",
-                    "label": "1) Drag the blue line to the pressure where three phases coexist. <br>",
+                    "label": "1) Drag the blue line to the pressure where three phases coexist.",
                     "style": "prompt"
                 },
                 {
@@ -140,7 +140,7 @@ const problem = {
                     "label": datalabel,
                     "style": "data"
                 },
-                {
+                [[{
                     "type": "graph",
                     "graphinfo": graphinfo,
                     "mode": "move",
@@ -179,10 +179,10 @@ const problem = {
                     "type": "text",
                     "label": "Hint: sum the saturation pressures",
                     "style": "hiddentext hint"
-                },
-                {
+                }],
+                [{
                     "type": "textbox",
-                    "label": "Which region has two liquids in equilibrium and no vapor? ",
+                    "label": "<br> Which region has two liquids in equilibrium and no vapor? ",
                     "placeholder": "type A or B",
                     "answertype": "text",
                     "answer": "A",
@@ -193,7 +193,7 @@ const problem = {
                     "type": "text",
                     "label": "Hint: liquids are more stable at higher pressures",
                     "style": "hiddentext hint"
-                },
+                }]],
             ],
             "requiredscore": 0.00
         }, // question
@@ -207,7 +207,7 @@ const problem = {
             "questionelements": [
                 {
                     "type": "text",
-                    "label": "2) Drag the blue point to where pure water is in VLE, and drag the orange point to where pure benzene is in VLE. <br>",
+                    "label": "2) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure benzene is in VLE. <br>",
                     "style": "prompt"
                 }, // element
                 {
@@ -338,8 +338,7 @@ const problem = {
                         "line": 2
                     },
                     "answer": {
-                        "line":[{"points":[{"x":"0", "y":"@Psum@", "show":false},
-                                           {"x":"0", "y":"@PsatW@", "color":watercolor},
+                        "line":[{"points":[{"x":"0", "y":"@PsatW@", "color":watercolor},
                                            {"x":"@x1@", "y":"@y1@"},
                                            {"x":"@x2@", "y":"@y2@"},
                                            {"x":"@x3@", "y":"@y3@"},
@@ -348,8 +347,7 @@ const problem = {
                                            {"x":"@x4@", "y":"@y4@"},
                                            {"x":"@x5@", "y":"@y5@"},
                                            {"x":"@x6@", "y":"@y6@"},
-                                           {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
-                                           {"x":"1", "y":"@Psum@", "show":false}], "tolerance":pointtolerance, "color":answercolor}
+                                           {"x":"1", "y":"@Psat@org@@", "color":organiccolor}], "tolerance":pointtolerance, "color":answercolor}
                                 ]
                     },
                     "default": {
@@ -362,13 +360,15 @@ const problem = {
                                        {"x":"@x1@", "y":"@PsatW@", "movey":true},
                                        {"x":"@x2@", "y":"@PsatW@", "movey":true},
                                        {"x":"@x3@", "y":"@PsatW@", "movey":true},
-                                       {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor, "answer":true},
+                                       {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor, "answer":true,
+                                       "fill":{"color":watercolor, "opacity":0.2}},
                             {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
                                        {"x":"@x4@", "y":"@Psat@org@@", "movey":true},
                                        {"x":"@x5@", "y":"@Psat@org@@", "movey":true},
                                        {"x":"@x6@", "y":"@Psat@org@@", "movey":true},
                                        {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
-                                       {"x":"1", "y":"@Psum@", "show":false}], "color":graycolor, "answer":true}
+                                       {"x":"1", "y":"@Psum@", "show":false}], "color":graycolor, "answer":true,
+                                       "fill":{"color":organiccolor, "opacity":0.2}}
                         ],
                         "text": [
                             {"text":"liquid @compound@ + liquid water", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
@@ -413,18 +413,21 @@ const problem = {
                                    {"x":"@x1@", "y":"@y1@", "show": false},
                                    {"x":"@x2@", "y":"@y2@", "show": false},
                                    {"x":"@x3@", "y":"@y3@", "show": false},
-                                   {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor, "answer":true},
+                                   {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor,
+                                   "fill":{"color":watercolor, "opacity":0.2}},
                         {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
                                    {"x":"@x4@", "y":"@y4@", "show": false},
                                    {"x":"@x5@", "y":"@y5@", "show": false},
                                    {"x":"@x6@", "y":"@y6@", "show": false},
                                    {"x":"1", "y":"@Psat@org@@", "color":organiccolor},
-                                   {"x":"1", "y":"@Psum@", "show":false}], "color":graycolor, "answer":true}
+                                   {"x":"1", "y":"@Psum@", "show":false}],
+                                   "color":graycolor,
+                                   "fill":{"color":organiccolor, "opacity":0.2}}
                     ],
                     "text": [
                         {"text":"liquid @compound@ + liquid water", "position": {"x": 0.5, "y": regionAy}, "align":"center", "color":textcolor},
-                        {"text":"vapor + liquid @compound@", "position": {"x": 0, "y": "@ywlabel@"}, "align":"left", "color":textcolor},
-                        {"text":"vapor + liquid water", "position": {"x": 1, "y": "@yolabel@"}, "align":"right", "color":textcolor},
+                        {"text":"vapor + liquid @compound@", "position": {"x": 0.01, "y": "@ywlabel@"}, "align":"left", "color":textcolor},
+                        {"text":"vapor + liquid water", "position": {"x": 0.99, "y": "@yolabel@"}, "align":"right", "color":textcolor},
                         {"text":"vapor", "position": {"x": 0.5, "y": regionBy}, "align":"center", "color":textcolor}
                     ]
                 },
