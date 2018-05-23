@@ -1,3 +1,5 @@
+"use strict";
+
 /*
     Structure:
     
@@ -79,8 +81,8 @@ function roundTo(num, digits) {
 /**
     Returns one of two results based on a condition
     @param {string} condition Condition to be tested
-    @param {} iftrue Action to take if condition is true
-    @param {} iffalse Action to take if condition is false
+    @param {} iftrue Value to return if condition is true
+    @param {} iffalse Value to return if condition is false
     @return {boolean} True or false
 */
 function ifTF(condition, iftrue, iffalse) {
@@ -89,6 +91,55 @@ function ifTF(condition, iftrue, iffalse) {
     } else {
         return iffalse;
     }
+}
+
+/**
+ * Numerically finds a root of an expression <br>
+ * TODO: Generalize to multi-variable root finding
+ * @param { string} expression  Equation that is set equal to 0
+ * @param { string} variable    Variable name to replace in equation
+ * @param { number} min     Minimum value to try
+ * @param { number} max     Maximum value to try
+ * @param { number} precision   Allowable error in the answer
+ * @param { number} initialguess    Start guessing from here
+ * @return {    number}     A root of the expression within the precision tolerance
+ */
+function FindRoot(expression, variable, min, max, precision, initialguess) {
+    let guess = 0;
+    if (initialguess === undefined) {
+        guess = (min + max) / 2;
+    } else {
+        guess = initialguess;
+    }
+    let step = Math.min(max - guess, guess - min);
+    let ans = precision+1;
+    const maxloops = 100;
+    let loops = 0;
+    while (ans > precision) {
+        loops++;
+        const lowx = Math.max(guess - step, min);
+        const midx = guess;
+        const highx = Math.min(guess + step, max);
+
+        const re = new RegExp(variable, "g");
+        const lowy = Math.abs(eval(expression.replace(re, lowx)));
+        ans = Math.abs(eval(expression.replace(re, midx)));
+        const highy = Math.abs(eval(expression.replace(re, highx)));
+
+        if (lowy < ans && lowy < highy) {
+            guess = lowx;
+        } else if (highy < ans && highy < lowy) {
+            guess = highx;
+        } else {
+            step = step / 2;
+        }
+
+        if (loops > maxloops) {
+            console.log(`FindRoot exceeding max loops for arguments: (${expression}, ${variable}, ${min}, ${max}, ${precision}, ${initialguess})`);
+            break;
+        }
+    }
+    return guess;
 }
 
 /**
@@ -298,6 +349,12 @@ function generateVariables(variables) {
         //console.log("Evaluating",exp);
         variablevalues[name] = eval(exp);
     }
+    // Numberfy strings
+    for (let name of Object.keys(variables.calculated)) {
+        if (typeof(variablevalues[name]) === "string" && !isNaN(variablevalues[name])) {
+            variablevalues[name] = parseFloat(variablevalues[name]);
+        }
+    }
     return variablevalues;
 }
 
@@ -447,19 +504,18 @@ class Point {
         for (let key of Object.keys(args)) {
             this[key] = args[key];
         }
-        // Fill missing values
-        this.generateCal();
-        this.generateRaw();
+        this.generateMissing();
     }
 
     draw(context) {
         if (isBetween(this.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
                 isBetween(this.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+            context.save();
             if (this.correctanswer) {
                 // Draw ellipse
                 context.beginPath();
                 context.strokeStyle = "green";
-                context.ellipse(this.rawx, this.rawy, this.tolerance.x*this.graphinfo.scaleX, this.tolerance.y*-this.graphinfo.scaleY, 0, 0, 2*Math.PI, false);
+                context.ellipse(this.rawx, this.rawy, this.tolerance.x*this.graphinfo.x.scale, this.tolerance.y*-this.graphinfo.y.scale, 0, 0, 2*Math.PI, false);
                 context.stroke();
                 // Fill circle
                 context.fillStyle = "green";
@@ -477,44 +533,80 @@ class Point {
             context.fillStyle = this.color;
             context.arc(this.rawx, this.rawy, this.radius-1, 2*Math.PI, false);
             context.fill();
-        }
-    }
-    /**
-        Sets calibrated values ({@link Point#x}, {@link Point#y}) from raw values ({@link Point#rawx}, {@link Point#rawy}) using {@link Point#graphinfo}.
-    */
-    generateCal() {
-        if (this.rawx != undefined) {
-            if (this.graphinfo.xRawToCal != undefined) {
-                this.x = this.graphinfo.xRawToCal(this.rawx);
-            }
-            if (this.graphinfo.x2RawToCal != undefined) {
-                this.x2 = this.graphinfo.x2RawToCal(this.rawx);
-            }
-        }
-        if (this.rawy != undefined) {
-            if (this.graphinfo.yRawToCal != undefined) {
-                this.y = this.graphinfo.yRawToCal(this.rawy);
-            }
-            if (this.graphinfo.y2RawToCal != undefined) {
-                this.y2 = this.graphinfo.y2RawToCal(this.rawy);
-            }
+            context.restore();
         }
     }
     /**
         Sets raw values ({@link Point#rawx}, {@link Point#rawy}) from calibrated values ({@link Point#x}, {@link Point#y}) using {@link Point#graphinfo}.
     */
-    generateRaw() {
-        if (this.x != undefined) {
-            this.rawx = this.graphinfo.xCalToRaw(this.x);
+    generateMissing() {
+        if (this.graphinfo === undefined) {
+            console.log("Error in Point.generateMissing(), graphinfo not supplied.", this);
+            return 0;
         }
-        if (this.y != undefined) {
-            this.rawy = this.graphinfo.yCalToRaw(this.y);
+        if (this.graphinfo.x != undefined) {
+            if (this.x === undefined) {
+                this.x = this.graphinfo.x.RawToCal(this.rawx);
+            } else if (this.rawx === undefined) {
+                this.rawx = this.graphinfo.x.CalToRaw(this.x);
+            }
         }
-        if (this.x2 != undefined) {
-            this.rawx = this.graphinfo.x2CalToRaw(this.x2);
+        if (this.graphinfo.x2 != undefined) {
+            if (this.x2 === undefined) {
+                this.x2 = this.graphinfo.x2.RawToCal(this.rawx);
+            } else if (this.rawx === undefined) {
+                this.rawx = this.graphinfo.x2.CalToRaw(this.x2);
+            }
         }
-        if (this.y2 != undefined) {
-            this.rawy = this.graphinfo.y2CalToRaw(this.y2);
+        if (this.graphinfo.y != undefined) {
+            if (this.y === undefined) {
+                this.y = this.graphinfo.y.RawToCal(this.rawy);
+            } else if (this.rawy === undefined) {
+                this.rawy = this.graphinfo.y.CalToRaw(this.y);
+            }
+        }
+        if (this.graphinfo.y2 != undefined) {
+            if (this.y2 === undefined) {
+                this.y2 = this.graphinfo.y2.RawToCal(this.rawy);
+            } else if (this.rawy === undefined) {
+                this.rawy = this.graphinfo.y2.CalToRaw(this.y2);
+            }
+        }
+    }
+    generateRawFromCal() {
+        if (this.graphinfo === undefined) {
+            console.log("Error in Point.generateMissing(), graphinfo not supplied.", this);
+            return 0;
+        }
+        if (this.graphinfo.x != undefined) {
+            this.rawx = this.graphinfo.x.CalToRaw(this.x);
+        }
+        if (this.graphinfo.x2 != undefined) {
+            this.rawx = this.graphinfo.x2.CalToRaw(this.x2);
+        }
+        if (this.graphinfo.y != undefined) {
+            this.rawy = this.graphinfo.y.CalToRaw(this.y);
+        }
+        if (this.graphinfo.y2 != undefined) {
+            this.rawy = this.graphinfo.y2.CalToRaw(this.y2);
+        }
+    }
+    generateCalFromRaw() {
+        if (this.graphinfo === undefined) {
+            console.log("Error in Point.generateMissing(), graphinfo not supplied.", this);
+            return 0;
+        }
+        if (this.graphinfo.x != undefined) {
+            this.x = this.graphinfo.x.RawToCal(this.rawx);
+        }
+        if (this.graphinfo.x2 != undefined) {
+            this.x2 = this.graphinfo.x2.RawToCal(this.rawx);
+        }
+        if (this.graphinfo.y != undefined) {
+            this.y = this.graphinfo.y.RawToCal(this.rawy);
+        }
+        if (this.graphinfo.y2 != undefined) {
+            this.y2 = this.graphinfo.y2.RawToCal(this.rawy);
         }
     }
     /**
@@ -583,6 +675,7 @@ class Line {
     }
     
     draw(context) {
+        context.save();
         context.beginPath();
         context.globalAlpha = 1;
         context.strokeStyle = this.color;
@@ -603,11 +696,26 @@ class Line {
                 first = false;
             }
         }
+        // Shade tolerance of points
+        for (let pt of this.points) {
+            if (this.correctanswer && pt.answer) {
+                // Draw ellipse
+                context.beginPath();
+                context.strokeStyle = "green";
+                context.ellipse(pt.rawx, pt.rawy, this.tolerance.x*pt.graphinfo.x.scale, this.tolerance.y*-pt.graphinfo.y.scale, 0, 0, 2*Math.PI, false);
+                //context.stroke();
+                // Fill circle
+                context.fillStyle = "green";
+                context.globalAlpha = 0.3;
+                context.fill();
+            }
+        }
         if (this.fill) {
             context.fillStyle = this.fill.color;
             context.globalAlpha = this.fill.opacity;
             context.fill();
         }
+        context.restore();
     }
     /**
         @return {int} The number of line segments
@@ -640,9 +748,13 @@ class Line {
 /**
     Text element for display through CanvasController
     @param {string} text Text to display
-    @param {string} [font="20px sans-serif"] ex. "italic 20px sans-serif"
-    @param {string} align "left", "right", or "center"
-    @param {string} color Color of text
+    @param {string} [font="sans-serif"] Which font to use
+    @param {string} [fontsize="20"] Size of the font (in px)
+    @param {string} [fontstyle=""] Styling of the font (bold, italic, etc)
+    @param {string} [align="left"] "left", "right", or "center"
+    @param {string} [color="black"] Color of text
+    @param {number} [opacity=1] Opacity of the text
+    @param {number} [rotate=0] Rotation of the text (in degrees, clockwise)
     @param {Point} position Location of text on canvas
 */
 class Text {
@@ -650,9 +762,13 @@ class Text {
         // Default values
         this.ID = randomID(IDLENGTH);
         this.text = "";
-        this.font = "20px sans-serif";
+        this.font = "sans-serif";
+        this.fontsize = "20";
+        this.fontstyle = "";
         this.align = "left";
         this.color = "black";
+        this.opacity = 1;
+        this.rotate = 0;
         // Argument values
         for (let key of Object.keys(args)) {
             this[key] = args[key];
@@ -661,7 +777,8 @@ class Text {
         if (!(this.position instanceof Point)) {
             this.position = new Point(this.position);
         }
-        
+        // Convert text to string
+        this.text = String(this.text);
     }
     /**
         @return {object} The internal data of the text
@@ -675,26 +792,87 @@ class Text {
     }
     
     draw(context) {
-        // example for breaking text into fragments
-        // http://jsfiddle.net/A3KYH/
-        /*
-            function texter(str, x, y){
-                for(var i = 0; i <= str.length; ++i){
-                    var ch = str.charAt(i);
-                    ctx.filslStyle = randomColor();
-                    ctx.fillText(str.charAt(i), x, y);
-                    x += ctx.measureText(ch).width;
+        // Set context variables
+        context.save();
+        context.translate(this.position.rawx, this.position.rawy);
+        context.rotate(this.rotate * Math.PI / 180);
+        // Plan variables
+        let plan = {
+            char: [],
+            x: [0],
+            y: [],
+            font: [],
+            color: [],
+            opacity: [],
+        };
+        const subscale = 0.5;
+        const supoff = -.75;
+        let yoff = 0;
+        let charcolor = this.color;
+        let charopacity = this.opacity;
+        // Plan each letter
+        let i = 0;
+        while (i < this.text.length) {
+            while (this.text.charAt(i) === "<") {
+                const command = this.text.slice(i,this.text.indexOf(">",i)+1)
+                if (command === "<sub>") {
+                    this.fontsize *= subscale;
+                } else if (command === "</sub>") {
+                    this.fontsize /= subscale;
+                } else if (command === "<sup>") {
+                    this.fontsize *= subscale;
+                    yoff += this.fontsize * supoff;
+                } else if (command === "</sup>") {
+                    this.fontsize /= subscale;
+                    yoff -= this.fontsize * supoff;
+                } else if (command.slice(0,7) === "<color:") {
+                    charcolor = command.slice(7,command.indexOf(">"));
+                } else if (command === "</color>") {
+                    charcolor = this.color;
+                } else if (command.slice(0,9) === "<opacity:") {
+                    charopacity = command.slice(9,command.indexOf(">"));
+                } else if (command === "</opacity>") {
+                    charopacity = this.opacity;
+                } else {
+                    console.log('Error in Text.draw(), command not recognized:', command);
+                    break;
                 }
+                i += command.length;
             }
-        */
-        
-        if (this.position.graphinfo.graphleft <= this.position.rawx && this.position.rawx <= this.position.graphinfo.graphright && this.position.graphinfo.graphtop <= this.position.rawy && this.position.rawy <= this.position.graphinfo.graphbottom) {
-            context.fillStyle = this.color;
-            context.globalAlpha = 1;
-            context.font = this.font;
-            context.textAlign = this.align;
-            context.fillText(this.text, this.position.rawx, this.position.rawy);
+            // Set plan
+            plan.char.push(this.text.charAt(i));
+            plan.font.push(`${this.fontstyle} ${this.fontsize}px ${this.font}`);
+            context.font = plan.font[plan.font.length-1];
+            plan.color.push(charcolor);
+            plan.opacity.push(charopacity);
+            plan.x.push(plan.x[plan.x.length-1] + context.measureText(this.text.charAt(i)).width);
+            plan.y.push(yoff);
+            i++;
         }
+        // Change starting position to account for alignment
+        if (this.align === "right") {
+            for (i = 0; i < plan.x.length; i++) {
+                plan.x[i] -= plan.x[plan.x.length-1];
+            }
+        } else if (this.align === "center") {
+            for (i = 0; i < plan.x.length; i++) {
+                plan.x[i] -= (plan.x[plan.x.length-1] / 2);
+            }
+        }
+        // Shift text to middle y based on largest font (capital M is hacky solution)
+        context.font = `${this.fontstyle} ${this.fontsize}px ${this.font}`;
+        const lineheight = context.measureText('M').width;
+        for (i = 0; i < plan.y.length; i++) {
+            plan.y[i] += (lineheight / 2);
+        }
+        // Draw letters
+        for(i = 0; i < plan.char.length; i++) {
+            context.font = plan.font[i];
+            context.fillStyle = plan.color[i];
+            context.globalAlpha = plan.opacity[i];
+            context.fillText(plan.char[i], plan.x[i], plan.y[i]);
+        }
+        context.restore();
     }
 }
 
@@ -735,44 +913,33 @@ class GraphInfo {
         
         // Generate calibration values/functions
         if (this.x != undefined) {
-            this.scaleX = (this.graphwidth) / (this.x.max - this.x.min);
-            this.xCalToRaw = function(xcal) {
-                return (xcal - this.x.min) * this.scaleX + this.padding.left;
-            }
-            this.xRawToCal = function(xraw) {
-                return (xraw - this.padding.left) / this.scaleX + this.x.min;
-            }
+            this.setupAxis(this.x, this.padding.left, this.graphwidth, this.x.min, this.x.max);
         }
         if (this.y != undefined) {
-            this.scaleY = -(this.graphheight) / (this.y.max - this.y.min);
-            this.yCalToRaw = function(ycal) {
-                return (ycal - this.y.max) * this.scaleY + this.padding.top;
-            }
-            this.yRawToCal = function(yraw) {
-                return (yraw - this.padding.top) / this.scaleY + this.y.max;
-            }
+            this.setupAxis(this.y, this.padding.top, this.graphheight, this.y.max, this.y.min);
         }
         if (this.x2 != undefined) {
-            this.scaleX2 = (this.graphwidth) / (this.x2.max - this.x2.min);
-            this.x2CalToRaw = function(xcal) {
-                return (xcal - this.x2.min) * this.scaleX2 + this.padding.left;
-            }
-            this.x2RawToCal = function(xraw) {
-                return (xraw - this.padding.left) / this.scaleX2 + this.x2.min;
-            }
+            this.setupAxis(this.x2, this.padding.left, this.graphwidth, this.x2.min, this.x2.max);
         }
         if (this.y2 != undefined) {
-            this.scaleY2 = -(this.graphheight) / (this.y2.max - this.y2.min);
-            this.y2CalToRaw = function(ycal) {
-                return (ycal - this.y2.max) * this.scaleY2 + this.padding.top;
-            }
-            this.y2RawToCal = function(yraw) {
-                return (yraw - this.padding.top) / this.scaleY2 + this.y2.max;
-            }
+            this.setupAxis(this.y2, this.padding.top, this.graphheight, this.y2.max, this.y2.min);
         }
     }
     /**
-        Converts {@link GraphInfo} into a {@link Calibration} object.
+    * TODO
+    */
+    setupAxis(axis, padding, graphsize, axismin, axismax) {
+        axis.scale = graphsize / (axismax - axismin);
+        axis.CalToRaw = function(cal) {
+            return (cal - axismin) * axis.scale + padding;
+        }
+        axis.RawToCal = function(raw) {
+            return (raw - padding) / axis.scale + axismin;
+        }
+    }
+    /**
+        * Converts {@link GraphInfo} into a {@link Calibration} object. <br>
+        * Deprecated
     */
     calibration() {
         calinfo = {};
@@ -1016,6 +1183,88 @@ class CanvasController {
         Needs serious revision
     */
     drawGraph() {
+        // Border region
+        this.staticctx.beginPath();
+        this.staticctx.fillStyle = this.graphinfo.axesbackground;
+        this.staticctx.fillRect(0, 0, this.graphinfo.width, this.graphinfo.height);
+        // Graph region
+        this.staticctx.fillStyle = this.graphinfo.graphbackground;
+        this.staticctx.fillRect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
+        //this.staticctx.beginPath();
+
+        // TODO use text measuring to place label text
+
+        // X axis
+        if (this.graphinfo.x != undefined) {
+            this.drawAxis({
+                axisinfo: this.graphinfo.x,
+                stepStart: this.graphinfo.padding.left,
+                stepLimit: this.graphinfo.width - this.graphinfo.padding.right,
+                axisY0: this.graphinfo.height - this.graphinfo.padding.bottom,
+                axisY1: this.graphinfo.padding.top,
+                tickSign: -1,
+                numberOffset: 10,
+                labelX: this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left,
+                labelY: this.graphinfo.height - this.graphinfo.padding.bottom + 40,
+                labelrotate: 0,
+             });
+        }
+        // Y axis
+        if (this.graphinfo.y != undefined) {
+            this.drawAxis({
+                axisinfo: this.graphinfo.y,
+                stepStart: this.graphinfo.padding.top,
+                stepLimit: this.height - this.graphinfo.padding.bottom,
+                axisX0: this.graphinfo.padding.left,
+                axisX1: this.graphinfo.padding.left + this.graphinfo.graphwidth,
+                tickSign: 1,
+                numberOffset: -20,
+                labelX: this.graphinfo.padding.left - 55,
+                labelY: this.graphinfo.graphheight / 2 + this.graphinfo.padding.top,
+                labelrotate: -90,
+             });
+        }
+        // X2 axis
+        if (this.graphinfo.x2 != undefined) {
+            this.drawAxis({
+                axisinfo: this.graphinfo.x2,
+                stepStart: this.graphinfo.padding.left,
+                stepLimit: this.graphinfo.width - this.graphinfo.padding.right,
+                axisY0: this.graphinfo.padding.top,
+                axisY1: this.graphinfo.height - this.graphinfo.padding.bottom,
+                tickSign: 1,
+                numberOffset: -11,
+                labelX: this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left,
+                labelY: this.graphinfo.padding.top - 40,
+                labelrotate: 0,
+             });
+        }
+        // Y2 axis
+        if (this.graphinfo.y2 != undefined) {
+            this.drawAxis({
+                // TODO test values to make sure they display well
+                axisinfo: this.graphinfo.y2,
+                stepStart: this.graphinfo.padding.top,
+                stepLimit: this.height - this.graphinfo.padding.bottom,
+                axisX0: this.graphinfo.padding.left,
+                axisX1: this.graphinfo.padding.left + this.graphinfo.graphwidth,
+                tickSign: -1,
+                numberOffset: 20,
+                labelX: this.graphinfo.padding.left + this.graphinfo.graphwidth + 40,
+                labelY: this.graphinfo.graphheight / 2 + this.graphinfo.padding.top,
+                labelrotate: 90,
+             });
+        }
+        // Bounding box
+        this.staticctx.rect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
+        this.staticctx.strokeStyle = "black";
+        this.staticctx.lineWidth = 1;
+        this.staticctx.stroke();
+    }
+    /**
+        Abstract method to replace drawGraph
+    */
+    drawAxis(args) {
         // Constants
         const MajorAxisTickLength = 10;
         const MinorAxisTickLength = 5;
@@ -1029,187 +1278,105 @@ class CanvasController {
         const TickColor = "gray";
         const TickThickness = 1;
         const TextColor = "black";
-        const TextFont = "20px sans-serif";
-        // Border region
-        this.staticctx.beginPath();
-        this.staticctx.fillStyle = this.graphinfo.axesbackground;
-        this.staticctx.fillRect(0, 0, this.graphinfo.width, this.graphinfo.height);
-        // Graph region
-        this.staticctx.fillStyle = this.graphinfo.graphbackground;
-        this.staticctx.fillRect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
-        this.staticctx.beginPath();
-        // TODO abstract these four blocks into one method with arguments
-        // X axis
-        if (this.graphinfo.x != undefined) {
-            // Draw gridlines
-            this.staticctx.strokeStyle = GridColor;
-            this.staticctx.lineWidth = GridThickness;
-            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x.gridline * this.graphinfo.scaleX)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
-                this.staticctx.lineTo(x, this.graphinfo.padding.top);
-                this.staticctx.stroke();
+        const TextFont = "sans-serif";
+        const TextFontSize = 20;
+        const TextFontStyle = "";
+
+        let pt = 0;
+        let txt = "";
+
+        // Draw gridlines
+        this.staticctx.strokeStyle = GridColor;
+        this.staticctx.lineWidth = GridThickness;
+        for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.gridline * args.axisinfo.scale)) {
+            this.staticctx.beginPath();
+            if (args.axisY0 && args.axisY1) {
+                this.staticctx.moveTo(i, args.axisY0);
+                this.staticctx.lineTo(i, args.axisY1);
+            } else if (args.axisX0 && args.axisX1) {
+                this.staticctx.moveTo(args.axisX0, i);
+                this.staticctx.lineTo(args.axisX1, i);
             }
-            // Draw minor ticks
-            this.staticctx.strokeStyle = TickColor;
-            this.staticctx.lineWidth = TickThickness;
-            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x.minortick * this.graphinfo.scaleX)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
-                this.staticctx.lineTo(x, this.graphinfo.height - this.graphinfo.padding.bottom - MinorAxisTickLength);
-                this.staticctx.stroke();
-            }
-            // Draw major ticks and numbers
-            for (let x = this.graphinfo.padding.left; x < this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x.majortick * this.graphinfo.scaleX)) {
-                this.staticctx.beginPath();
-                this.staticctx.strokeStyle = TickColor;
-                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
-                this.staticctx.lineTo(x, this.graphinfo.height - this.graphinfo.padding.bottom - MajorAxisTickLength);
-                this.staticctx.stroke();
-                this.staticctx.fillStyle = TextColor;
-                this.staticctx.font = TextFont;
-                this.staticctx.textAlign = "center";
-                this.staticctx.fillText(roundTo(this.graphinfo.xRawToCal(x), LabelxDigits), x, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
-            }
-            // Draw last number
-            this.staticctx.fillText(roundTo(this.graphinfo.xRawToCal(this.graphinfo.width - this.graphinfo.padding.right), LabelxDigits), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.height - this.graphinfo.padding.bottom + 20);
-            // Draw label
-            this.staticctx.fillText(this.graphinfo.x.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.height - this.graphinfo.padding.bottom + 40);
+            this.staticctx.stroke();
         }
-        // Y axis
-        if (this.graphinfo.y != undefined) {
-            // Draw gridlines
-            this.staticctx.strokeStyle = GridColor;
-            this.staticctx.lineWidth = GridThickness;
-            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y.gridline * this.graphinfo.scaleY)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(this.graphinfo.padding.left, y);
-                this.staticctx.lineTo(this.graphinfo.padding.left + this.graphinfo.graphwidth, y);
-                this.staticctx.stroke();
+        // Draw minor ticks
+        this.staticctx.strokeStyle = TickColor;
+        this.staticctx.lineWidth = TickThickness;
+        for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.minortick * args.axisinfo.scale)) {
+            this.staticctx.beginPath();
+            if (args.axisY0 && args.axisY1) {
+                this.staticctx.moveTo(i, args.axisY0);
+                this.staticctx.lineTo(i, args.axisY0 + args.tickSign * MinorAxisTickLength);
+            } else if (args.axisX0 && args.axisX1) {
+                this.staticctx.moveTo(args.axisX0, i);
+                this.staticctx.lineTo(args.axisX0 + args.tickSign * MinorAxisTickLength, i);
             }
-            // Draw minor ticks
-            this.staticctx.strokeStyle = TickColor;
-            this.staticctx.lineWidth = TickThickness;
-            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y.minortick * this.graphinfo.scaleY)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(this.graphinfo.padding.left, y);
-                this.staticctx.lineTo(this.graphinfo.padding.left + MinorAxisTickLength, y);
-                this.staticctx.stroke();
-            }
-            // Draw major ticks and numbers
-            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y.majortick * this.graphinfo.scaleY)) {
-                this.staticctx.beginPath();
-                this.staticctx.strokeStyle = TickColor;
-                this.staticctx.moveTo(this.graphinfo.padding.left, y);
-                this.staticctx.lineTo(this.graphinfo.padding.left + MajorAxisTickLength, y);
-                this.staticctx.stroke();
-                this.staticctx.fillStyle = TextColor;
-                this.staticctx.font = TextFont;
-                this.staticctx.textAlign = "right";
-                this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(y), LabelyDigits), this.graphinfo.padding.left - 5, y + 7); // vertical align not working, 7 works for 20 pt font
-            }
-            // Draw last number
-            this.staticctx.fillText(roundTo(this.graphinfo.yRawToCal(this.height - this.graphinfo.padding.bottom), LabelyDigits), this.graphinfo.padding.left - 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
-            // Draw label
-            this.staticctx.save();
-            this.staticctx.rotate(-Math.PI/2);
-            this.staticctx.textAlign = "center";
-            // rotate is strange, temporary fix
-            this.staticctx.fillText(this.graphinfo.y.label, -this.graphinfo.graphheight / 2 - this.graphinfo.padding.top, 35);
-            this.staticctx.restore();
+            this.staticctx.stroke();
         }
-        // X2 axis
-        if (this.graphinfo.x2 != undefined) {
-            // Draw gridlines
-            this.staticctx.strokeStyle = GridColor;
-            this.staticctx.lineWidth = GridThickness;
-            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x2.gridline * this.graphinfo.scaleX2)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(x, this.graphinfo.height - this.graphinfo.padding.bottom);
-                this.staticctx.lineTo(x, this.graphinfo.padding.top);
-                this.staticctx.stroke();
-            }
-            // Draw minor ticks
+        // Draw major ticks and numbers
+        for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.majortick * args.axisinfo.scale)) {
+            this.staticctx.beginPath();
             this.staticctx.strokeStyle = TickColor;
-            this.staticctx.lineWidth = TickThickness;
-            for (let x = this.graphinfo.padding.left; x <= this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x2.minortick * this.graphinfo.scaleX2)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(x, this.graphinfo.padding.top);
-                this.staticctx.lineTo(x, this.graphinfo.padding.top + MinorAxisTickLength);
-                this.staticctx.stroke();
+            if (args.axisY0 && args.axisY1) {
+                this.staticctx.moveTo(i, args.axisY0);
+                this.staticctx.lineTo(i, args.axisY0 + args.tickSign * MajorAxisTickLength);
+                txt = roundTo(args.axisinfo.RawToCal(i), LabelDigits);
+                pt = new Point({rawx:i, rawy:args.axisY0 + args.numberOffset, graphinfo:this.graphinfo});
+            } else if (args.axisX0 && args.axisX1) {
+                this.staticctx.moveTo(args.axisX0, i);
+                this.staticctx.lineTo(args.axisX0 + args.tickSign * MajorAxisTickLength, i);
+                txt = roundTo(args.axisinfo.RawToCal(i), LabelDigits);
+                pt = new Point({rawx:args.axisX0 + args.numberOffset, rawy:i, graphinfo:this.graphinfo});
             }
-            // Draw major ticks and numbers
-            for (let x = this.graphinfo.padding.left; x < this.graphinfo.width - this.graphinfo.padding.right; x += Math.abs(this.graphinfo.x2.majortick * this.graphinfo.scaleX2)) {
-                // working
-                this.staticctx.beginPath();
-                this.staticctx.strokeStyle = TickColor;
-                this.staticctx.moveTo(x, this.graphinfo.padding.top);
-                this.staticctx.lineTo(x, this.graphinfo.padding.top + MajorAxisTickLength);
-                this.staticctx.stroke();
-                this.staticctx.fillStyle = TextColor;
-                this.staticctx.font = TextFont;
-                this.staticctx.textAlign = "center";
-                this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(x), Labelx2Digits), x, this.graphinfo.padding.top - 15);
-            }
-            // Draw last number
-            this.staticctx.fillText(roundTo(this.graphinfo.x2RawToCal(this.graphinfo.width - this.graphinfo.padding.right), Labelx2Digits), this.graphinfo.width - this.graphinfo.padding.right, this.graphinfo.padding.top - 15);
-            // Draw label
-            this.staticctx.fillText(this.graphinfo.x2.label, this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left, this.graphinfo.padding.top - 37);
+            this.staticctx.stroke();
+
+            new Text({
+                "text": txt,
+                "align": "center",
+                "color": TextColor,
+                "font": TextFont,
+                "fontsize": TextFontSize,
+                "fontstyle": TextFontStyle,
+                "position": pt
+            }).draw(this.staticctx);
+
         }
-        // Y2 axis
-        if (this.graphinfo.y2 != undefined) {
-            // Draw gridlines
-            this.staticctx.strokeStyle = GridColor;
-            this.staticctx.lineWidth = GridThickness;
-            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y2.gridline * this.graphinfo.scaleY2)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(this.graphinfo.padding.left, y);
-                this.staticctx.lineTo(this.graphinfo.padding.left + this.graphinfo.graphwidth, y);
-                this.staticctx.stroke();
-            }
-            // Draw minor ticks
-            this.staticctx.strokeStyle = TickColor;
-            this.staticctx.lineWidth = TickThickness;
-            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y2.minortick * this.graphinfo.scaleY2)) {
-                this.staticctx.beginPath();
-                this.staticctx.moveTo(this.width - this.graphinfo.padding.right, y);
-                this.staticctx.lineTo(this.width - this.graphinfo.padding.right - MinorAxisTickLength, y);
-                this.staticctx.stroke();
-            }
-            // Draw major ticks and numbers
-            for (let y = this.graphinfo.padding.top; y < this.height - this.graphinfo.padding.bottom; y += Math.abs(this.graphinfo.y2.majortick * this.graphinfo.scaleY2)) {
-                this.staticctx.beginPath();
-                this.staticctx.strokeStyle = TickColor;
-                this.staticctx.moveTo(this.width - this.graphinfo.padding.right, y);
-                this.staticctx.lineTo(this.width - this.graphinfo.padding.right - MajorAxisTickLength, y);
-                this.staticctx.stroke();
-                this.staticctx.fillStyle = TextColor;
-                this.staticctx.font = TextFont;
-                this.staticctx.textAlign = "left";
-                this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(y), Labely2Digits), this.width - this.graphinfo.padding.right + 5, y + 7); // vertical align not working, 7 works for 20 pt font
-            }
-            // Draw last number
-            this.staticctx.fillText(roundTo(this.graphinfo.y2RawToCal(this.height - this.graphinfo.padding.bottom), Labely2Digits), this.width - this.graphinfo.padding.right + 5, this.height - this.graphinfo.padding.bottom + 7); // vertical align not working, 7 works for 20 pt font
-            // Draw label
-            this.staticctx.save();
-            this.staticctx.rotate(Math.PI/2);
-            this.staticctx.textAlign = "center";
-            // rotate is strange, temporary fix
-            this.staticctx.fillText(this.graphinfo.y2.label, this.graphinfo.graphheight/2+this.graphinfo.padding.top, -this.graphinfo.width + this.graphinfo.padding.right - 37);
-            this.staticctx.restore();
+
+        /*
+        // Draw last number
+        if (args.axisY0 && args.axisY1) {
+            txt = roundTo(args.axisinfo.RawToCal(args.stepLimit), LabelDigits);
+            pt = new Point({rawx:args.stepLimit, rawy:args.axisY0 + args.numberOffset, graphinfo:this.graphinfo});
+        } else if (args.axisX0 && args.axisX1) {
+            txt = roundTo(args.axisinfo.RawToCal(args.stepLimit), LabelDigits);
+            pt = new Point({rawx:args.axisX0 + args.numberOffset, rawy:args.stepLimit, graphinfo:this.graphinfo});
         }
-        // Bounding box
-        this.staticctx.rect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
-        this.staticctx.strokeStyle = "black";
-        this.staticctx.lineWidth = 1;
-        this.staticctx.stroke();
-    }
-    /**
-        Abstract method to replace drawGraph<br>
-        Not implemented yet
-    */
-    drawAxis(axis) {
-        // TODO abstract above method
+
+        new Text({
+            "text": txt,
+            "align": "center",
+            "color": TextColor,
+            "font": TextFont,
+            "fontsize": TextFontSize,
+            "fontstyle": TextFontStyle,
+            "position": pt,
+            graphinfo: this.graphinfo
+
+        }).draw(this.staticctx);
+        */
+
+        // Draw label
+        new Text({
+            "text": args.axisinfo.label,
+            "align": "center",
+            "color": TextColor,
+            "font": TextFont,
+            "fontsize": TextFontSize,
+            "fontstyle": TextFontStyle,
+            "position": new Point({rawx:args.labelX, rawy:args.labelY, graphinfo:this.graphinfo}),
+            graphinfo: this.graphinfo,
+            rotate: args.labelrotate,
+        }).draw(this.staticctx);
     }
     /**
         Draws an image to the background canvas.<br>
@@ -1322,7 +1489,9 @@ class CanvasController {
         @param {Point} cursorpt Location of the cursor
         @param {object} cursordata How the cursor data should look
         @param {string} [cursordata.color="black"] What color the text is written in
-        @param {string} [cursordata.style="bold 16px sans-serif"] What style the text is written in
+        @param {string} [cursordata.font="sans-serif"] What font the text is written in
+        @param {string} [cursordata.fontsize="16"] What size the text is written in (in px)
+        @param {string} [cursordata.fontstyle="bold"] What style the text is written in
         @param {string} cursordata.format Format of the string to display (use ~x~, ~x2~, ~y~, or ~y2~ for relevant coordinate)
         @param {object} cursordata.digits How many digits to round to for each axis. If using an axis in cursordata.format, it must have a number of digits set.
         @param {int} cursordata.digits.x
@@ -1344,11 +1513,9 @@ class CanvasController {
         if (cursorpt.y2) {
             cursorpt.y2 = constrain(cursorpt.y2, this.graphinfo.y2.min, this.graphinfo.y2.max);
         }
-        cursorpt.generateRaw();
+        cursorpt.generateRawFromCal();
 
         let cursoralign = "";
-        let cursorcolor = "black";
-        let cursorstyle = "bold 16px sans-serif"
         // Constants align box position around crosshair cursor nicely
         if (cursorpt.rawx < this.dynamiccanvas.width/2) {
             // Left
@@ -1366,11 +1533,21 @@ class CanvasController {
             // Bottom
             cursorpt.rawy -= 5;
         }
+        let cursorcolor = "black";
         if (cursordata.color != undefined) {
             cursorcolor = cursordata.color;
         }
-        if (cursordata.style != undefined) {
-            cursorcolor = cursordata.style;
+        let cursorfont = "sans-serif";
+        if (cursordata.font != undefined) {
+            cursorfont = cursordata.font;
+        }
+        let cursorfontsize = "16";
+        if (cursordata.fontsize != undefined) {
+            cursorfontsize = cursordata.fontsize;
+        }
+        let cursorfontstyle = "bold";
+        if (cursordata.fontstyle != undefined) {
+            cursorfontstyle = cursordata.fontstyle;
         }
         // Generate text based on cursordata format
         let content = cursordata.format;
@@ -1389,7 +1566,9 @@ class CanvasController {
         // Draw text
         this.draw(new Text({"text": content,
                             "color": cursorcolor,
-                            "font": cursorstyle,
+                            "font": cursorfont,
+                            "fontsize": cursorfontsize,
+                            "fontstyle": cursorfontstyle,
                             "align": cursoralign,
                             "position": cursorpt}));
     }
@@ -1426,7 +1605,7 @@ class CanvasController {
                             this.held.rawy = constrain(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                         }
                         // Calculated calibrated positions from new raw position
-                        this.held.generateCal();
+                        this.held.generateCalFromRaw();
                         // Show held point
                         this.draw(this.held);
                     } else if (this.held instanceof Line) {
@@ -1442,7 +1621,7 @@ class CanvasController {
                             if (p.movey) {
                                 p.rawy = constrain(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                             }
-                            p.generateCal();
+                            p.generateCalFromRaw();
                             // Show points
                             if (p.show) {
                                 this.draw(p);
@@ -1482,7 +1661,7 @@ class CanvasController {
                             this.held.rawy = constrain(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                         }
                         // Calculated calibrated positions from new raw position
-                        this.held.generateCal();
+                        this.held.generateCalFromRaw();
                         // Add point to finished list
                         this.finished.push(this.held);
                     } else if (this.held instanceof Line) {
@@ -1497,7 +1676,7 @@ class CanvasController {
                             if (p.movey) {
                                 p.rawy = constrain(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
                             }
-                            p.generateCal();
+                            p.generateCalFromRaw();
                             // Show points
                             if (p.show) {
                                 this.finished.push(p);
@@ -1695,12 +1874,9 @@ class GraphElement extends QuestionElement {
                 }
             }
         }
-        console.clear();
-        console.log('checking answer',answer);
         if (this.answercount["line"] > 0) {
             // Each answer being looked for
             for (let i in this.answer.line) {
-                console.log(' vs',this.answer.line[i]);
                 score.max += 1;
                 let matchscore = 0;
                 let matchindex = 0;
@@ -1744,7 +1920,9 @@ class GraphElement extends QuestionElement {
                 }
             }
         }
-        score.pct = score.got / score.max;
+        if (score.max > 0) {
+            score.pct = score.got / score.max;
+        }
         return score.pct;
     }
     /**
@@ -1755,7 +1933,6 @@ class GraphElement extends QuestionElement {
         @param {int} id Unique id to be included in the HTML elements
     */
     getHTML(DOM, containerid, id) {
-        // qwert
         let html = `<div style="min-width:${this.graphinfo.width}px" class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2"></canvas>`;
@@ -1773,7 +1950,6 @@ class GraphElement extends QuestionElement {
     */
     insertHTML(DOM, containerid, id) {
         super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
-        // qwert
         this.canvascontroller = new CanvasController(DOM, id, this);
     }
     
@@ -1825,7 +2001,6 @@ class TextElement extends QuestionElement{
 class TextboxElement extends QuestionElement{
     /**
         @param {object} inputarguments
-        @param {string} inputarguments.label Text to display before textbox
         @param {string} inputarguments.placeholder Placeholder text in textbox
         @param {string} inputarguments.answertype "number" or "text"
         @param {float|string} inputarguments.answer Correct answer
@@ -1865,9 +2040,8 @@ class TextboxElement extends QuestionElement{
     */
     getHTML(DOM, containerid, id) {
         let html = `<div class="${DOM.textboxdivclass}">`;
-        html += `<span class="${DOM.textboxspanclass}">${this.label}</span>`;
-        html += `<br>`;
         html += `<input class="${DOM.textboxclass}" placeholder="${this.placeholder}" id="${DOM.textboxid}">`;
+        html += `<br><br>`
         html += `<span class="${DOM.textboxanswerclass}" id="${DOM.textboxanswerid}"></span>`;
         html += `</input></div>`;
         html = html.replace(new RegExp(`${VAR}id${VAR}`, "g"), id);
@@ -2033,7 +2207,10 @@ class Question {
                 // Check answer
                 score.max += element.points;
                 score.got += (element.points * element.checkanswer(ans));
+                // Display answer
                 document.getElementById(DOM.textboxanswerid.replace(re, i)).textContent = element.answer;
+                // Add box around answer
+                document.getElementById(DOM.textboxanswerid.replace(re, i)).classList.add(DOM.textboxanswershown);
             } else if (element instanceof GraphElement) {
                 // Get answers from canvas
                 let ans = element.canvascontroller.getanswers();
@@ -2115,6 +2292,7 @@ class ProblemController {
                     "textboxid": "textbox--" + VAR + "id" + VAR,
                     "textboxanswerclass": "textboxanswer",
                     "textboxanswerid": "textboxanswer--" + VAR + "id" + VAR,
+                    "textboxanswershown": "textboxanswershown",
                 "textspanclass": "textspan",
             "buttonsdivid": "buttons",
                 "restartbuttonid": "restartbutton",
@@ -2382,6 +2560,7 @@ class ProblemController {
         html += "<table>";
         html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
         for (let i in this.score) {
+            // TODO add highlight to current question
             html += `<tr><td>${parseFloat(i)+1}</td><td>${roundTo(this.score[i].got, 2)}</td><td>${roundTo(this.score[i].max, 2)}</td><td>${roundTo(this.score[i].pct*100, 0)}%</td></tr>`;
         }
         const sumscore = this.sumScore();
