@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Text<span class="signature">(text, font<span class="signature-attributes">opt</span>, align, color, position)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Text<span class="signature">(text, font<span class="signature-attributes">opt</span>, fontsize<span class="signature-attributes">opt</span>, fontstyle<span class="signature-attributes">opt</span>, align<span class="signature-attributes">opt</span>, color<span class="signature-attributes">opt</span>, opacity<span class="signature-attributes">opt</span>, rotate<span class="signature-attributes">opt</span>, position)</span><span class="type-signature"></span></h2>
         
             <div class="class-description">Text element for display through CanvasController</div>
         
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="Text"><span class="type-signature"></span>new Text<span class="signature">(text, font<span class="signature-attributes">opt</span>, align, color, position)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Text"><span class="type-signature"></span>new Text<span class="signature">(text, font<span class="signature-attributes">opt</span>, fontsize<span class="signature-attributes">opt</span>, fontstyle<span class="signature-attributes">opt</span>, align<span class="signature-attributes">opt</span>, color<span class="signature-attributes">opt</span>, opacity<span class="signature-attributes">opt</span>, rotate<span class="signature-attributes">opt</span>, position)</span><span class="type-signature"></span></h4>
     
 
     
@@ -151,12 +151,90 @@
             
                 <td class="default">
                 
-                    "20px sans-serif"
+                    "sans-serif"
                 
                 </td>
             
 
-            <td class="description last">ex. "italic 20px sans-serif"</td>
+            <td class="description last">Which font to use</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>fontsize</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+                <td class="attributes">
+
+                    &lt;optional><br>
+
+
+
+
+
+                </td>
+
+
+
+                <td class="default">
+
+                    "20"
+
+                </td>
+
+
+            <td class="description last">Size of the font (in px)</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>fontstyle</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+                <td class="attributes">
+
+                    &lt;optional><br>
+
+
+
+
+
+                </td>
+
+
+
+                <td class="default">
+
+                    ""
+
+                </td>
+
+
+            <td class="description last">Styling of the font (bold, italic, etc)</td>
         </tr>
 
     
@@ -178,6 +256,8 @@
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+
 
                 
 
@@ -188,6 +268,8 @@
             
                 <td class="default">
                 
+                    "left"
+
                 </td>
             
 
@@ -213,6 +295,8 @@
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+
 
                 
 
@@ -223,6 +307,8 @@
             
                 <td class="default">
                 
+                    "black"
+
                 </td>
             
 
@@ -233,6 +319,84 @@
 
         <tr>
             
+                <td class="name"><code>opacity</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+                <td class="attributes">
+
+                    &lt;optional><br>
+
+
+
+
+
+                </td>
+
+
+
+                <td class="default">
+
+                    1
+
+                </td>
+
+
+            <td class="description last">Opacity of the text</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>rotate</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+                <td class="attributes">
+
+                    &lt;optional><br>
+
+
+
+
+
+                </td>
+
+
+
+                <td class="default">
+
+                    0
+
+                </td>
+
+
+            <td class="description last">Rotation of the text (in degrees, clockwise)</td>
+        </tr>
+
+
+
+        <tr>
+
                 <td class="name"><code>position</code></td>
             
 
@@ -302,7 +466,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line649">line 649</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line776">line 776</a>
     </li></ul></dd>
     
 
@@ -404,7 +568,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line670">line 670</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line802">line 802</a>
     </li></ul></dd>
     
 
@@ -470,13 +634,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasController.html">CanvasController</a></li><li><a href="GraphElement.html">GraphElement</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasController.html">CanvasController</a></li><li><a href="GraphElement.html">GraphElement</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 15 2018 16:46:59 GMT-0600 (Mountain Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed May 23 2018 14:01:06 GMT-0600 (Mountain Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
