@@ -1,4 +1,4 @@
-const datalabel = "pressure = @P@ bar <br> saturation temperatures: T<sub>sat,W</sub> = @TsatW@ C, T<sub>sat,@org@</sub> = @TsatO@ C";
+const datalabel = "pressure = @P@ bar <br> saturation temperatures: T<sub>sat,W</sub> = @TsatW@ ºC, T<sub>sat,@org@</sub> = @TsatO@ ºC";
 
 const watercolor = "blue";
 const organiccolor = "orange";
@@ -24,7 +24,7 @@ const graphinfo = {
         "gridline": 0.05,
     },
     "y": {
-        "label": "temperature [C]",
+        "label": "temperature [ºC]",
         "min": Tmin,
         "max": Tmax,
         "majortick": 15,
@@ -61,7 +61,7 @@ const secondarycursor = {
 
 const sidegraphtext = {
     "type": "text",
-    "label": "water and @compound@ equilibrium data: <br>blue : water<br>orange : @compound@<br>purple : sum of the two",
+    "label": "equilibrium data for water and @compound@:<br>the saturation pressures for each component and the sum of the two components are plotted as a function of temperature",
     "style": "prompt"
 };
 
@@ -74,7 +74,7 @@ const sidegraph = {
         "graphbackground": "white",
         "axesbackground": "lightgray",
         "x": {
-            "label": "temperature [C]",
+            "label": "temperature [ºC]",
             "min": Tmin,
             "max": Tmax,
             "majortick": 30,
@@ -101,6 +101,12 @@ const sidegraph = {
     "default": {
         "line": [
             {"equation": "Antoine(~x~, @AW@, @BW@, @CW@)",
+             "label": {
+                 "text": "water",
+                 "independent": 180,
+                 "indoffset": 3,
+                 "depoffset": 0,
+             },
              "independent": "x",
              "dependent": "y",
              "min": 100,
@@ -109,6 +115,12 @@ const sidegraph = {
              "color": watercolor,
              "showpoints": false},
             {"equation": "Antoine(~x~, @A@org@@, @B@org@@, @C@org@@)",
+             "label": {
+                 "text": "@compound@",
+                 "independent": 150,
+                "indoffset": 3,
+                "depoffset": 0,
+             },
              "independent": "x",
              "dependent": "y",
              "min": 100,
@@ -117,6 +129,12 @@ const sidegraph = {
              "color": organiccolor,
              "showpoints": false},
             {"equation": "Antoine(~x~, @AW@, @BW@, @CW@) + Antoine(~x~, @A@org@@, @B@org@@, @C@org@@)",
+             "label": {
+                 "text": "sum",
+                 "independent": 150,
+                 "indoffset": 3,
+                 "depoffset": 0,
+             },
              "independent": "x",
              "dependent": "y",
              "min": 100,
@@ -156,17 +174,14 @@ const problem = {
             "CH": 224.216,
             "Tmin": 100,
             "Tmax": 250,
-
-            "P": 13.2,
-            "orgnum": 0
         },
         "random": {
-//            "P": {"min": 5,
-//                  "max": 15,
-//                  "digits": 1},
-//            "orgnum": {"min": 0,
-//                       "max": 2,
-//                       "digits": 0}
+            "P": {"min": 5,
+                  "max": 15,
+                  "digits": 1},
+            "orgnum": {"min": 0,
+                       "max": 2,
+                       "digits": 0}
         },
         "calculated": {
             "org": "['B', 'T', 'H'][@orgnum@]",
@@ -191,8 +206,8 @@ const problem = {
             "y4": "InvAntoine(@P@ * @x4@, @A@org@@, @B@org@@, @C@org@@)",
             "y5": "InvAntoine(@P@ * @x5@, @A@org@@, @B@org@@, @C@org@@)",
             "y6": "InvAntoine(@P@ * @x6@, @A@org@@, @B@org@@, @C@org@@)",
-            "yllabel": "@Tmax@ * .75 + .25 * @Tsum@",
-            "yvlabel": "@Tmin@ * .5 + .5 * @Tsum@",
+            "yvlabel": "@Tmax@ * .75 + .25 * @Tsum@",
+            "yllabel": "@Tmin@ * .5 + .5 * @Tsum@",
             "ywlabel": "(@TsatW@+@Tsum@)/2",
             "yolabel": "(@TsatO@+@Tsum@)/2",
         }
@@ -221,18 +236,16 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"points":[{"x":0, "y":175, "movey":true, "show":false},
-                                       {"x":1, "y":175, "movey":true, "show":false}], "color":"blue", "answer":true}
+                            {"points":[
+                                {"x":0, "y":175, "movey":true, "show":false},
+                                {"x":1, "y":175, "movey":true, "show":false}],
+                             "color":"blue",
+                             "answer":true,
+                             "altcursor": {
+                                 "format": "T = ~y~",
+                                 "digits": {"y": 0}
+                             }}
                         ],
-                        "text": [
-                            {"text":"TES<color:blue>T<sub>SU</color>B<sub>SUBSUB</sub></sub> <color: red>T<opacity:.5>E</color>S</opacity>T<sup>SUP<sup>SUPSUP</sup></sup>",
-                             "font":"sans-serif",
-                             "fontsize": "30",
-                             "align":"center",
-                             "rotate":-10,
-                             "color":"green",
-                             "position":{"x":.5, "y":200}}
-                        ]
                     },
                     "cursor": normalcursor,
                     "points": 10
@@ -282,7 +295,7 @@ const problem = {
                         ],
                         "text": [
                             {"text":"region A", "position": {"x": 0.5, "y": "@yvlabel@"}, "align":"center", "color":"blue", "font":"sans-serif", "fontsize":20, "fontstyle":"bold"},
-                            {"text":"region B", "position": {"x": 0.5, "y": "@yllabel@"}, "align":"center", "color":"blue", "font":"sans-serif", "fontsize":20, "fontstyle":"bold"}
+                            {"text":"region B", "position": {"x": 0.5, "y": "@yllabel@"}, "align":"center", "color":"blue", "font":"sans-serif", "fontsize":20, "fontstyle":"bold"},
                         ]
                     },
                     "cursor": normalcursor,

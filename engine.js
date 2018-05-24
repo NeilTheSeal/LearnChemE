@@ -1,5 +1,7 @@
 "use strict";
 
+// Added support for labelling lines, labelled lines in immicibleT, minor formatting/fixes
+
 /*
     Structure:
     
@@ -631,6 +633,10 @@ class Point {
     @param {object} [args.fill] Fill the region enclosed by the line
     @param {string} args.fill.color Color to fill the region
     @param {float} args.fill.opacity Opacity of the color (0 to 1)
+    @param {object} [args.label] Label to go beside the line
+    @param {string} [args.label.text] Label contents
+    @param {number} [args.label.independent] Location of text (of independent variable)
+    @param {number} [args.label.dependent] Location of text (of dependent variable)
 */
 class Line {
     constructor(args) {
@@ -714,6 +720,18 @@ class Line {
             context.fillStyle = this.fill.color;
             context.globalAlpha = this.fill.opacity;
             context.fill();
+        }
+        if (this.label) {
+            let pos = {"graphinfo": this.graphinfo};
+            pos[this.independent] = this.label.independent
+            pos[this.dependent] = this.label.dependent
+            new Text({
+                "text": this.label.text,
+                "position": pos,
+                "align": "center",
+                "color": this.color,
+                "rotate": this.label.rotate
+            }).draw(context);
         }
         context.restore();
     }
@@ -1018,7 +1036,9 @@ class CanvasController {
         //this.img = new Image();
         //this.img.src = args.imgsrc;
         //this.imgcalibration = args.imgcal;
+
         /* Valid modes are "move", "point", "line", "calibrate" */
+        // Add mode 'view' instead of boolean interactable
         this.mode = args.mode;
         this.graphinfo = args.graphinfo
         if (args.cursor != undefined) {
@@ -1141,10 +1161,10 @@ class CanvasController {
                 // line constructed from equation
                 const dx = (data.max - data.min) / data.steps;
                 // Replace variables
+                const ind = data.independent;
+                const dep = data.dependent;
+                const re = new RegExp(`${SPVAR}${data.independent}${SPVAR}`, "g");
                 for (let i=data.min; i<= data.max; i+=dx) {
-                    const ind = data.independent;
-                    const dep = data.dependent;
-                    const re = new RegExp(`${SPVAR}${data.independent}${SPVAR}`, "g");
                     let ptdata = {};
                     ptdata[ind] = i;
                     // Evaluate expression (trusted code provided by the question-creator)
@@ -1160,6 +1180,18 @@ class CanvasController {
                     if (pt.show) {
                         this.finished.push(pt);
                     }
+                }
+                if (data.label) {
+                    // Calculate y position
+                    data.label.dependent = eval(data.equation.replace(re, data.label.independent));
+                    // Calculate slope
+                    const nextpt = eval(data.equation.replace(re, data.label.independent + dx));
+                    const dy = nextpt - data.label.dependent;
+                    const slope = Math.atan((dy * this.graphinfo.y.scale) / (dx * this.graphinfo.x.scale));
+                    data.label.rotate = 180 / Math.PI * slope;
+                    // Adjust for offset
+                    data.label.independent += data.label.indoffset;
+                    data.label.dependent += data.label.depoffset;
                 }
                 data.points = ptlist;
             }
@@ -1219,7 +1251,7 @@ class CanvasController {
                 axisX1: this.graphinfo.padding.left + this.graphinfo.graphwidth,
                 tickSign: 1,
                 numberOffset: -20,
-                labelX: this.graphinfo.padding.left - 55,
+                labelX: this.graphinfo.padding.left - 50,
                 labelY: this.graphinfo.graphheight / 2 + this.graphinfo.padding.top,
                 labelrotate: -90,
              });
@@ -2328,9 +2360,9 @@ class ProblemController {
         let html = ``;
         html += `<div id="${DOM.titledivid}"></div>`;
         html += `<div id="${DOM.questiondivid}"></div>`;
+        html += `<hr>`;
         html += `<div id="${DOM.buttonsdivid}"></div>`;
         html += `<div id="${DOM.scoredivid}"></div>`;
-        html += `<hr>`;
         html += `<div id="${DOM.gradedivid}"></div>`;
         document.getElementById(containerid).insertAdjacentHTML("beforeend", html);
 

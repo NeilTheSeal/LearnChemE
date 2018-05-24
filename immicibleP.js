@@ -1,4 +1,4 @@
-const datalabel = "temperature = @T@ C <br> saturation pressures: P<sub>W</sub><sup>sat</sup> = @PsatW@ bar, P<sub>@org@</sub><sup>sat</sup> = @PsatO@ bar";
+const datalabel = "temperature = @T@ ºC <br> saturation pressures: P<sub>W</sub><sup>sat</sup> = @PsatW@ bar, P<sub>@org@</sub><sup>sat</sup> = @PsatO@ bar";
 
 const watercolor = "blue";
 const organiccolor = "orange";
@@ -158,8 +158,7 @@ const problem = {
                              "answer":true,
                              "altcursor": {
                                  "format": "P = ~y~",
-                                 "digits": {"y": 1,
-                                           }
+                                 "digits": {"y": 1}
                              }
                             },
                         ],
@@ -213,8 +212,8 @@ const problem = {
                             },
                         ],
                         "text": [
-                            {"text":"region A", "position": {"x": 0.5, "y": "@yllabel@"}, "font":"bold 20px sans-serif", "align":"center", "color":"blue"},
-                            {"text":"region B", "position": {"x": 0.5, "y": "@yvlabel@"}, "font":"bold 20px sans-serif", "align":"center", "color":"blue"}
+                            {"text":"region A", "position": {"x": 0.5, "y": "@yllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
+                            {"text":"region B", "position": {"x": 0.5, "y": "@yvlabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"}
                         ]
                     },
                     "cursor": normalcursor,
