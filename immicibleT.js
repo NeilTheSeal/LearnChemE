@@ -61,7 +61,7 @@ const secondarycursor = {
 
 const sidegraphtext = {
     "type": "text",
-    "label": "equilibrium data for water and @compound@:<br>the saturation pressures for each component and the sum of the two components are plotted as a function of temperature",
+    "label": "the saturation pressures for each component and the sum of the saturation pressures are plotted versus temperature",
     "style": "prompt"
 };
 
@@ -214,11 +214,6 @@ const problem = {
     }, // variables
     "questions": [
         {
-            "variables": {
-                "constants": {},
-                "random": {},
-                "calculated": {}
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -230,8 +225,8 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"0", "y":"@Tsum@", "answer":true},
-                                       {"x":"1", "y":"@Tsum@"}], "tolerance":pointtolerance, "color":answercolor}
+                            {"points":[{"x":"0", "y":"@Tsum@", "answer":true, "show":false},
+                                       {"x":"1", "y":"@Tsum@", "show":false}], "tolerance":pointtolerance, "color":answercolor}
                         ]
                     },
                     "default": {
@@ -239,7 +234,11 @@ const problem = {
                             {"points":[
                                 {"x":0, "y":175, "movey":true, "show":false},
                                 {"x":1, "y":175, "movey":true, "show":false}],
-                             "color":"blue",
+                             "color":"black",
+                             "dashes": {
+                                 "dash": 3,
+                                 "space": 5
+                             },
                              "answer":true,
                              "altcursor": {
                                  "format": "T = ~y~",
@@ -257,7 +256,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "1) Drag the blue line to the temperature where three phases coexist. Use the right chart to determine the saturation pressure at a given temperature.",
+                    "label": "1) Drag the dotted line in the figure on the left to the temperature where three phases coexist. Use the P-T chart to determine the saturation pressure at a given temperature.",
                     "style": "prompt"
                 },
                 {
@@ -271,11 +270,6 @@ const problem = {
             "requiredscore": 0.00
         }, // question
         {
-            "variables": {
-                "constants": {},
-                "random": {},
-                "calculated": {}
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -328,12 +322,6 @@ const problem = {
             "requiredscore": 0.00
         }, // question
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": { },
-                "calculated": { }
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -368,12 +356,12 @@ const problem = {
                 }, // element
                 {
                     "type": "text",
-                    "label": "Hint: use the right graph to determine saturation temperatures at this pressure",
+                    "label": "Hint: use the P-T diagram to determine saturation temperatures at this pressure",
                     "style": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
-                    "label": "3) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure benzene is in VLE. <br>",
+                    "label": "3) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure @compound@ is in VLE. <br>",
                     "style": "prompt"
                 }, // element
                 {
@@ -386,12 +374,6 @@ const problem = {
             "requiredscore": 0.00
         }, // question
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": { },
-                "calculated": { }
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -438,17 +420,12 @@ const problem = {
                     "type": "text",
                     "label": datalabel,
                     "style": "data"
-                }]], // element
+                },
+                sidegraph]], // element
             ], // questionelements
             "requiredscore": 0.00
         }, // question
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": { },
-                "calculated": { }
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -459,18 +436,18 @@ const problem = {
                         "line": 2
                     },
                     "answer": {
-                        "line":[{"points":[{"x":"0", "y":"@Tsum@"},
+                        "line":[{"points":[{"x":"0", "y":"@Tsum@", "show":false},
                                            {"x":"0", "y":"@TsatW@", "color":watercolor},
-                                           {"x":"@x1@", "y":"@y1@", "answer":true},
-                                           {"x":"@x2@", "y":"@y2@", "answer":true},
-                                           {"x":"@x3@", "y":"@y3@", "answer":true},
+                                           {"x":"@x1@", "y":"@y1@", "answer":true, "show":false},
+                                           {"x":"@x2@", "y":"@y2@", "answer":true, "show":false},
+                                           {"x":"@x3@", "y":"@y3@", "answer":true, "show":false},
                                            {"x":"@xc@", "y":"@Tsum@"}], "tolerance":pointtolerance, "color":answercolor},
                                 {"points":[{"x":"@xc@", "y":"@Tsum@", "color":"green"},
-                                           {"x":"@x4@", "y":"@y4@", "answer":true},
-                                           {"x":"@x5@", "y":"@y5@", "answer":true},
-                                           {"x":"@x6@", "y":"@y6@", "answer":true},
+                                           {"x":"@x4@", "y":"@y4@", "answer":true, "show":false},
+                                           {"x":"@x5@", "y":"@y5@", "answer":true, "show":false},
+                                           {"x":"@x6@", "y":"@y6@", "answer":true, "show":false},
                                            {"x":"1", "y":"@TsatO@", "color":organiccolor},
-                                           {"x":"1", "y":"@Tsum@",}],
+                                           {"x":"1", "y":"@Tsum@", "show":false}],
                                  "tolerance":pointtolerance, "color":answercolor}
                                 ]
                     },
@@ -526,12 +503,8 @@ const problem = {
             "requiredscore": 0.00
         }, // question
     ], // questions
+
     "finish": {
-        "variables": {
-            "constants": {},
-            "random": { },
-            "calculated": { }
-        },
         "questionelements": [
             {
                 "type": "graph",
@@ -573,5 +546,82 @@ const problem = {
                 "cursor": normalcursor,
             },
         ] // questionelements
-    } // finish
+    }, // finish
+
+    "begin": {
+        "variables": {
+            "constants": {
+                "P": "25",
+                "org": "B",
+            },
+            "random": {},
+            "calculated": {
+                "TsatW": "InvAntoine(@P@, @AW@, @BW@, @CW@).toFixed(0)",
+                "TsatO": "InvAntoine(@P@, @A@org@@, @B@org@@, @C@org@@).toFixed(0)",
+                "Tsum": "FindRoot('Antoine(T, @AW@, @BW@, @CW@) + Antoine(T, @A@org@@, @B@org@@, @C@org@@) - @P@','T',@Tmin@,@Tmax@,0.001)",
+                "PsatW": "Antoine(@Tsum@, @AW@, @BW@, @CW@)",
+                "PsatO": "Antoine(@Tsum@, @A@org@@, @B@org@@, @C@org@@)",
+                "Psum": "@PsatW@ + @PsatO@",
+                "xc": "@PsatO@ / @Psum@",
+                "x1": "@xc@ * 3/6",
+                "x2": "@xc@ * 4/6",
+                "x3": "@xc@ * 5/6",
+                "x4": "@xc@ + (1-@xc@) * 1/6",
+                "x5": "@xc@ + (1-@xc@) * 2/6",
+                "x6": "@xc@ + (1-@xc@) * 3/6",
+
+                "y1": "InvAntoine(@P@ * (1 - @x1@), @AW@, @BW@, @CW@)",
+                "y2": "InvAntoine(@P@ * (1 - @x2@), @AW@, @BW@, @CW@)",
+                "y3": "InvAntoine(@P@ * (1 - @x3@), @AW@, @BW@, @CW@)",
+                "y4": "InvAntoine(@P@ * @x4@, @A@org@@, @B@org@@, @C@org@@)",
+                "y5": "InvAntoine(@P@ * @x5@, @A@org@@, @B@org@@, @C@org@@)",
+                "y6": "InvAntoine(@P@ * @x6@, @A@org@@, @B@org@@, @C@org@@)",
+            }
+        },
+        "questionelements": [
+            [{
+                "type": "graph",
+                "graphinfo": graphinfo,
+                "mode": "move",
+                "answercount": {
+                    "point": 0,
+                    "line": 0
+                },
+                "answer": {},
+                "default": {
+                    "point": [],
+                    "line": [
+                        {"points":[{"x":0, "y":"@Tsum@", "radius":1, "show":false},
+                                   {"x":1, "y":"@Tsum@", "radius":1, "show":false}], "color":graycolor},
+                        {"points":[{"x":"0", "y":"@Tsum@", "show":false},
+                                   {"x":"0", "y":"@TsatW@", "color":watercolor},
+                                   {"x":"@x1@", "y":"@y1@", "show": false},
+                                   {"x":"@x2@", "y":"@y2@", "show": false},
+                                   {"x":"@x3@", "y":"@y3@", "show": false},
+                                   {"x":"@xc@", "y":"@Tsum@", "color":"green"}], "color":graycolor,
+                                   "fill":{"color":watercolor, "opacity":0.2}},
+                        {"points":[{"x":"@xc@", "y":"@Tsum@", "color":"green"},
+                                   {"x":"@x4@", "y":"@y4@", "show": false},
+                                   {"x":"@x5@", "y":"@y5@", "show": false},
+                                   {"x":"@x6@", "y":"@y6@", "show": false},
+                                   {"x":"1", "y":"@TsatO@", "color":organiccolor},
+                                   {"x":"1", "y":"@Tsum@", "show":false}],
+                                   "color":graycolor,
+                                   "fill":{"color":organiccolor, "opacity":0.2}}
+                    ],
+                },
+                "cursor": normalcursor,
+            }, // element
+            [{
+                "type": "text",
+                "label": `In this demonstration, the user is lead through a step-by-step procedure to create a pressure-composition diagram for two immiscible liquids (water and an organic) at a fixed temperature. The organic can be benzene, toluene, or n-hexane.<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.<br><br>In some steps, saturation pressures are calculated from Antoine's equation shown in a second graph.`,
+                "style": "prompt"
+            },
+            {
+                "type": "text",
+                "label": "Hint: click 'Begin' to start the problem",
+                "style": "hiddentext hint"
+            }]], // element
+        ] // questionelements
+    } // begin
 };

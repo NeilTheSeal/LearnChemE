@@ -21,7 +21,7 @@ const graphinfo = {
     "graphbackground": "white",
     "axesbackground": "lightgray",
     "x": {
-        "label": "@compound@ mole fraction (x@org@)",
+        "label": "@compound@ mole fraction (x<sub>@org@</sub>)",
         "min": 0,
         "max": 1,
         "majortick": 0.1,
@@ -37,7 +37,7 @@ const graphinfo = {
         "gridline": 0.5,
     },
     "x2": {
-        "label": "water mole fraction (xW)",
+        "label": "water mole fraction (x<sub>W</sub>)",
         "min": 1,
         "max": 0,
         "majortick": 0.1,
@@ -52,7 +52,7 @@ const pointtolerance = {
 };
 
 const normalcursor = {
-    "format": "x@org@ = ~x~, P = ~y~",
+    "format": "x<sub>@org@</sub> = ~x~, P = ~y~",
     "digits": {
         "x": 2,
         "y": 1,
@@ -60,7 +60,7 @@ const normalcursor = {
 };
 
 const detailedcursor = {
-    "format": "x@org@ = ~x~, P = ~y~",
+    "format": "x<sub>@org@</sub> = ~x~, P = ~y~",
     "digits": {
         "x": 2,
         "y": 2,
@@ -129,12 +129,6 @@ const problem = {
     },
     "questions": [
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": {},
-                "calculated": {}
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -146,15 +140,19 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"0", "y":"@Psum@", "answer":true},
-                                       {"x":"1", "y":"@Psum@"}], "tolerance":pointtolerance, "color":answercolor}
+                            {"points":[{"x":"0", "y":"@Psum@", "answer":true, "show":false},
+                                       {"x":"1", "y":"@Psum@", "show":false}], "tolerance":pointtolerance, "color":answercolor}
                         ]
                     },
                     "default": {
                         "line": [
                             {"points":[{"x":0, "y":4, "movey":true, "show":false},
                                        {"x":1, "y":4, "movey":true, "show":false}],
-                             "color":"blue",
+                             "color":"black",
+                             "dashes":{
+                                 "dash": 3,
+                                 "space": 3,
+                             },
                              "answer":true,
                              "altcursor": {
                                  "format": "P = ~y~",
@@ -174,7 +172,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "1) Drag the blue line to the pressure where three phases coexist.",
+                    "label": "1) Drag the dotted line to the pressure where three phases coexist.",
                     "style": "prompt"
                 },
                 {
@@ -186,12 +184,6 @@ const problem = {
             "requiredscore": 0.00
         }, // question
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": {},
-                "calculated": {}
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -251,12 +243,6 @@ const problem = {
             "requiredscore": 0.00
         }, // question
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": { },
-                "calculated": { }
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -296,7 +282,7 @@ const problem = {
                 }], // element
                 [{
                     "type": "text",
-                    "label": "3) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure benzene is in VLE. <br>",
+                    "label": "3) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure @compound@ is in VLE. <br>",
                     "style": "prompt"
                 }, // element
                 {
@@ -308,12 +294,6 @@ const problem = {
             "requiredscore": 0.00
         }, // question
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": { },
-                "calculated": { }
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -365,12 +345,6 @@ const problem = {
             "requiredscore": 0.00
         }, // question
         {
-            "type": "question",
-            "variables": {
-                "constants": {},
-                "random": { },
-                "calculated": { }
-            },
             "questionelements": [
                 [[{
                     "type": "graph",
@@ -381,18 +355,18 @@ const problem = {
                         "line": 2
                     },
                     "answer": {
-                        "line":[{"points":[{"x":"0", "y":"@Psum@"},
+                        "line":[{"points":[{"x":"0", "y":"@Psum@", "show":false},
                                            {"x":"0", "y":"@PsatW@", "color":watercolor},
-                                           {"x":"@x1@", "y":"@y1@", "answer":true},
-                                           {"x":"@x2@", "y":"@y2@", "answer":true},
-                                           {"x":"@x3@", "y":"@y3@", "answer":true},
+                                           {"x":"@x1@", "y":"@y1@", "answer":true, "show":false},
+                                           {"x":"@x2@", "y":"@y2@", "answer":true, "show":false},
+                                           {"x":"@x3@", "y":"@y3@", "answer":true, "show":false},
                                            {"x":"@xc@", "y":"@Psum@"}], "tolerance":pointtolerance, "color":answercolor},
                                 {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
-                                           {"x":"@x4@", "y":"@y4@", "answer":true},
-                                           {"x":"@x5@", "y":"@y5@", "answer":true},
-                                           {"x":"@x6@", "y":"@y6@", "answer":true},
+                                           {"x":"@x4@", "y":"@y4@", "answer":true, "show":false},
+                                           {"x":"@x5@", "y":"@y5@", "answer":true, "show":false},
+                                           {"x":"@x6@", "y":"@y6@", "answer":true, "show":false},
                                            {"x":"1", "y":"@PsatO@", "color":organiccolor},
-                                           {"x":"1", "y":"@Psum@"}], "tolerance":pointtolerance, "color":answercolor}
+                                           {"x":"1", "y":"@Psum@", "show":false}], "tolerance":pointtolerance, "color":answercolor}
                                 ]
                     },
                     "default": {
@@ -446,12 +420,8 @@ const problem = {
             "requiredscore": 0.00
         }, // question
     ], // questions
+
     "finish": {
-        "variables": {
-            "constants": {},
-            "random": { },
-            "calculated": { }
-        },
         "questionelements": [
             {
                 "type": "graph",
@@ -493,5 +463,76 @@ const problem = {
                 "cursor": detailedcursor,
             },
         ] // questionelements
-    } // finish
+    }, // finish
+
+    "begin": {
+        "variables": {
+            "constants": {
+                "PsatW": "2.5",
+                "PsatO": "2.5",
+            },
+            "random": {},
+            "calculated": {
+                "Psum": "@PsatW@ + @PsatO@",
+                "xc": "@PsatO@ / @Psum@",
+                "x1": "@xc@ * 3/6",
+                "x2": "@xc@ * 4/6",
+                "x3": "@xc@ * 5/6",
+                "x4": "@xc@ + (1-@xc@) * 1/6",
+                "x5": "@xc@ + (1-@xc@) * 2/6",
+                "x6": "@xc@ + (1-@xc@) * 3/6",
+                "y1": "@PsatW@ / (1 - @x1@)",
+                "y2": "@PsatW@ / (1 - @x2@)",
+                "y3": "@PsatW@ / (1 - @x3@)",
+                "y4": "@PsatO@ / @x4@",
+                "y5": "@PsatO@ / @x5@",
+                "y6": "@PsatO@ / @x6@",
+            }
+        },
+        "questionelements": [
+            [{
+                "type": "graph",
+                "graphinfo": graphinfo,
+                "mode": "move",
+                "answercount": {
+                    "point": 0,
+                    "line": 0
+                },
+                "answer": {},
+                "default": {
+                    "point": [],
+                    "line": [
+                        {"points":[{"x":0, "y":"@Psum@", "radius":1, "show":false},
+                                   {"x":1, "y":"@Psum@", "radius":1, "show":false}], "color":graycolor},
+                        {"points":[{"x":"0", "y":"@Psum@", "show":false},
+                                   {"x":"0", "y":"@PsatW@", "color":watercolor},
+                                   {"x":"@x1@", "y":"@y1@", "show": false},
+                                   {"x":"@x2@", "y":"@y2@", "show": false},
+                                   {"x":"@x3@", "y":"@y3@", "show": false},
+                                   {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor,
+                                   "fill":{"color":watercolor, "opacity":0.2}},
+                        {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
+                                   {"x":"@x4@", "y":"@y4@", "show": false},
+                                   {"x":"@x5@", "y":"@y5@", "show": false},
+                                   {"x":"@x6@", "y":"@y6@", "show": false},
+                                   {"x":"1", "y":"@PsatO@", "color":organiccolor},
+                                   {"x":"1", "y":"@Psum@", "show":false}],
+                                   "color":graycolor,
+                                   "fill":{"color":organiccolor, "opacity":0.2}}
+                    ],
+                },
+                "cursor": normalcursor,
+            }, // element
+            [{
+                "type": "text",
+                "label": `In this demonstration, the user is lead through a step-by-step procedure to create a temperature-composition diagram for two immiscible liquids (water and an organic) at a fixed pressure. The organic can be benzene, toluene, or n-hexane.<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.`,
+                "style": "prompt"
+            },
+            {
+                "type": "text",
+                "label": "Hint: click 'Begin' to start the problem",
+                "style": "hiddentext hint"
+            }]], // element
+        ] // questionelements
+    } // begin
 };

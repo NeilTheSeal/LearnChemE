@@ -1,7 +1,5 @@
 "use strict";
 
-// Added support for labelling lines, labelled lines in immicibleT, minor formatting/fixes
-
 /*
     Structure:
     
@@ -686,6 +684,9 @@ class Line {
         context.globalAlpha = 1;
         context.strokeStyle = this.color;
         context.lineWidth = this.width;
+        if (this.dashes) {
+            context.setLineDash([this.dashes.dash, this.dashes.space]);
+        }
         let first = true;
         // Connect points
         for (let pt of this.points) {
@@ -1024,7 +1025,7 @@ class CanvasController {
         @param {int} index Index to identify canvas
         @param {object} args Object of input arguments
         @param {object} args.cursor Object describing how the cursor should look (used as cursordata for {@link CanvasController#drawCursor})
-        @param {object} args.mode Interaction mode
+        @param {string} args.mode Valid modes are "none", "view", "move"
         @param {object} args.answercount Maximum number of elements to allow on graph
         @param {int} args.answercount.point 
         @param {int} args.answercount.line 
@@ -1037,8 +1038,6 @@ class CanvasController {
         //this.img.src = args.imgsrc;
         //this.imgcalibration = args.imgcal;
 
-        /* Valid modes are "move", "point", "line", "calibrate" */
-        // Add mode 'view' instead of boolean interactable
         this.mode = args.mode;
         this.graphinfo = args.graphinfo
         if (args.cursor != undefined) {
@@ -1069,7 +1068,6 @@ class CanvasController {
         this.drawGraph();
         
         // State variables
-        this.interactable = true;
         this.drawing = false; /* True when not finished drawing */
         
         // Constants
@@ -1112,7 +1110,9 @@ class CanvasController {
     update() {
         this.clear();
         // Remove objects if over limits
-        this.trimLists();
+        if (this.mode != "view") {
+            this.trimLists();
+        }
         // Draw lines
         for (let obj of this.finished) {
             if (obj instanceof Line) {
@@ -1487,7 +1487,7 @@ class CanvasController {
         @return {list} A list of {@link QuestionElement}s
     */
     getanswers() {
-        this.interactable = false;
+        this.mode = "view";
         this.update();
         let answers = [];
         for (let element of this.finished) {
@@ -1508,10 +1508,12 @@ class CanvasController {
             for (let data of answers[type]) {
                 data["correctanswer"] = true;
                 let ans = this.dataToElement(type, data);
-                answerselements.push(ans);
+                //answerselements.push(ans);
+                this.finished.push(ans);
             }
         }
         // Draw all answers
+        this.update();
         for (let answer of answerselements) {
             this.draw(answer);
         }
@@ -1604,74 +1606,178 @@ class CanvasController {
                             "align": cursoralign,
                             "position": cursorpt}));
     }
+    grabElement(pt) {
+        console.log('grabbing at point',pt);
+        let grabindex = -1;
+        let grabdist = 99999;
+        // Check which object is being picked up
+        for (let i in this.finished) {
+            if (this.finished[i] instanceof Point) {
+                // Check if movable
+                if (this.finished[i].movex || this.finished[i].movey) {
+                    // Check if in grabbing distance
+                    let d = getDist(pt, this.finished[i], "raw");
+                    if (d <= this.grabradius) {
+                        if (d < grabdist) {
+                            grabindex = i;
+                            grabdist = d;
+                        }
+                    }
+                }
+            } else if (this.finished[i] instanceof Line) {
+                for (let j = 1; j < this.finished[i].points.length; j++) {
+                    let pt1 = this.finished[i].points[j];
+                    let pt2 = this.finished[i].points[j-1]
+                    // If either point is immovable, line isn't movable
+                    if ((!pt1.movex && !pt1.movey) || (!pt2.movex && !pt2.movey)) {
+                        // If any point is immobile, the line cannot be moved
+                        break;
+                    }
+                    // Shrink grabbing range for line (otherwise assume grabbing a point on either end)
+                    let minx = Math.min(pt1.rawx, pt2.rawx) + this.grabradius;
+                    let maxx = Math.max(pt1.rawx, pt2.rawx) - this.grabradius;
+                    // Check if clicked x is between bounds
+                    if (pt.rawx > minx && pt.rawx < maxx) {
+                        let ytarget = (pt.rawx - pt1.rawx) * (pt2.rawy - pt1.rawy) / (pt2.rawx - pt1.rawx) + pt1.rawy;
+                        let d = Math.abs(pt.rawy - ytarget);
+                        // Check if in grabbing range of the line
+                        if (d <= this.grabradius) {
+                            // Check if this is the closest object
+                            if (d < grabdist) {
+                                grabindex = i;
+                                grabdist = d;
+        }}}}}}
+        // If an element was clicked on, pick it up
+        if (grabindex > -1) {
+            this.grabpoint = pt;
+            this.held = this.finished[grabindex];
+            this.finished.splice(grabindex, 1);
+            if (this.held instanceof Line) {
+                this.origins = {};
+                for (let p of this.held.points) {
+                    this.origins[p.ID] = new Point(p.data());
+                    this.deletePointByID(p.ID);
+                }
+            }
+            // Grabbed something
+            return true;
+        }
+        // Didn't grab anything
+        return false;
+    }
+
+    dragElement(pt) {
+        if (this.held instanceof Point) {
+            // Copy current location data to point
+            if (this.held.movex) {
+                this.held.rawx = constrain(pt.rawx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
+            }
+            if (this.held.movey) {
+                this.held.rawy = constrain(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
+            }
+            // Calculated calibrated positions from new raw position
+            this.held.generateCalFromRaw();
+            // Show held point
+            this.draw(this.held);
+        } else if (this.held instanceof Line) {
+            // Update location data
+            let rawdx = pt.rawx - this.grabpoint.rawx;
+            let caldx = pt.x - this.grabpoint.x;
+            let rawdy = pt.rawy - this.grabpoint.rawy;
+            let caldy = pt.y - this.grabpoint.y;
+            for (let p of this.held.points) {
+                if (p.movex) {
+                    p.rawx = constrain(this.origins[p.ID].rawx + rawdx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
+                }
+                if (p.movey) {
+                    p.rawy = constrain(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
+                }
+                p.generateCalFromRaw();
+                // Show points
+                if (p.show) {
+                    this.draw(p);
+                }
+            }
+            // Show held line
+            this.draw(this.held);
+        }
+    }
+
+    dropElement(pt) {
+        if (this.held instanceof Point) {
+            // Copy current location data to point
+            if (this.held.movex) {
+                this.held.rawx = constrain(pt.rawx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
+            }
+            if (this.held.movey) {
+                this.held.rawy = constrain(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
+            }
+            // Calculated calibrated positions from new raw position
+            this.held.generateCalFromRaw();
+            // Add point to finished list
+            this.finished.push(this.held);
+        } else if (this.held instanceof Line) {
+            let rawdx = pt.rawx - this.grabpoint.rawx;
+            let caldx = pt.x - this.grabpoint.x;
+            let rawdy = pt.rawy - this.grabpoint.rawy;
+            let caldy = pt.y - this.grabpoint.y;
+            for (let p of this.held.points) {
+                if (p.movex) {
+                    p.rawx = constrain(this.origins[p.ID].rawx + rawdx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
+                }
+                if (p.movey) {
+                    p.rawy = constrain(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
+                }
+                p.generateCalFromRaw();
+                // Show points
+                if (p.show) {
+                    this.finished.push(p);
+                }
+            }
+            // Add line to finished list
+            this.finished.push(this.held);
+            this.origins = undefined;
+            this.grabpoint = undefined;
+        }
+        // Reset holding
+        this.held = undefined;
+    }
     /**
         Whenever the mouse is moved over the canvas, update the dynamic layer.
     */
     mouseMove(e) {
-        if (this.interactable) {
-            this.update();
-            let pt = this.getMousePoint(e);
-            // Draw cursor
-            if (this.cursor != undefined) {
-                let cursorpt = new Point(pt.data());
-                if (this.held) {
-                    if (this.held.altcursor) {
-                        this.drawCursor(cursorpt, this.held.altcursor);
-                    } else {
-                        this.drawCursor(cursorpt, this.cursor);
-                    }
+        // Get location of event
+
+        let pt = this.getMousePoint(e);
+        this.update();
+
+        // Draw cursor
+        if (this.cursor != undefined) {
+            let cursorpt = new Point(pt.data());
+            if (this.held) {
+                if (this.held.altcursor) {
+                    this.drawCursor(cursorpt, this.held.altcursor);
                 } else {
                     this.drawCursor(cursorpt, this.cursor);
                 }
+            } else {
+                this.drawCursor(cursorpt, this.cursor);
             }
-            // If moving objects
-            if (this.mode === "move") {
-                // Drag held object
-                if (this.held) {
-                    if (this.held instanceof Point) {
-                        // Copy current location data to point
-                        if (this.held.movex) {
-                            this.held.rawx = constrain(pt.rawx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
-                        }
-                        if (this.held.movey) {
-                            this.held.rawy = constrain(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
-                        }
-                        // Calculated calibrated positions from new raw position
-                        this.held.generateCalFromRaw();
-                        // Show held point
-                        this.draw(this.held);
-                    } else if (this.held instanceof Line) {
-                        // Update location data
-                        let rawdx = pt.rawx - this.grabpoint.rawx;
-                        let caldx = pt.x - this.grabpoint.x;
-                        let rawdy = pt.rawy - this.grabpoint.rawy;
-                        let caldy = pt.y - this.grabpoint.y;
-                        for (let p of this.held.points) {
-                            if (p.movex) {
-                                p.rawx = constrain(this.origins[p.ID].rawx + rawdx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
-                            }
-                            if (p.movey) {
-                                p.rawy = constrain(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
-                            }
-                            p.generateCalFromRaw();
-                            // Show points
-                            if (p.show) {
-                                this.draw(p);
-                            }
-                        }
-                        // Show held line
-                        this.draw(this.held);
-                    }
-                }
-            // If drawing
-            } else if (this.drawing) {
-                if (this.mode === "point") {
-                    this.draw(pt);
-                } else if (this.mode === "line") {
-                    this.draw(new Line({"points":[this.pt, pt]}));
-                } else if (this.mode === "calibrate") {
-                    this.draw(new Line({"points":[this.pt, pt]}));
-                }
+        }
+        // If moving objects
+        if (this.mode === "move") {
+            // Drag held object
+            if (this.held) {
+                this.dragElement(pt);
+            }
+        // If drawing
+        } else if (this.drawing) {
+            if (this.mode === "point") {
+                this.draw(pt);
+            } else if (this.mode === "line") {
+                this.draw(new Line({"points":[this.pt, pt]}));
+            } else if (this.mode === "calibrate") {
+                this.draw(new Line({"points":[this.pt, pt]}));
             }
         }
     }
@@ -1679,69 +1785,31 @@ class CanvasController {
         Whenever the mouse is released over the canvas
     */
     mouseUp(e) {
-        if (this.interactable) {
-            let pt = this.getMousePoint(e);
-            if (this.mode === "move") {
-                // Drop held object
-                if (this.held) {
-                    if (this.held instanceof Point) {
-                        // Copy current location data to point
-                        if (this.held.movex) {
-                            this.held.rawx = constrain(pt.rawx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
-                        }
-                        if (this.held.movey) {
-                            this.held.rawy = constrain(pt.rawy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
-                        }
-                        // Calculated calibrated positions from new raw position
-                        this.held.generateCalFromRaw();
-                        // Add point to finished list
-                        this.finished.push(this.held);
-                    } else if (this.held instanceof Line) {
-                        let rawdx = pt.rawx - this.grabpoint.rawx;
-                        let caldx = pt.x - this.grabpoint.x;
-                        let rawdy = pt.rawy - this.grabpoint.rawy;
-                        let caldy = pt.y - this.grabpoint.y;
-                        for (let p of this.held.points) {
-                            if (p.movex) {
-                                p.rawx = constrain(this.origins[p.ID].rawx + rawdx, this.graphinfo.padding.left, this.graphinfo.padding.left + this.graphinfo.graphwidth);
-                            }
-                            if (p.movey) {
-                                p.rawy = constrain(this.origins[p.ID].rawy + rawdy, this.graphinfo.padding.top, this.graphinfo.padding.top + this.graphinfo.graphheight);
-                            }
-                            p.generateCalFromRaw();
-                            // Show points
-                            if (p.show) {
-                                this.finished.push(p);
-                            }
-                        }
-                        // Add line to finished list
-                        this.finished.push(this.held);
-                        this.origins = undefined;
-                        this.grabpoint = undefined;
-                    }
-                    // Reset holding
-                    this.held = undefined;
-                }
-            } else {
-                this.drawing = false;
-                if (this.mode === "point") {
-                    this.finished.push(pt);
-                } else if (this.mode === "line") {
-                    this.finished.push(new Line({"points":[this.pt, pt]}));
-                } else if (this.mode === "calibrate") {
-                    // calibration routine
-                    this.finished.push(new Line({"points":[this.pt, pt]}));
-                    let x1 = document.getElementById(this.x1).value;
-                    let y1 = document.getElementById(this.y1).value;
-                    let x2 = document.getElementById(this.x2).value;
-                    let y2 = document.getElementById(this.y2).value;
-                    let str = `let calibration = new Line({"points":[new Point({"rawx":${this.pt.rawx}, "rawy":${this.pt.rawy}, "x":${x1}, "y":${y1}})`
-                    str += `, new Point({"rawx":${pt.rawx}, "rawy":${pt.rawy}, "x":${x2}, "y":${y2}})]});`;
-                    console.log("Copy and paste the line between the bars to use this calibration:");
-                    console.log("-----");
-                    console.log(str);
-                    console.log("-----");
-                }
+        // Get location of event
+        let pt = this.getMousePoint(e);
+        if (this.mode === "move") {
+            if (this.held) {
+                this.dropElement(pt);
+            }
+        } else if (this.mode === "draw") {
+            this.drawing = false;
+            if (this.mode === "point") {
+                this.finished.push(pt);
+            } else if (this.mode === "line") {
+                this.finished.push(new Line({"points":[this.pt, pt]}));
+            } else if (this.mode === "calibrate") {
+                // calibration routine
+                this.finished.push(new Line({"points":[this.pt, pt]}));
+                let x1 = document.getElementById(this.x1).value;
+                let y1 = document.getElementById(this.y1).value;
+                let x2 = document.getElementById(this.x2).value;
+                let y2 = document.getElementById(this.y2).value;
+                let str = `let calibration = new Line({"points":[new Point({"rawx":${this.pt.rawx}, "rawy":${this.pt.rawy}, "x":${x1}, "y":${y1}})`
+                str += `, new Point({"rawx":${pt.rawx}, "rawy":${pt.rawy}, "x":${x2}, "y":${y2}})]});`;
+                console.log("Copy and paste the line between the bars to use this calibration:");
+                console.log("-----");
+                console.log(str);
+                console.log("-----");
             }
         }
     }
@@ -1749,68 +1817,19 @@ class CanvasController {
         Whenever the mouse is clicked on the canvas object
     */
     mouseDown(e) {
-        if (this.interactable) {
-            let pt = this.getMousePoint(e);
-            if (this.mode === "move") {
-                let grabindex = -1;
-                let grabdist = 99999;
-                // Check which object is being picked up
-                for (let i in this.finished) {
-                    if (this.finished[i] instanceof Point) {
-                        // Check if movable
-                        if (this.finished[i].movex || this.finished[i].movey) {
-                            // Check if in grabbing distance
-                            let d = getDist(pt, this.finished[i], "raw");
-                            if (d <= this.grabradius) {
-                                if (d < grabdist) {
-                                    grabindex = i;
-                                    grabdist = d;
-                                }
-                            }
-                        }
-                    } else if (this.finished[i] instanceof Line) {
-                        for (let j = 1; j < this.finished[i].points.length; j++) {
-                            let pt1 = this.finished[i].points[j];
-                            let pt2 = this.finished[i].points[j-1]
-                            // If either point is immovable, line isn't movable
-                            if ((!pt1.movex && !pt1.movey) || (!pt2.movex && !pt2.movey)) {
-                                // If any point is immobile, the line cannot be moved
-                                break;
-                            }
-                            // Shrink grabbing range for line (otherwise assume grabbing a point on either end)
-                            let minx = Math.min(pt1.rawx, pt2.rawx) + this.grabradius;
-                            let maxx = Math.max(pt1.rawx, pt2.rawx) - this.grabradius;
-                            // Check if clicked x is between bounds
-                            if (pt.rawx > minx && pt.rawx < maxx) {
-                                let ytarget = (pt.rawx - pt1.rawx) * (pt2.rawy - pt1.rawy) / (pt2.rawx - pt1.rawx) + pt1.rawy;
-                                let d = Math.abs(pt.rawy - ytarget);
-                                // Check if in grabbing range of the line
-                                if (d <= this.grabradius) {
-                                    // Check if this is the closest object
-                                    if (d < grabdist) {
-                                        grabindex = i;
-                                        grabdist = d;
-                }}}}}}
-                if (grabindex > -1) {
-                    this.grabpoint = pt;
-                    this.held = this.finished[grabindex];
-                    this.finished.splice(grabindex, 1);
-                    if (this.held instanceof Line) {
-                        this.origins = {};
-                        for (let p of this.held.points) {
-                            this.origins[p.ID] = new Point(p.data());
-                            this.deletePointByID(p.ID);
-                        }
-                    }
-                }
-            } else {
-                this.pt1 = this.getMousePoint(e);
-                this.drawing = true;
-            }
-            this.update();
-            if (this.held) {
+        // Get location of event
+        let pt = this.getMousePoint(e);
+
+        if (this.mode == "move") {
+            // Check if an element was grabbed
+            if (this.grabElement(pt)) {
+                console.log('grabbed',this.held);
+                this.update();
                 this.draw(this.held);
             }
+        } else if (this.mode == "draw") {
+            this.pt1 = pt;
+            this.drawing = true;
         }
     }
     /**
@@ -2102,11 +2121,17 @@ class Question {
         @param {float} inputarguments.requiredscore Required % score to move on (0 to 1)
     */
     constructor(inputarguments) {
+        this.variables = {"constants":{},
+                          "random":{},
+                          "calculated":{}};
+        this.elements = [];
+        this.html = "";
         for (let key of Object.keys(inputarguments)) {
             this[key] = inputarguments[key];
         }
-        this.elements = [];
-        this.html = "";
+        if ("variables" in inputarguments) {
+            this.variables = JSON.parse(JSON.stringify(inputarguments.variables));
+        }
         this.createHTML(inputarguments.questionelements);
     }
     /**
@@ -2187,9 +2212,13 @@ class Question {
         @param {object} parentvariables Variable values from parent (ProblemController)
     */
     display(DOM, parentvariables) {
-        // Input variables from parent as constants
+
         for (let name of Object.keys(parentvariables)) {
-            this.variables.constants[name] = parentvariables[name];
+            // If variable is not defined more locally
+            if (!(name in this.variables.constants)) {
+                // Inherit variable from parent
+                this.variables.constants[name] = parentvariables[name];
+            }
         }
         // Generate variable values
         this.variablevalues = generateVariables(this.variables);
@@ -2288,10 +2317,11 @@ class ProblemController {
             this.questions.push(new Question(q));
         }
         inputarguments.finish.DOM = this.DOM;
+        inputarguments.begin.DOM = this.DOM;
         this.finishquestion = new Question(inputarguments.finish);
+        this.beginquestion = new Question(inputarguments.begin);
         // Initialize local data
         this.score = {};
-        this.currentquestion = -1;
         // Set/insert heading title
         document.title = this.title;
         document.getElementById(this.DOM.titledivid).insertAdjacentHTML("beforeend", this.title);
@@ -2339,7 +2369,7 @@ class ProblemController {
                 "gradebuttonid": "gradebutton",
         "footerdivid": "footer",
         "hiddentextclass": "hiddentext",
-        "hiddenbuttonclass": "hiddenbutton",
+        "hiddenclass": "hidden",
         "hidescoreclass": "hidescore",
         
         "tipboxdivclass" : "tipbox",
@@ -2381,38 +2411,16 @@ class ProblemController {
         };
     }
     /**
-        Create HTML elements and set initial variable values
-    */
-    begin() {
-        // Initialize scores
-        for (let i in this.questions) {
-            this.score[i] = {"max": this.questions[i].totalPoints,
-                             "got": 0,
-                             "pct": 0};
-        }
-        
-        // Create buttons
-        this.insertRestartButton(this.DOM);
-        this.insertHintButton(this.DOM);
-        this.insertSubmitButton(this.DOM);
-        this.insertNextButton(this.DOM);
-        this.toggleNextButton(this.DOM);
-        
-        // Create variables
-        //this.variablevalues = this.generateVariables(this.inputvariables);
-        this.variablevalues = generateVariables(this.inputvariables);
-        
-        // Start question sequence
-        this.currentquestion = -1;
-        this.nextQuestion();
-    }
-    /**
         Refresh the page, starting a new problem
     */
     refresh() {
-        if (confirm("Really start a new problem?")) {
-            // One of many ways to refresh the page
-            location = location;
+        if (this.currentquestion === undefined) {
+            this.begin();
+        } else {
+            if (confirm("Really start a new problem?")) {
+                // One of many ways to refresh the page
+                location = location;
+            }
         }
     }
     /**
@@ -2431,7 +2439,7 @@ class ProblemController {
         //console.log(`ProblemController: pressed ${e.key}`);
         if (e.key === "Enter") {
             if (this.currentquestion < this.questions.length) {
-                if (!document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.hiddenbuttonclass)) {
+                if (!document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.hiddenclass)) {
                     document.getElementById(this.DOM.submitbuttonid).click();
                 } else {
                     document.getElementById(this.DOM.nextbuttonid).click();
@@ -2545,19 +2553,19 @@ class ProblemController {
         Hide/show Submit button
     */
     toggleSubmitButton() {
-        document.getElementById(this.DOM.submitbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
+        document.getElementById(this.DOM.submitbuttonid).classList.toggle(this.DOM.hiddenclass);
     }
     /**
         Hide/show Next button
     */
     toggleNextButton() {
-        document.getElementById(this.DOM.nextbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
+        document.getElementById(this.DOM.nextbuttonid).classList.toggle(this.DOM.hiddenclass);
     }
     /**
         Hide/show Hint button
     */
     toggleHintButton() {
-        document.getElementById(this.DOM.hintbuttonid).classList.toggle(this.DOM.hiddenbuttonclass);
+        document.getElementById(this.DOM.hintbuttonid).classList.toggle(this.DOM.hiddenclass);
     }
     /**
         Gets the total score for the problem
@@ -2706,6 +2714,48 @@ class ProblemController {
     */
     repeat() {
         this.currentquestion--;
+        this.nextQuestion();
+    }
+    /**
+        Create HTML elements and set initial variable values
+    */
+    load() {
+        // Initialize scores
+        for (let i in this.questions) {
+            this.score[i] = {"max": this.questions[i].totalPoints,
+                             "got": 0,
+                             "pct": 0};
+        }
+
+        // Create buttons
+        this.insertRestartButton(this.DOM);
+        this.insertHintButton(this.DOM);
+        this.insertSubmitButton(this.DOM);
+        this.insertNextButton(this.DOM);
+        this.toggleNextButton(this.DOM);
+
+        // Create variables
+        this.variablevalues = generateVariables(this.inputvariables);
+
+        this.beginquestion.display(this.DOM, this.variablevalues);
+
+        // Hide buttons
+        document.getElementById(this.DOM.submitbuttonid).classList.add(this.DOM.hiddenclass);
+        document.getElementById(this.DOM.restartbuttonid).textContent = "Begin";
+        document.getElementById(this.DOM.restartbuttonid).focus();
+    }
+    /**
+     *  Begin the question
+     */
+    begin() {
+        // Show buttons
+        document.getElementById(this.DOM.submitbuttonid).classList.remove(this.DOM.hiddenclass);
+        document.getElementById(this.DOM.restartbuttonid).textContent = "Restart Problem";
+        this.enableHintButton()
+        document.getElementById(this.DOM.restartbuttonid).blur();
+
+        // Start question sequence
+        this.currentquestion = -1;
         this.nextQuestion();
     }
     /**
