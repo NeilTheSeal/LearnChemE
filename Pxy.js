@@ -495,6 +495,41 @@ const problem = {
     }, // finish
 
     "begin": {
+        "variables": {
+            "constants": {
+                "T": 120,
+                "q4x": 0.6,
+                "q4yscale": 0.5,
+            },
+            "random": {},
+            "calculated": {
+                "PsatO": "Antoine(@T@, @AO@, @BO@, @CO@).toFixed(1)",
+                "PsatH": "Antoine(@T@, @AH@, @BH@, @CH@).toFixed(1)",
+                "Pinit": "0.5",
+                "x1": "0",
+                "x2": "0.25",
+                "x3": "0.5",
+                "x4": "0.75",
+                "x5": "1",
+                "by2": "BubblePoint(@x2@, @PsatH@, @PsatO@)",
+                "by3": "BubblePoint(@x3@, @PsatH@, @PsatO@)",
+                "by4": "BubblePoint(@x4@, @PsatH@, @PsatO@)",
+                "dy2": "DewPoint(@x2@, @PsatH@, @PsatO@)",
+                "dy3": "DewPoint(@x3@, @PsatH@, @PsatO@)",
+                "dy4": "DewPoint(@x4@, @PsatH@, @PsatO@)",
+                "yllabel": "(@Pmax@ - @Pmin@) * .9 + @Pmin@",
+                "yvlabel": "(@Pmax@ - @Pmin@) * .1 + @Pmin@",
+                "yvllabel": "(BubblePoint(0.5, @PsatH@, @PsatO@) + DewPoint(0.5, @PsatH@, @PsatO@)) / 2",
+                "q3text": "['liquid', 'vapor'][@q3@]",
+                "q3ans": "['A', 'C'][@q3@]",
+                "q4ly": "BubblePoint(@q4x@, @PsatH@, @PsatO@)",
+                "q4vy": "DewPoint(@q4x@, @PsatH@, @PsatO@)",
+                "q4y": "(@q4ly@ - @q4vy@) * @q4yscale@ + @q4vy@",
+                "q4lx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+                "q4vx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+                "q5ans": "roundTo((@q4x@ - @q4lx@) / (@q4vx@ - @q4lx@), 2)",
+            },
+        },
         "questionelements": [
             [{
                 "type": "graph",
@@ -519,17 +554,10 @@ const problem = {
                          "showpoints": false},
 
                         {"points":[{"x":"@q4lx@", "y":"@q4y@", "color":"purple"},
-                                   {"x":"@q4x@", "y":"@q4y@", "label": {
-                                       "text": "fraction vapor: @q5ans@",
-                                       "align": "center",
-                                       "offset": {"rawx":0, "rawy":20}}},
+                                   {"x":"@q4x@", "y":"@q4y@"},
                                    {"x":"@q4vx@", "y":"@q4y@", "color":"yellow"},],
                          "color":graycolor}
                     ],
-                    "text": [
-                        {"text":"liquid", "position": {"x": 0.5, "y": "@yllabel@"}, "align":"center", "color":textcolor},
-                        {"text":"vapor", "position": {"x": 0.5, "y": "@yvlabel@"}, "align":"center", "color":textcolor},
-                    ]
                 },
                 "cursor": normalcursor,
                 "points": 0

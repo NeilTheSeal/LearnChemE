@@ -1,3 +1,7 @@
 GITpulllearnchemejs.sh
 GITpushlearnchemejs.sh
 uploadchemejstolocal.sh
+/node_modules/
+/package-lock.json
+/.eslintrc
+/.gitignore
