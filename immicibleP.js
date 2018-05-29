@@ -21,7 +21,7 @@ const graphinfo = {
     "graphbackground": "white",
     "axesbackground": "lightgray",
     "x": {
-        "label": "@compound@ mole fraction (x<sub>@org@</sub>)",
+        "label": "@compound@ mole fraction (z<sub>@org@</sub>)",
         "min": 0,
         "max": 1,
         "majortick": 0.1,
@@ -37,7 +37,7 @@ const graphinfo = {
         "gridline": 0.5,
     },
     "x2": {
-        "label": "water mole fraction (x<sub>W</sub>)",
+        "label": "water mole fraction (z<sub>W</sub>)",
         "min": 1,
         "max": 0,
         "majortick": 0.1,
@@ -52,7 +52,7 @@ const pointtolerance = {
 };
 
 const normalcursor = {
-    "format": "x<sub>@org@</sub> = ~x~, P = ~y~",
+    "format": "z<sub>@org@</sub> = ~x~, P = ~y~",
     "digits": {
         "x": 2,
         "y": 1,
@@ -60,7 +60,7 @@ const normalcursor = {
 };
 
 const detailedcursor = {
-    "format": "x<sub>@org@</sub> = ~x~, P = ~y~",
+    "format": "z<sub>@org@</sub> = ~x~, P = ~y~",
     "digits": {
         "x": 2,
         "y": 2,
@@ -509,16 +509,21 @@ const problem = {
                                    {"x":"@x1@", "y":"@y1@", "show": false},
                                    {"x":"@x2@", "y":"@y2@", "show": false},
                                    {"x":"@x3@", "y":"@y3@", "show": false},
-                                   {"x":"@xc@", "y":"@Psum@", "color":"green"}], "color":graycolor,
-                                   "fill":{"color":watercolor, "opacity":0.2}},
+                                   {"x":"@xc@", "y":"@Psum@", "color":"green"}],
+                         "color":graycolor,
+                         "fill":{
+                             "color":watercolor,
+                             "opacity":0.2}},
                         {"points":[{"x":"@xc@", "y":"@Psum@", "color":"green"},
                                    {"x":"@x4@", "y":"@y4@", "show": false},
                                    {"x":"@x5@", "y":"@y5@", "show": false},
                                    {"x":"@x6@", "y":"@y6@", "show": false},
                                    {"x":"1", "y":"@PsatO@", "color":organiccolor},
                                    {"x":"1", "y":"@Psum@", "show":false}],
-                                   "color":graycolor,
-                                   "fill":{"color":organiccolor, "opacity":0.2}}
+                         "color":graycolor,
+                         "fill":{
+                             "color":organiccolor,
+                             "opacity":0.2}},
                     ],
                 },
                 "cursor": normalcursor,

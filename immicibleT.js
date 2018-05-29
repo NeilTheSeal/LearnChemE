@@ -16,7 +16,7 @@ const graphinfo = {
     "graphbackground": "white",
     "axesbackground": "lightgray",
     "x": {
-        "label": "@compound@ mole fraction (x<sub>@org@</sub>)",
+        "label": "@compound@ mole fraction (z<sub>@org@</sub>)",
         "min": 0,
         "max": 1,
         "majortick": 0.1,
@@ -32,7 +32,7 @@ const graphinfo = {
         "gridline": 10,
     },
     "x2": {
-        "label": "water mole fraction (x<sub>W</sub>)",
+        "label": "water mole fraction (z<sub>W</sub>)",
         "min": 1,
         "max": 0,
         "majortick": 0.1,
@@ -44,10 +44,10 @@ const graphinfo = {
 const pointtolerance = {"x":0.025, "y":4};
 
 const normalcursor = {
-    "format": "x<sub>@org@</sub> = ~x~, T = ~y~",
+    "format": "z<sub>@org@</sub> = ~x~, T = ~y~",
     "digits": {
         "x": 2,
-        "y": 1,
+        "y": 0,
     }
 };
 

@@ -58,6 +58,29 @@ function getDist(pt1, pt2, mode="cal") {
 }
 
 /**
+ * Calculates theta
+ * @param {number} x1  Base point
+ * @param {number} y1  Base point
+ * @param {number} x2  Target point
+ * @param {number} y2  Target point
+ * @return {float}  Angle between base and target point
+ */
+function getAngle(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    let theta = Math.atan(dy / dx);
+    if (dx < 0) {
+        theta += Math.PI;
+    }
+    if (theta < 0) {
+        theta += 2 * Math.PI;
+    } else if (theta > 2 * Math.PI) {
+        theta -= 2 * Math.PI;
+    }
+    return theta;
+}
+
+/**
     Gets a random float between two values
     @param {float} low Lowest value
     @param {float} high Highest value
@@ -117,15 +140,16 @@ function FindRoot(expression, variable, min, max, precision, initialguess) {
     let loops = 0;
     while (ans > precision) {
         loops++;
+        // Check above and below the current guess
         const lowx = Math.max(guess - step, min);
         const midx = guess;
         const highx = Math.min(guess + step, max);
-
+        // Calculate value at each of the three points
         const re = new RegExp(variable, "g");
         const lowy = Math.abs(eval(expression.replace(re, lowx)));
         ans = Math.abs(eval(expression.replace(re, midx)));
         const highy = Math.abs(eval(expression.replace(re, highx)));
-
+        // Choose an endpoint if lower, otherwise narrow in on the center
         if (lowy < ans && lowy < highy) {
             guess = lowx;
         } else if (highy < ans && highy < lowy) {
@@ -133,7 +157,7 @@ function FindRoot(expression, variable, min, max, precision, initialguess) {
         } else {
             step = step / 2;
         }
-
+        // Escape if function does not converge in time
         if (loops > maxloops) {
             console.log(`FindRoot exceeding max loops for arguments: (${expression}, ${variable}, ${min}, ${max}, ${precision}, ${initialguess})`);
             break;
@@ -423,6 +447,9 @@ class Point {
         @param {boolean} [args.movey=false]
         @param {string} [args.color="black"]
         @param {float} [args.radius=5]
+        @param {Point} [args.label]
+        @param {Point} args.label.text
+        @param {Point} [args.label.offset]
         @param {boolean} [args.answer=false]
         @param {boolean} [args.show=true]
     */
@@ -505,35 +532,53 @@ class Point {
             this[key] = args[key];
         }
         this.generateMissing();
+        if (this.label != undefined) {
+            // Create default offset
+            if (this.label.offset === undefined) {
+                this.label.offset = {"rawx":0, "rawy":0};
+            }
+            // Add offset to point position
+            this.label.position = {"rawx":this.rawx + this.label.offset.rawx, "rawy":this.rawy + this.label.offset.rawy};
+            // If still raw data, create text element
+            if (!(this.label instanceof Text)) {
+                this.label.graphinfo = this.graphinfo;
+                this.label = new Text(this.label);
+            }
+        }
     }
 
     draw(context) {
         if (isBetween(this.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
-                isBetween(this.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
-            context.save();
-            if (this.correctanswer) {
-                // Draw ellipse
+            isBetween(this.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+            if (this.show) {
+                context.save();
+                if (this.correctanswer) {
+                    // Draw ellipse
+                    context.beginPath();
+                    context.strokeStyle = "green";
+                    context.ellipse(this.rawx, this.rawy, this.tolerance.x*this.graphinfo.x.scale, this.tolerance.y*-this.graphinfo.y.scale, 0, 0, 2*Math.PI, false);
+                    context.stroke();
+                    // Fill circle
+                    context.fillStyle = "green";
+                    context.globalAlpha = 0.3;
+                    context.fill();
+                }
+                // Black border
                 context.beginPath();
-                context.strokeStyle = "green";
-                context.ellipse(this.rawx, this.rawy, this.tolerance.x*this.graphinfo.x.scale, this.tolerance.y*-this.graphinfo.y.scale, 0, 0, 2*Math.PI, false);
-                context.stroke();
-                // Fill circle
-                context.fillStyle = "green";
-                context.globalAlpha = 0.3;
+                context.fillStyle = "black";
+                context.globalAlpha = 1;
+                context.arc(this.rawx, this.rawy, this.radius, 2*Math.PI, false);
                 context.fill();
+                // Colored interior
+                context.beginPath();
+                context.fillStyle = this.color;
+                context.arc(this.rawx, this.rawy, this.radius-1, 2*Math.PI, false);
+                context.fill();
+                context.restore();
             }
-            // Black border
-            context.beginPath();
-            context.fillStyle = "black";
-            context.globalAlpha = 1;
-            context.arc(this.rawx, this.rawy, this.radius, 2*Math.PI, false);
-            context.fill();
-            // Colored interior
-            context.beginPath();
-            context.fillStyle = this.color;
-            context.arc(this.rawx, this.rawy, this.radius-1, 2*Math.PI, false);
-            context.fill();
-            context.restore();
+            if (this.label != undefined) {
+                this.label.draw(context);
+            }
         }
     }
     /**
@@ -770,7 +815,8 @@ class Line {
     @param {string} [font="sans-serif"] Which font to use
     @param {string} [fontsize="20"] Size of the font (in px)
     @param {string} [fontstyle=""] Styling of the font (bold, italic, etc)
-    @param {string} [align="left"] "left", "right", or "center"
+    @param {number} [align="left"] Also accepts strings "left"=0, "center"=0.5, or "right"=1
+    @param {number} [valign="center"] Also accepts strings "top"=0, "center"=0.5, or "bottom"=1
     @param {string} [color="black"] Color of text
     @param {number} [opacity=1] Opacity of the text
     @param {number} [rotate=0] Rotation of the text (in degrees, clockwise)
@@ -785,6 +831,7 @@ class Text {
         this.fontsize = "20";
         this.fontstyle = "";
         this.align = "left";
+        this.valign = "center";
         this.color = "black";
         this.opacity = 1;
         this.rotate = 0;
@@ -794,6 +841,9 @@ class Text {
         }
         // Convert data to point if not
         if (!(this.position instanceof Point)) {
+            if (this.graphinfo) {
+                this.position.graphinfo = this.graphinfo;
+            }
             this.position = new Point(this.position);
         }
         // Convert text to string
@@ -869,20 +919,38 @@ class Text {
             i++;
         }
         // Change starting position to account for alignment
-        if (this.align === "right") {
-            for (i = 0; i < plan.x.length; i++) {
-                plan.x[i] -= plan.x[plan.x.length-1];
-            }
-        } else if (this.align === "center") {
-            for (i = 0; i < plan.x.length; i++) {
-                plan.x[i] -= (plan.x[plan.x.length-1] / 2);
-            }
+        switch (this.align) {
+            case "left":
+                this.align = 0;
+                break;
+            case "center":
+                this.align = 0.5;
+                break;
+            case "right":
+                this.align = 1;
+                break;
         }
+        let diff = plan.x[plan.x.length-1] * this.align;
+        for (i = 0; i < plan.x.length; i++) {
+            plan.x[i] -= diff;
+        }
+
         // Shift text to middle y based on largest font (capital M is hacky solution)
+        switch (this.valign) {
+            case "top":
+                this.valign = 0;
+                break;
+            case "center":
+                this.valign = 0.5;
+                break;
+            case "bottom":
+                this.valign = 1;
+                break;
+        }
         context.font = `${this.fontstyle} ${this.fontsize}px ${this.font}`;
         const lineheight = context.measureText('M').width;
         for (i = 0; i < plan.y.length; i++) {
-            plan.y[i] += (lineheight / 2);
+            plan.y[i] += (lineheight * this.valign);
         }
         // Draw letters
         for(i = 0; i < plan.char.length; i++) {
@@ -1049,6 +1117,7 @@ class CanvasController {
         const re = new RegExp(`${VAR}id${VAR}`, "g");
         // Retrieve DOM elements
         this.div = document.getElementById(DOM.canvasdivid.replace(re, index));
+
         this.staticcanvas = document.getElementById(DOM.staticcanvasid.replace(re, index));
         this.dynamiccanvas = document.getElementById(DOM.dynamiccanvasid.replace(re, index));
         
@@ -1532,8 +1601,41 @@ class CanvasController {
         @param {int} cursordata.digits.x2
         @param {int} cursordata.digits.y
         @param {int} cursordata.digits.y2
+        @param {number} [cursordata.distance=25] Distance from the center of the cursor to the text display
     */
     drawCursor(cursorpt, cursordata) {
+        // Align text around cursor
+        const midx = this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left;
+        const midy = this.graphinfo.graphheight / 2 + this.graphinfo.padding.top;
+        const theta = getAngle(cursorpt.rawx, cursorpt.rawy, midx, midy);
+        let cursoralign = 0;
+        let cursorvalign = 0;
+        if (theta >= Math.PI) {
+            cursoralign = -theta / Math.PI + 2;
+        } else {
+            cursoralign = theta / Math.PI;
+        }
+        if (cursordata.distance === undefined) {
+            cursordata.distance = 25;
+        }
+
+        // Bound alignment at edges
+        if (cursorpt.x < this.graphinfo.x.min) {
+            cursoralign = 0;
+        } else if (cursorpt.x > this.graphinfo.x.max) {
+            cursoralign = 1;
+        } else {
+            cursorpt.rawx += cursordata.distance * Math.cos(theta) / Math.sqrt(Math.abs(Math.cos(theta)));
+        }
+        if (cursorpt.y < this.graphinfo.y.min) {
+            cursorvalign = 0;
+        } else if (cursorpt.y > this.graphinfo.y.max) {
+            cursorvalign = 1;
+        } else {
+            cursorpt.rawy += cursordata.distance * Math.sin(theta) / Math.sqrt(Math.abs(Math.sin(theta)));
+        }
+        cursorpt.generateCalFromRaw();
+
         // Bound cursor within graph
         if (cursorpt.x) {
             cursorpt.x = constrain(cursorpt.x, this.graphinfo.x.min, this.graphinfo.x.max);
@@ -1549,24 +1651,7 @@ class CanvasController {
         }
         cursorpt.generateRawFromCal();
 
-        let cursoralign = "";
-        // Constants align box position around crosshair cursor nicely
-        if (cursorpt.rawx < this.dynamiccanvas.width/2) {
-            // Left
-            cursoralign = "left";
-            cursorpt.rawx += 4;
-        } else {
-            // Right
-            cursoralign = "right";
-            cursorpt.rawx -= 5;
-        }
-        if (cursorpt.rawy < this.dynamiccanvas.height/2) {
-            // Top
-            cursorpt.rawy += 15;
-        } else {
-            // Bottom
-            cursorpt.rawy -= 5;
-        }
+        // Fill default arguments
         let cursorcolor = "black";
         if (cursordata.color != undefined) {
             cursorcolor = cursordata.color;
@@ -1597,17 +1682,25 @@ class CanvasController {
         if (this.graphinfo.y2 != undefined) {
             content = content.replace(`${SPVAR}y2${SPVAR}`, cursorpt.y2.toFixed(this.cursor.digits.y2));
         }
+
         // Draw text
-        this.draw(new Text({"text": content,
-                            "color": cursorcolor,
-                            "font": cursorfont,
-                            "fontsize": cursorfontsize,
-                            "fontstyle": cursorfontstyle,
-                            "align": cursoralign,
-                            "position": cursorpt}));
+        let cp = new Point({
+            "rawx":cursorpt.rawx,
+            "rawy":cursorpt.rawy,
+            "graphinfo":cursorpt.graphinfo,
+            "show":false,
+            "label":{
+                "text": content,
+                "color": cursorcolor,
+                "font": cursorfont,
+                "fontsize": cursorfontsize,
+                "fontstyle": cursorfontstyle,
+                "align": cursoralign,
+                "valign": cursorvalign}});
+        this.draw(cp);
+        //this.draw(new Text());
     }
     grabElement(pt) {
-        console.log('grabbing at point',pt);
         let grabindex = -1;
         let grabdist = 99999;
         // Check which object is being picked up
@@ -1819,11 +1912,9 @@ class CanvasController {
     mouseDown(e) {
         // Get location of event
         let pt = this.getMousePoint(e);
-
         if (this.mode == "move") {
             // Check if an element was grabbed
             if (this.grabElement(pt)) {
-                console.log('grabbed',this.held);
                 this.update();
                 this.draw(this.held);
             }
@@ -2370,6 +2461,7 @@ class ProblemController {
         "footerdivid": "footer",
         "hiddentextclass": "hiddentext",
         "hiddenclass": "hidden",
+        "disabledclass": "disabled",
         "hidescoreclass": "hidescore",
         
         "tipboxdivclass" : "tipbox",
@@ -2438,7 +2530,9 @@ class ProblemController {
     keyEvent(e) {
         //console.log(`ProblemController: pressed ${e.key}`);
         if (e.key === "Enter") {
-            if (this.currentquestion < this.questions.length) {
+            if (document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.disabledclass)) {
+                document.getElementById(this.DOM.restartbuttonid).click();
+            } else if (this.currentquestion < this.questions.length) {
                 if (!document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.hiddenclass)) {
                     document.getElementById(this.DOM.submitbuttonid).click();
                 } else {
@@ -2541,13 +2635,13 @@ class ProblemController {
         Make Hint button clickable
     */
     enableHintButton() {
-        document.getElementById(this.DOM.hintbuttonid).disabled = false;
+        document.getElementById(this.DOM.hintbuttonid).classList.remove(this.DOM.disabledclass);
     }
     /**
         Make Hint button un-clickable
     */
     disableHintButton() {
-        document.getElementById(this.DOM.hintbuttonid).disabled = true;
+        document.getElementById(this.DOM.hintbuttonid).classList.add(this.DOM.disabledclass);
     }
     /**
         Hide/show Submit button
@@ -2736,11 +2830,12 @@ class ProblemController {
 
         // Create variables
         this.variablevalues = generateVariables(this.inputvariables);
+        console.log(this.variablevalues);
 
         this.beginquestion.display(this.DOM, this.variablevalues);
 
         // Hide buttons
-        document.getElementById(this.DOM.submitbuttonid).classList.add(this.DOM.hiddenclass);
+        document.getElementById(this.DOM.submitbuttonid).classList.add(this.DOM.disabledclass);
         document.getElementById(this.DOM.restartbuttonid).textContent = "Begin";
         document.getElementById(this.DOM.restartbuttonid).focus();
     }
@@ -2749,7 +2844,7 @@ class ProblemController {
      */
     begin() {
         // Show buttons
-        document.getElementById(this.DOM.submitbuttonid).classList.remove(this.DOM.hiddenclass);
+        document.getElementById(this.DOM.submitbuttonid).classList.remove(this.DOM.disabledclass);
         document.getElementById(this.DOM.restartbuttonid).textContent = "Restart Problem";
         this.enableHintButton()
         document.getElementById(this.DOM.restartbuttonid).blur();

@@ -39,6 +39,7 @@ body {
 #title {
     font-size: 24px;
     text-decoration: underline;
+    font-weight: bold;
     padding: 3px;
 }
 
@@ -146,45 +147,46 @@ button {
     transition-duration: 0.0s;
 }
 
-#hintbutton {
-    color: black;   
-}
-
-#hintbutton:disabled {
-    color: #CCCCCC;
-    background-color: #555555;
-}
-
-#hintbutton:disabled:hover {
-    opacity: 1;
-}
-
-#submitbutton {
-    background-color: #4CAF50;
-}
-
-#nextbutton {
-    background-color: #4CAF50;
+button:hover {
+    opacity: 0.9;
 }
 
 #restartbutton {
     background-color: #BC5F50;
 }
 
-#gradebutton {
-    background-color: #123456;
+#hintbutton {
+    color: black;   
 }
 
-button:hover {
-    opacity: 0.9;
+#hintbutton.disabled {
+    color: #CCCCCC;
+    background-color: #555555;
+}
+
+#submitbutton {
+    background-color: green;
+}
+
+#submitbutton.disabled {
+    color: #CCCCCC;
+    background-color: #555555;
+}
+
+#nextbutton {
+    background-color: darkgreen;
+}
+
+#gradebutton {
+    background-color: #123456;
 }
 
 .hidden {
     visibility: hidden;
 }
 
-#restart {
-    padding: 10px;
+.disabled {
+    pointer-events: none;
 }
 
 /* ########## Text ########## */
@@ -195,11 +197,12 @@ button:hover {
 }
 
 .prompt {
-    margin: 10px;
+    margin: 5px;
 }
 
 .data {
     opacity: 0.7;
+    margin: 5px;
 }
 
 .textboxlabel {
@@ -209,6 +212,7 @@ button:hover {
 .textbox {
     font-size: 20px;
     width: 300px;
+    margin: 5px;
 }
 
 .hint {
@@ -260,6 +264,7 @@ button:hover {
 .canvasarea {
     position: relative;
     flex: 1;
+    margin: 5px;
 }
 .canvasarea canvas {
     position: absolute;
