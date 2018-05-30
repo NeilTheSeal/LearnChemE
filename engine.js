@@ -1604,6 +1604,21 @@ class CanvasController {
         @param {number} [cursordata.distance=25] Distance from the center of the cursor to the text display
     */
     drawCursor(cursorpt, cursordata) {
+        // Bound cursor within graph
+        if (cursorpt.x) {
+            cursorpt.x = constrain(cursorpt.x, this.graphinfo.x.min, this.graphinfo.x.max);
+        }
+        if (cursorpt.y) {
+            cursorpt.y = constrain(cursorpt.y, this.graphinfo.y.min, this.graphinfo.y.max);
+        }
+        if (cursorpt.x2) {
+            cursorpt.x2 = constrain(cursorpt.x2, this.graphinfo.x2.min, this.graphinfo.x2.max);
+        }
+        if (cursorpt.y2) {
+            cursorpt.y2 = constrain(cursorpt.y2, this.graphinfo.y2.min, this.graphinfo.y2.max);
+        }
+        cursorpt.generateRawFromCal();
+
         // Align text around cursor
         const midx = this.graphinfo.graphwidth / 2 + this.graphinfo.padding.left;
         const midy = this.graphinfo.graphheight / 2 + this.graphinfo.padding.top;
@@ -1619,37 +1634,28 @@ class CanvasController {
             cursordata.distance = 25;
         }
 
-        // Bound alignment at edges
-        if (cursorpt.x < this.graphinfo.x.min) {
+        // Calculate text display location
+        let cursorrawx = cursorpt.rawx;
+        let cursorrawy = cursorpt.rawy;
+        const edgemargin = 5;
+        if (cursorrawx <= this.graphinfo.graphleft) {
             cursoralign = 0;
-        } else if (cursorpt.x > this.graphinfo.x.max) {
+            cursorrawx = this.graphinfo.graphleft + edgemargin;
+        } else if (cursorrawx >= this.graphinfo.graphright) {
             cursoralign = 1;
+            cursorrawx = this.graphinfo.graphright - edgemargin;
         } else {
-            cursorpt.rawx += cursordata.distance * Math.cos(theta) / Math.sqrt(Math.abs(Math.cos(theta)));
+            cursorrawx += cursordata.distance * Math.cos(theta) / Math.sqrt(Math.abs(Math.cos(theta)));
         }
-        if (cursorpt.y < this.graphinfo.y.min) {
-            cursorvalign = 0;
-        } else if (cursorpt.y > this.graphinfo.y.max) {
+        if (cursorrawy <= this.graphinfo.graphtop) {
             cursorvalign = 1;
+            cursorrawy = this.graphinfo.graphtop + edgemargin;
+        } else if (cursorrawy >= this.graphinfo.graphbottom) {
+            cursorvalign = 0;
+            cursorrawy = this.graphinfo.graphbottom - edgemargin;
         } else {
-            cursorpt.rawy += cursordata.distance * Math.sin(theta) / Math.sqrt(Math.abs(Math.sin(theta)));
+            cursorrawy += cursordata.distance * Math.sin(theta) / Math.sqrt(Math.abs(Math.sin(theta)));
         }
-        cursorpt.generateCalFromRaw();
-
-        // Bound cursor within graph
-        if (cursorpt.x) {
-            cursorpt.x = constrain(cursorpt.x, this.graphinfo.x.min, this.graphinfo.x.max);
-        }
-        if (cursorpt.y) {
-            cursorpt.y = constrain(cursorpt.y, this.graphinfo.y.min, this.graphinfo.y.max);
-        }
-        if (cursorpt.x2) {
-            cursorpt.x2 = constrain(cursorpt.x2, this.graphinfo.x2.min, this.graphinfo.x2.max);
-        }
-        if (cursorpt.y2) {
-            cursorpt.y2 = constrain(cursorpt.y2, this.graphinfo.y2.min, this.graphinfo.y2.max);
-        }
-        cursorpt.generateRawFromCal();
 
         // Fill default arguments
         let cursorcolor = "black";
@@ -1685,8 +1691,8 @@ class CanvasController {
 
         // Draw text
         let cp = new Point({
-            "rawx":cursorpt.rawx,
-            "rawy":cursorpt.rawy,
+            "rawx":cursorrawx,
+            "rawy":cursorrawy,
             "graphinfo":cursorpt.graphinfo,
             "show":false,
             "label":{
@@ -2092,11 +2098,12 @@ class GraphElement extends QuestionElement {
     */
     insertHTML(DOM, containerid, id) {
         super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
-        this.canvascontroller = new CanvasController(DOM, id, this);
+        this.init(DOM, id);
     }
     
     init(DOM, id) {
         this.canvascontroller = new CanvasController(DOM, id, this);
+        console.log(this.canvascontroller);
     }
 }
 
@@ -2523,6 +2530,8 @@ class ProblemController {
         this.display();
         // Move to top of page
         window.scrollTo(0,0);
+        // Debug print variables
+        console.log(this.questions[this.currentquestion].variablevalues);
     }
     /**
         Handler for keypress events
@@ -2830,7 +2839,6 @@ class ProblemController {
 
         // Create variables
         this.variablevalues = generateVariables(this.inputvariables);
-        console.log(this.variablevalues);
 
         this.beginquestion.display(this.DOM, this.variablevalues);
 
