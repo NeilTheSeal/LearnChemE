@@ -2103,7 +2103,6 @@ class GraphElement extends QuestionElement {
     
     init(DOM, id) {
         this.canvascontroller = new CanvasController(DOM, id, this);
-        console.log(this.canvascontroller);
     }
 }
 
@@ -2168,6 +2167,10 @@ class TextboxElement extends QuestionElement{
     */
     checkanswer(answer) {
         if (this.answertype === "number") {
+            // If user entered a number as 45%, convert to 0.45
+            if (answer.slice(-1) === "%") {
+                answer = parseFloat(answer) / 100;
+            }
             if (parseFloat(answer) >= this.answer - this.tolerance && parseFloat(answer) <= this.answer + this.tolerance) {
                 return 1;
             } else {
