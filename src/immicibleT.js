@@ -1,3 +1,5 @@
+import {ProblemController} from "./ProblemController.js";
+
 const datalabel = "pressure = @P@ bar <br> saturation temperatures: T<sub>sat,W</sub> = @TsatW@ ºC, T<sub>sat,@org@</sub> = @TsatO@ ºC";
 
 const watercolor = "blue";
@@ -146,14 +148,6 @@ const sidegraph = {
     },
     "cursor": secondarycursor,
     "points": 0
-}
-
-function Antoine(T, A, B, C) {
-    return Math.pow(10, A - B / (T + C))
-}
-
-function InvAntoine(P, A, B, C) {
-    return B / (A - Math.log10(P)) - C;
 }
 
 const problem = {
@@ -625,3 +619,6 @@ const problem = {
         ] // questionelements
     } // begin
 };
+
+let problemController = new ProblemController(problem, "body");
+problemController.load();

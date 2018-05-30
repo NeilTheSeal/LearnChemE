@@ -1,3 +1,5 @@
+import {ProblemController} from "./ProblemController.js";
+
 const datalabel = "temperature = @T@ ºC <br> saturation pressures: P<sub>W</sub><sup>sat</sup> = @PsatW@ bar, P<sub>@org@</sub><sup>sat</sup> = @PsatO@ bar";
 
 const watercolor = "blue";
@@ -66,10 +68,6 @@ const detailedcursor = {
         "y": 2,
     }
 };
-
-function Antoine(T, A, B, C) {
-    return Math.pow(10, A - B / (T + C))
-}
 
 const problem = {
     "pagetitle": "Construct a Pressure-Composition Diagram for Immiscible Liquids",
@@ -541,3 +539,6 @@ const problem = {
         ] // questionelements
     } // begin
 };
+
+let problemController = new ProblemController(problem, "body");
+problemController.load();
