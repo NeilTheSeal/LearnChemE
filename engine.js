@@ -28,6 +28,13 @@ GraphElement
     add user score submission at the end
 */
 
+/*
+    // generate email link for suggestions
+    let name = "learncheme";
+    let domain = "gmail.com";
+    return `<a href="mailto:${name}@${domain}">Email a suggestion</a>`;
+*/
+
 
 // var p = JSON.parse(json_string);
 
@@ -128,12 +135,7 @@ function ifTF(condition, iftrue, iffalse) {
  * @return {    number}     A root of the expression within the precision tolerance
  */
 function FindRoot(expression, variable, min, max, precision, initialguess) {
-    let guess = 0;
-    if (initialguess === undefined) {
-        guess = (min + max) / 2;
-    } else {
-        guess = initialguess;
-    }
+    let guess = initialguess ? initialguess : (min + max) / 2;
     let step = Math.min(max - guess, guess - min);
     let ans = precision+1;
     const maxloops = 100;
@@ -532,11 +534,9 @@ class Point {
             this[key] = args[key];
         }
         this.generateMissing();
-        if (this.label != undefined) {
+        if (this.label) {
             // Create default offset
-            if (this.label.offset === undefined) {
-                this.label.offset = {"rawx":0, "rawy":0};
-            }
+            this.label.offset = this.label.offset ? this.label.offset : {"rawx":0, "rawy":0};
             // Add offset to point position
             this.label.position = {"rawx":this.rawx + this.label.offset.rawx, "rawy":this.rawy + this.label.offset.rawy};
             // If still raw data, create text element
@@ -1624,15 +1624,14 @@ class CanvasController {
         const midy = this.graphinfo.graphheight / 2 + this.graphinfo.padding.top;
         const theta = getAngle(cursorpt.rawx, cursorpt.rawy, midx, midy);
         let cursoralign = 0;
-        let cursorvalign = 0;
+        let cursorvalign = 0.5;
         if (theta >= Math.PI) {
             cursoralign = -theta / Math.PI + 2;
         } else {
             cursoralign = theta / Math.PI;
         }
-        if (cursordata.distance === undefined) {
-            cursordata.distance = 25;
-        }
+        // Default cursor value
+        cursordata.distance = cursordata.distance ? cursordata.distance : 25;
 
         // Calculate text display location
         let cursorrawx = cursorpt.rawx;
