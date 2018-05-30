@@ -2533,8 +2533,6 @@ class ProblemController {
         this.display();
         // Move to top of page
         window.scrollTo(0,0);
-        // Debug print variables
-        console.log(this.questions[this.currentquestion].variablevalues);
     }
     /**
         Handler for keypress events
@@ -2542,7 +2540,8 @@ class ProblemController {
     keyEvent(e) {
         //console.log(`ProblemController: pressed ${e.key}`);
         if (e.key === "Enter") {
-            if (document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.disabledclass)) {
+            if (this.currentquestion === undefined) {
+                // Begin problem
                 document.getElementById(this.DOM.restartbuttonid).click();
             } else if (this.currentquestion < this.questions.length) {
                 if (!document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.hiddenclass)) {
