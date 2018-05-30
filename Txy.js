@@ -190,13 +190,13 @@ const problem = {
             "x5": "1",
 
             // calculate real bubble and dew points
-            "by2": "BubblePoint(@x2@, @PsatH@, @PsatO@)",
-            "by3": "BubblePoint(@x3@, @PsatH@, @PsatO@)",
-            "by4": "BubblePoint(@x4@, @PsatH@, @PsatO@)",
+            "by2": "FindRoot('@x2@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+            "by3": "FindRoot('@x3@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+            "by4": "FindRoot('@x4@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
 
-            "dy2": "DewPoint(@x2@, @PsatH@, @PsatO@)",
-            "dy3": "DewPoint(@x3@, @PsatH@, @PsatO@)",
-            "dy4": "DewPoint(@x4@, @PsatH@, @PsatO@)",
+            "dy2": "FindRoot('@x2@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+            "dy3": "FindRoot('@x3@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+            "dy4": "FindRoot('@x4@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
 
             /*
             "xc": "@PsatH@ / @Psum@",
@@ -322,11 +322,11 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@PsatO@", "show":false},
+                            {"points":[{"x":"@x1@", "y":"@TsatO@", "show":false},
                                        {"x":"@x2@", "y":"@by2@", "show":false, "answer":true},
                                        {"x":"@x3@", "y":"@by3@", "show":false, "answer":true},
                                        {"x":"@x4@", "y":"@by4@", "show":false, "answer":true},
-                                       {"x":"@x5@", "y":"@PsatH@", "show":false},],
+                                       {"x":"@x5@", "y":"@TsatH@", "show":false},],
                              "tolerance":pointtolerance,
                              "color":answercolor},
                         ]
@@ -354,6 +354,140 @@ const problem = {
                 [{
                     "type": "text",
                     "label": "3) Click and drag the black points to draw the bubble-point curve.",
+                    "style": "prompt"
+                },
+                {
+                    "type": "text",
+                    "label": datalabel,
+                    "style": "data"
+                },
+                sidegraphtext,
+                sidegraph]]
+            ],
+            "requiredscore": 0.00
+        }, // question
+
+        { // question
+            "questionelements": [
+                [[{
+                    "type": "graph",
+                    "graphinfo": graphinfo,
+                    "mode": "move",
+                    "answercount": {
+                        "point": 0,
+                        "line": 1
+                    },
+                    "answer": {
+                        "line": [
+                            {"points":[{"x":"@x1@", "y":"@TsatO@", "show":false},
+                                       {"x":"@x2@", "y":"@dy2@", "show":false, "answer":true},
+                                       {"x":"@x3@", "y":"@dy3@", "show":false, "answer":true},
+                                       {"x":"@x4@", "y":"@dy4@", "show":false, "answer":true},
+                                       {"x":"@x5@", "y":"@TsatH@", "show":false},],
+                             "tolerance":pointtolerance,
+                             "color":answercolor},
+                        ]
+                    },
+                    "default": {
+                        "line": [
+                            {"equation": "FindRoot('~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+                             "independent": "x",
+                             "dependent": "y",
+                             "min": 0,
+                             "max": 1,
+                             "steps": 100,
+                             "color": graycolor,
+                             "showpoints": false},
+
+                            {"points":[{"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                                       {"x":"@x2@", "y":"@Tinit@"},
+                                       {"x":"@x3@", "y":"@Tinit@"},
+                                       {"x":"@x4@", "y":"@Tinit@"},
+                                       {"x":"@x5@", "y":"@TsatH@", "color":organiccolor},],
+                             "color":graycolor,
+                             "answer":true,},
+                        ],
+
+                    },
+                    "cursor": normalcursor,
+                    "points": 10
+                },
+                {
+                    "type": "text",
+                    "label": "Hint:<br>K<sub>i</sub> = P<sup>sat</sup><sub>i</sub> / P<br>Σ (y<sub>i</sub> / K<sub>i</sub>) = 1",
+                    "style": "hiddentext hint"
+                }],
+                [{
+                    "type": "text",
+                    "label": "4) Click and drag the black points to draw the dew-point curve.",
+                    "style": "prompt"
+                },
+                {
+                    "type": "text",
+                    "label": datalabel,
+                    "style": "data"
+                },
+                sidegraphtext,
+                sidegraph]]
+            ],
+            "requiredscore": 0.00
+        }, // question
+
+        { // question
+            "questionelements": [
+                [[{
+                    "type": "graph",
+                    "graphinfo": graphinfo,
+                    "mode": "move",
+                    "answercount": {
+                        "point": 0,
+                        "line": 1
+                    },
+                    "answer": {
+                        "line": [
+                            {"points":[{"x":"@x1@", "y":"@TsatO@", "show":false},
+                                       {"x":"@x2@", "y":"@dy2@", "show":false, "answer":true},
+                                       {"x":"@x3@", "y":"@dy3@", "show":false, "answer":true},
+                                       {"x":"@x4@", "y":"@dy4@", "show":false, "answer":true},
+                                       {"x":"@x5@", "y":"@TsatH@", "show":false},],
+                             "tolerance":pointtolerance,
+                             "color":answercolor},
+                        ]
+                    },
+                    "default": {
+                        "line": [
+                            {"equation": "FindRoot('~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+                             "independent": "x",
+                             "dependent": "y",
+                             "min": 0,
+                             "max": 1,
+                             "steps": 100,
+                             "color": graycolor,
+                             "showpoints": false},
+
+                            {"equation": "FindRoot('~x~ / Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+                             "independent": "x",
+                             "dependent": "y",
+                             "min": 0,
+                             "max": 1,
+                             "steps": 100,
+                             "color": graycolor,
+                             "showpoints": false},
+
+                        ],
+
+                    },
+                    "cursor": normalcursor,
+                    "points": 10
+                },
+                {
+                    "type": "text",
+                    "label": "Hint:<br>K<sub>i</sub> = P<sup>sat</sup><sub>i</sub> / P<br>Σ (y<sub>i</sub> / K<sub>i</sub>) = 1",
+                    "style": "hiddentext hint"
+                }],
+                [{
+                    "type": "text",
+                    "label": "5) ???",
                     "style": "prompt"
                 },
                 {

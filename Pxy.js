@@ -53,7 +53,7 @@ const normalcursor = {
     "format": "z<sub>H</sub> = ~x~, P = ~y~",
     "digits": {
         "x": 2,
-        "y": 1,
+        "y": 2,
     }
 };
 
@@ -132,8 +132,8 @@ const problem = {
             "q4ly": "BubblePoint(@q4x@, @PsatH@, @PsatO@)",
             "q4vy": "DewPoint(@q4x@, @PsatH@, @PsatO@)",
             "q4y": "(@q4ly@ - @q4vy@) * @q4yscale@ + @q4vy@",
-            "q4lx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
-            "q4vx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+            "q4lx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+            "q4vx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
             "q5ans": "roundTo((@q4x@ - @q4lx@) / (@q4vx@ - @q4lx@), 2)",
         }
     },
@@ -219,11 +219,11 @@ const problem = {
                                        {"x":"@x4@", "y":"@by4@", "show":false},
                                        {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
                              "color":graycolor},
-                            {"points":[{"x":"@x5@", "y":"@PsatH@", "color":organiccolor},
-                                       {"x":"@x4@", "y":"@Pinit@", "movey":true},
-                                       {"x":"@x3@", "y":"@Pinit@", "movey":true},
+                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
                                        {"x":"@x2@", "y":"@Pinit@", "movey":true},
-                                       {"x":"@x1@", "y":"@PsatO@", "color":watercolor}],
+                                       {"x":"@x3@", "y":"@Pinit@", "movey":true},
+                                       {"x":"@x4@", "y":"@Pinit@", "movey":true},
+                                       {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
                              "color":graycolor,
                              "answer":true},
                         ],
@@ -320,9 +320,9 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"@q4lx@", "y":"@q4y@","color":"purple"},
-                                       {"x":"@q4x@", "y":"@q4y@"},
-                                       {"x":"@q4vx@", "y":"@q4y@","color":"yellow"},],
+                            {"points":[{"x":"@q4lx@", "y":"@q4y@","color":"purple", "show":false, "answer":true},
+                                       {"x":"@q4x@", "y":"@q4y@", "show":false},
+                                       {"x":"@q4vx@", "y":"@q4y@","color":"yellow", "show":false, "answer":true},],
                              "color":"black",
                              "tolerance":pointtolerance,
                              "color":answercolor}
@@ -525,8 +525,8 @@ const problem = {
                 "q4ly": "BubblePoint(@q4x@, @PsatH@, @PsatO@)",
                 "q4vy": "DewPoint(@q4x@, @PsatH@, @PsatO@)",
                 "q4y": "(@q4ly@ - @q4vy@) * @q4yscale@ + @q4vy@",
-                "q4lx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
-                "q4vx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+                "q4lx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+                "q4vx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
                 "q5ans": "roundTo((@q4x@ - @q4lx@) / (@q4vx@ - @q4lx@), 2)",
             },
         },
