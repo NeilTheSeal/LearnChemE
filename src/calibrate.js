@@ -1,3 +1,9 @@
+import {ProblemController} from "./ProblemController.js";
+import {Question} from "./Question.js";
+import {TextElement} from "./TextElement.js";
+import {GraphElement} from "./GraphElement.js";
+import {TextboxElement} from "./TextboxElement.js";
+
 // Place image here
 let ImageToCalibrate = "pressure_immicible.png";
 
