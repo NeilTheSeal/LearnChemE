@@ -1,4 +1,5 @@
 import {randomID, isBetween} from "./sky-helpers.js";
+import {Text} from "./Text.js";
 
 const IDLENGTH = 16;
 
