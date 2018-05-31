@@ -1,9 +1,36 @@
-import {Question} from "./Question.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ProblemController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ProblemController.js</h1>
+
+
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Question} from "./Question.js";
 import {roundTo, getCookie, setCookie, generateVariables} from "./sky-helpers.js";
-//import {Antoine, InvAntoine, DewPoint, BubblePoint} from "./ChemFunctions.js";
 
 /**
-    Master class for controlling page <br>
+    Master class for controlling page &lt;br>
     Consists of a series of questions
 
 */
@@ -108,22 +135,22 @@ export class ProblemController {
     pagesetup(DOM, containerid) {
         // Insert main page elements
         let html = ``;
-        html += `<div id="${DOM.titledivid}"></div>`;
-        html += `<div id="${DOM.questiondivid}"></div>`;
-        html += `<hr>`;
-        html += `<div id="${DOM.buttonsdivid}"></div>`;
-        html += `<div id="${DOM.scoredivid}"></div>`;
-        html += `<div id="${DOM.gradedivid}"></div>`;
+        html += `&lt;div id="${DOM.titledivid}">&lt;/div>`;
+        html += `&lt;div id="${DOM.questiondivid}">&lt;/div>`;
+        html += `&lt;hr>`;
+        html += `&lt;div id="${DOM.buttonsdivid}">&lt;/div>`;
+        html += `&lt;div id="${DOM.scoredivid}">&lt;/div>`;
+        html += `&lt;div id="${DOM.gradedivid}">&lt;/div>`;
         document.getElementById(containerid).insertAdjacentHTML("beforeend", html);
 
         // Set up score box
-        if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
+        if (document.documentElement.clientWidth &lt; HIDESCOREWINDOWWIDTH) {
             document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
         } else {
             document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
         }
         document.getElementsByTagName("BODY")[0].onresize = function() {
-            if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
+            if (document.documentElement.clientWidth &lt; HIDESCOREWINDOWWIDTH) {
                 document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
             } else {
                 document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
@@ -161,7 +188,7 @@ export class ProblemController {
             if (this.currentquestion === undefined) {
                 // Begin problem
                 document.getElementById(this.DOM.restartbuttonid).click();
-            } else if (this.currentquestion < this.questions.length) {
+            } else if (this.currentquestion &lt; this.questions.length) {
                 if (!document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.hiddenclass)) {
                     document.getElementById(this.DOM.submitbuttonid).click();
                 } else {
@@ -185,23 +212,23 @@ export class ProblemController {
     */
     insertScoreInput() {
         let container = document.getElementById(this.DOM.gradedivid);
-        let html = `<div class="${this.DOM.textboxdivclass}">`;
-        html += `<span class="${this.DOM.textboxspanclass}">Name:</span>`;
-        html += `<br>`;
-        html += `<input class="${this.DOM.textboxclass}" id="${this.DOM.nametextid}">`;
-        html += `</input></div>`;
-        html += `<div class="${this.DOM.textboxdivclass}">`;
-        html += `<span class="${this.DOM.textboxspanclass}">Student ID:</span>`;
-        html += `<br>`;
-        html += `<input class="${this.DOM.textboxclass}" id="${this.DOM.cuidtextid}">`;
-        html += `</input></div>`;
-        html += `<button id="${this.DOM.gradebuttonid}">Submit for Grade (optional)</button>`;
-        html += "<br><br><br><br>"
+        let html = `&lt;div class="${this.DOM.textboxdivclass}">`;
+        html += `&lt;span class="${this.DOM.textboxspanclass}">Name:&lt;/span>`;
+        html += `&lt;br>`;
+        html += `&lt;input class="${this.DOM.textboxclass}" id="${this.DOM.nametextid}">`;
+        html += `&lt;/input>&lt;/div>`;
+        html += `&lt;div class="${this.DOM.textboxdivclass}">`;
+        html += `&lt;span class="${this.DOM.textboxspanclass}">Student ID:&lt;/span>`;
+        html += `&lt;br>`;
+        html += `&lt;input class="${this.DOM.textboxclass}" id="${this.DOM.cuidtextid}">`;
+        html += `&lt;/input>&lt;/div>`;
+        html += `&lt;button id="${this.DOM.gradebuttonid}">Submit for Grade (optional)&lt;/button>`;
+        html += "&lt;br>&lt;br>&lt;br>&lt;br>"
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.gradebuttonid).addEventListener("click", e => this.submitforgrade(e));
     }
     /**
-        Placeholder grade submission function <br>
+        Placeholder grade submission function &lt;br>
         Should be replaced with server communication
     */
     submitforgrade() {
@@ -217,7 +244,7 @@ export class ProblemController {
     */
     generateHash() {
         let str = "";
-        for (let i = 0; i < arguments.length; i++) {
+        for (let i = 0; i &lt; arguments.length; i++) {
             str += arguments[i];
         }
         return str.hashCode();
@@ -227,7 +254,7 @@ export class ProblemController {
     */
     insertHintButton() {
         let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.hintbuttonid}">Hint</button>`;
+        let html = `&lt;button id="${this.DOM.hintbuttonid}">Hint&lt;/button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.hintbuttonid).addEventListener("click", e => this.showhint(e));
     }
@@ -236,7 +263,7 @@ export class ProblemController {
     */
     insertSubmitButton() {
         let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.submitbuttonid}">Submit Answers</button>`;
+        let html = `&lt;button id="${this.DOM.submitbuttonid}">Submit Answers&lt;/button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
     }
@@ -245,7 +272,7 @@ export class ProblemController {
     */
     insertNextButton() {
         let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.nextbuttonid}">Next Part</button>`;
+        let html = `&lt;button id="${this.DOM.nextbuttonid}">Next Part&lt;/button>`;
         container.insertAdjacentHTML("beforeend", html);
         document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
     }
@@ -255,7 +282,7 @@ export class ProblemController {
     insertRestartButton() {
         // Add button
         let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.restartbuttonid}">Restart Problem</button>`;
+        let html = `&lt;button id="${this.DOM.restartbuttonid}">Restart Problem&lt;/button>`;
         container.insertAdjacentHTML("beforeend", html);
         // Add event listener to button
         document.getElementById(this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
@@ -319,16 +346,16 @@ export class ProblemController {
         }
 
         // Create new score object
-        let html = `<div id=${this.DOM.scoretitleid}>SCORE</div>`;
-        html += "<table>";
-        html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
+        let html = `&lt;div id=${this.DOM.scoretitleid}>SCORE&lt;/div>`;
+        html += "&lt;table>";
+        html += "&lt;tr>&lt;th>Part&lt;/th>&lt;th>Points&lt;/th>&lt;th>Total&lt;/th>&lt;th>Pct&lt;/th>&lt;/tr>";
         for (let i in this.score) {
             // TODO add highlight to current question
-            html += `<tr><td>${parseFloat(i)+1}</td><td>${roundTo(this.score[i].got, 2)}</td><td>${roundTo(this.score[i].max, 2)}</td><td>${roundTo(this.score[i].pct*100, 0)}%</td></tr>`;
+            html += `&lt;tr>&lt;td>${parseFloat(i)+1}&lt;/td>&lt;td>${roundTo(this.score[i].got, 2)}&lt;/td>&lt;td>${roundTo(this.score[i].max, 2)}&lt;/td>&lt;td>${roundTo(this.score[i].pct*100, 0)}%&lt;/td>&lt;/tr>`;
         }
         const sumscore = this.sumScore();
-        html += `<tr><td>Total</td><td>${roundTo(sumscore.got, 2)}</td><td>${roundTo(sumscore.max, 2)}</td><td>${roundTo(sumscore.pct * 100,0)}%</td></tr>`;
-        html += "</table>";
+        html += `&lt;tr>&lt;td>Total&lt;/td>&lt;td>${roundTo(sumscore.got, 2)}&lt;/td>&lt;td>${roundTo(sumscore.max, 2)}&lt;/td>&lt;td>${roundTo(sumscore.pct * 100,0)}%&lt;/td>&lt;/tr>`;
+        html += "&lt;/table>";
 
         container.insertAdjacentHTML("beforeend", html);
     }
@@ -352,13 +379,13 @@ export class ProblemController {
             const checkid = this.DOM.tipboxcheckid.replace(re, uuid);
             const buttonid = this.DOM.tipboxbuttonid.replace(re, uuid);
             // Create html payload for tip
-            let html = `<div class="${this.DOM.tipboxdivclass}" id="${divid}" style="left: ${left}px; top:${top}px;">
-                        <span class="${this.DOM.tipboxtextclass}">${tip}</span>
-                        <br>
-                        <input type="checkbox" id="${checkid}">
-                        <span class="${this.DOM.tipboxdontshowclass}">don't show this again</span>
-                        <button class="${this.DOM.tipboxbuttonclass}" id="${buttonid}">OK</button>
-                        </div>`;
+            let html = `&lt;div class="${this.DOM.tipboxdivclass}" id="${divid}" style="left: ${left}px; top:${top}px;">
+                        &lt;span class="${this.DOM.tipboxtextclass}">${tip}&lt;/span>
+                        &lt;br>
+                        &lt;input type="checkbox" id="${checkid}">
+                        &lt;span class="${this.DOM.tipboxdontshowclass}">don't show this again&lt;/span>
+                        &lt;button class="${this.DOM.tipboxbuttonclass}" id="${buttonid}">OK&lt;/button>
+                        &lt;/div>`;
             // Function for closing tip and creating cookie
             let f = function() {
                 //console.log("I am tip #", uuid);
@@ -382,7 +409,7 @@ export class ProblemController {
         this.clearPage();
         if (this.currentquestion > -1) {
             // Add current question objects to html
-            if (this.currentquestion < this.questions.length) {
+            if (this.currentquestion &lt; this.questions.length) {
                 // TODO remove this if wrapper, instead remove event from Next button
                 this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
             }
@@ -505,3 +532,26 @@ export class ProblemController {
     }
 }
 
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasController.html">CanvasController</a></li><li><a href="GraphElement.html">GraphElement</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController_ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed May 30 2018 22:41:50 GMT-0600 (Mountain Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

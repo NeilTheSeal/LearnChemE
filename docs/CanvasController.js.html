@@ -1,15 +1,46 @@
-import {Text} from "./Text.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: CanvasController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: CanvasController.js</h1>
+
+
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Text} from "./Text.js";
 import {Line} from "./Line.js";
 import {Point} from "./Point.js";
 import {getDist, constrain, roundTo, getAngle} from "./sky-helpers.js";
-//import {Antoine, InvAntoine, DewPoint, BubblePoint} from "./ChemFunctions.js";
 
 const VAR = "@";
 const GRABRADIUS = 10;
 const SPVAR = "~";
 
 /**
-    Controller class for HTML canvas objects<br>
+    Controller class for HTML canvas objects&lt;br>
+    Uses two overlaid canvases for background and foreground drawing.
+*/
+/**
+    Controller class for HTML canvas objects&lt;br>
     Uses two overlaid canvases for background and foreground drawing.
 */
 export class CanvasController {
@@ -158,7 +189,7 @@ export class CanvasController {
                 const ind = data.independent;
                 const dep = data.dependent;
                 const re = new RegExp(`${SPVAR}${data.independent}${SPVAR}`, "g");
-                for (let i=data.min; i<= data.max; i+=dx) {
+                for (let i=data.min; i&lt;= data.max; i+=dx) {
                     let ptdata = {};
                     ptdata[ind] = i;
                     // Evaluate expression (trusted code provided by the question-creator)
@@ -205,17 +236,7 @@ export class CanvasController {
                           "graphinfo":this.graphinfo});
     }
     /**
-        Draws an element to the foreground canvas<br>
-        To be replaced with Object.draw() calls
-        @param {Point|Line|Text} element QuestionElement to be drawn
-    */
-    draw(element) {
-        this.dynamicctx.save();
-        element.draw(this.dynamicctx);
-        this.dynamicctx.restore();
-    }
-    /**
-        Draws the background of the graph (background colors, axes, labels)<br>
+        Draws the background of the graph (background colors, axes, labels)&lt;br>
         Needs serious revision
     */
     drawGraph() {
@@ -324,12 +345,12 @@ export class CanvasController {
         // Draw gridlines
         this.staticctx.strokeStyle = GridColor;
         this.staticctx.lineWidth = GridThickness;
-        for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.gridline * args.axisinfo.scale)) {
+        for (let i = args.stepStart; i &lt;= args.stepLimit; i += Math.abs(args.axisinfo.gridline * args.axisinfo.scale)) {
             this.staticctx.beginPath();
-            if (args.axisY0 && args.axisY1) {
+            if (args.axisY0 &amp;&amp; args.axisY1) {
                 this.staticctx.moveTo(i, args.axisY0);
                 this.staticctx.lineTo(i, args.axisY1);
-            } else if (args.axisX0 && args.axisX1) {
+            } else if (args.axisX0 &amp;&amp; args.axisX1) {
                 this.staticctx.moveTo(args.axisX0, i);
                 this.staticctx.lineTo(args.axisX1, i);
             }
@@ -338,27 +359,27 @@ export class CanvasController {
         // Draw minor ticks
         this.staticctx.strokeStyle = TickColor;
         this.staticctx.lineWidth = TickThickness;
-        for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.minortick * args.axisinfo.scale)) {
+        for (let i = args.stepStart; i &lt;= args.stepLimit; i += Math.abs(args.axisinfo.minortick * args.axisinfo.scale)) {
             this.staticctx.beginPath();
-            if (args.axisY0 && args.axisY1) {
+            if (args.axisY0 &amp;&amp; args.axisY1) {
                 this.staticctx.moveTo(i, args.axisY0);
                 this.staticctx.lineTo(i, args.axisY0 + args.tickSign * MinorAxisTickLength);
-            } else if (args.axisX0 && args.axisX1) {
+            } else if (args.axisX0 &amp;&amp; args.axisX1) {
                 this.staticctx.moveTo(args.axisX0, i);
                 this.staticctx.lineTo(args.axisX0 + args.tickSign * MinorAxisTickLength, i);
             }
             this.staticctx.stroke();
         }
         // Draw major ticks and numbers
-        for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.majortick * args.axisinfo.scale)) {
+        for (let i = args.stepStart; i &lt;= args.stepLimit; i += Math.abs(args.axisinfo.majortick * args.axisinfo.scale)) {
             this.staticctx.beginPath();
             this.staticctx.strokeStyle = TickColor;
-            if (args.axisY0 && args.axisY1) {
+            if (args.axisY0 &amp;&amp; args.axisY1) {
                 this.staticctx.moveTo(i, args.axisY0);
                 this.staticctx.lineTo(i, args.axisY0 + args.tickSign * MajorAxisTickLength);
                 txt = roundTo(args.axisinfo.RawToCal(i), LabelDigits);
                 pt = new Point({rawx:i, rawy:args.axisY0 + args.numberOffset, graphinfo:this.graphinfo});
-            } else if (args.axisX0 && args.axisX1) {
+            } else if (args.axisX0 &amp;&amp; args.axisX1) {
                 this.staticctx.moveTo(args.axisX0, i);
                 this.staticctx.lineTo(args.axisX0 + args.tickSign * MajorAxisTickLength, i);
                 txt = roundTo(args.axisinfo.RawToCal(i), LabelDigits);
@@ -380,10 +401,10 @@ export class CanvasController {
 
         /*
         // Draw last number
-        if (args.axisY0 && args.axisY1) {
+        if (args.axisY0 &amp;&amp; args.axisY1) {
             txt = roundTo(args.axisinfo.RawToCal(args.stepLimit), LabelDigits);
             pt = new Point({rawx:args.stepLimit, rawy:args.axisY0 + args.numberOffset, graphinfo:this.graphinfo});
-        } else if (args.axisX0 && args.axisX1) {
+        } else if (args.axisX0 &amp;&amp; args.axisX1) {
             txt = roundTo(args.axisinfo.RawToCal(args.stepLimit), LabelDigits);
             pt = new Point({rawx:args.axisX0 + args.numberOffset, rawy:args.stepLimit, graphinfo:this.graphinfo});
         }
@@ -415,7 +436,7 @@ export class CanvasController {
         }).draw(this.staticctx);
     }
     /**
-        Draws an image to the background canvas.<br>
+        Draws an image to the background canvas.&lt;br>
         Deprecated, but may reuse in future problems
     */
     drawImage() {
@@ -425,6 +446,16 @@ export class CanvasController {
             this.ctx.drawImage(this.img, 0, 0);
         }*/
         this.staticctx.drawImage(this.img, 0, 0);
+    }
+    /**
+        Draws an element to the foreground canvas&lt;br>
+        To be replaced with Object.draw() calls
+        @param {Point|Line|Text} element QuestionElement to be drawn
+    */
+    draw(element) {
+        this.dynamicctx.save();
+        element.draw(this.dynamicctx);
+        this.dynamicctx.restore();
     }
     /**
         Checks each type of element (point, line, etc) and removes the oldest member(s) if more than the maximum exist
@@ -562,7 +593,7 @@ export class CanvasController {
         let cursorrawx = cursorpt.rawx;
         let cursorrawy = cursorpt.rawy;
         const edgemargin = 5;
-        if (cursorrawx <= this.graphinfo.graphleft) {
+        if (cursorrawx &lt;= this.graphinfo.graphleft) {
             cursoralign = 0;
             cursorrawx = this.graphinfo.graphleft + edgemargin;
         } else if (cursorrawx >= this.graphinfo.graphright) {
@@ -571,7 +602,7 @@ export class CanvasController {
         } else {
             cursorrawx += cursordata.distance * Math.cos(theta) / Math.sqrt(Math.abs(Math.cos(theta)));
         }
-        if (cursorrawy <= this.graphinfo.graphtop) {
+        if (cursorrawy &lt;= this.graphinfo.graphtop) {
             cursorvalign = 1;
             cursorrawy = this.graphinfo.graphtop + edgemargin;
         } else if (cursorrawy >= this.graphinfo.graphbottom) {
@@ -640,19 +671,19 @@ export class CanvasController {
                 if (this.finished[i].movex || this.finished[i].movey) {
                     // Check if in grabbing distance
                     let d = getDist(pt, this.finished[i], "raw");
-                    if (d <= this.grabradius) {
-                        if (d < grabdist) {
+                    if (d &lt;= this.grabradius) {
+                        if (d &lt; grabdist) {
                             grabindex = i;
                             grabdist = d;
                         }
                     }
                 }
             } else if (this.finished[i] instanceof Line) {
-                for (let j = 1; j < this.finished[i].points.length; j++) {
+                for (let j = 1; j &lt; this.finished[i].points.length; j++) {
                     let pt1 = this.finished[i].points[j];
                     let pt2 = this.finished[i].points[j-1]
                     // If either point is immovable, line isn't movable
-                    if ((!pt1.movex && !pt1.movey) || (!pt2.movex && !pt2.movey)) {
+                    if ((!pt1.movex &amp;&amp; !pt1.movey) || (!pt2.movex &amp;&amp; !pt2.movey)) {
                         // If any point is immobile, the line cannot be moved
                         break;
                     }
@@ -660,13 +691,13 @@ export class CanvasController {
                     let minx = Math.min(pt1.rawx, pt2.rawx) + this.grabradius;
                     let maxx = Math.max(pt1.rawx, pt2.rawx) - this.grabradius;
                     // Check if clicked x is between bounds
-                    if (pt.rawx > minx && pt.rawx < maxx) {
+                    if (pt.rawx > minx &amp;&amp; pt.rawx &lt; maxx) {
                         let ytarget = (pt.rawx - pt1.rawx) * (pt2.rawy - pt1.rawy) / (pt2.rawx - pt1.rawx) + pt1.rawy;
                         let d = Math.abs(pt.rawy - ytarget);
                         // Check if in grabbing range of the line
-                        if (d <= this.grabradius) {
+                        if (d &lt;= this.grabradius) {
                             // Check if this is the closest object
-                            if (d < grabdist) {
+                            if (d &lt; grabdist) {
                                 grabindex = i;
                                 grabdist = d;
         }}}}}}
@@ -854,7 +885,7 @@ export class CanvasController {
         }
     }
     /**
-        Handle key-press events<br>
+        Handle key-press events&lt;br>
         Must be forwarded from {@link ProblemController}
     */
     keyPress(key) {
@@ -869,3 +900,26 @@ export class CanvasController {
     }
 }
 
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasController.html">CanvasController</a></li><li><a href="GraphElement.html">GraphElement</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController_ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed May 30 2018 22:41:50 GMT-0600 (Mountain Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

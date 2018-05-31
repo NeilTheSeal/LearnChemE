@@ -5,7 +5,10 @@
   "private": "true",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js"
+    "docs": "jsdoc ./src/ -r -d ./docs/",
+    "webpack": "webpack --config webpack.config.js",
+    "gitpush": "git push",
+    "build": "npm run docs && npm run webpack && npm run gitpush"
   },
   "repository": {
     "type": "git",
