@@ -2080,7 +2080,7 @@ class GraphElement extends QuestionElement {
         @param {int} id Unique id to be included in the HTML elements
     */
     getHTML(DOM, containerid, id) {
-        let html = `<div style="min-width:${this.graphinfo.width}px" class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
+        let html = `<div style="min-width:${this.graphinfo.width}px; min-height:${this.graphinfo.height}px;" class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2"></canvas>`;
         html += `<br>`;
