@@ -1,5 +1,4 @@
 import {ProblemController} from "../src/ProblemController.js";
-import {Antoine} from "../src/ChemFunctions.js";
 
 const datalabel = "temperature = @T@ ºC <br> saturation pressures: P<sub>W</sub><sup>sat</sup> = @PsatW@ bar, P<sub>@org@</sub><sup>sat</sup> = @PsatO@ bar";
 

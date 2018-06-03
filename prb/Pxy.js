@@ -1,5 +1,4 @@
 import {ProblemController} from "../src/ProblemController.js";
-import {Antoine, BubblePoint, DewPoint} from "../src/ChemFunctions.js";
 
 const watercolor = "blue";
 const organiccolor = "orange";

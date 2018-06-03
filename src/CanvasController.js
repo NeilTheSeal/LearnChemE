@@ -1,8 +1,7 @@
 import {Text} from "./Text.js";
 import {Line} from "./Line.js";
 import {Point} from "./Point.js";
-import {getDist, constrain, roundTo, getAngle} from "./sky-helpers.js";
-//import {Antoine, InvAntoine, DewPoint, BubblePoint} from "./ChemFunctions.js";
+import {getDist, constrain, roundTo, getAngle, evalWithContext} from "./sky-helpers.js";
 
 const VAR = "@";
 const GRABRADIUS = 10;
@@ -162,8 +161,8 @@ export class CanvasController {
                     let ptdata = {};
                     ptdata[ind] = i;
                     // Evaluate expression (trusted code provided by the question-creator)
-                    ptdata[dep] = eval(data.equation.replace(re, i))
-                    ptdata["graphinfo"] = this.graphinfo
+                    ptdata[dep] = evalWithContext(data.equation.replace(re, i));
+                    ptdata["graphinfo"] = this.graphinfo;
                     if (data.showpoints) {
                         ptdata.show = true;
                     } else {
@@ -177,9 +176,9 @@ export class CanvasController {
                 }
                 if (data.label) {
                     // Calculate y position
-                    data.label.dependent = eval(data.equation.replace(re, data.label.independent));
+                    data.label.dependent = evalWithContext(data.equation.replace(re, data.label.independent));
                     // Calculate slope
-                    const nextpt = eval(data.equation.replace(re, data.label.independent + dx));
+                    const nextpt = evalWithContext(data.equation.replace(re, data.label.independent + dx));
                     const dy = nextpt - data.label.dependent;
                     const slope = Math.atan((dy * this.graphinfo.y.scale) / (dx * this.graphinfo.x.scale));
                     data.label.rotate = 180 / Math.PI * slope;

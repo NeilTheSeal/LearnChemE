@@ -1,3 +1,5 @@
+import * as ChemFunction from './ChemFunctions.js';
+
 const VAR = "@";
 const SPVAR = "~";
 const IDLENGTH = 16;
@@ -90,9 +92,9 @@ export function FindRoot(expression, variable, min, max, precision, initialguess
         const highx = Math.min(guess + step, max);
         // Calculate value at each of the three points
         const re = new RegExp(variable, "g");
-        const lowy = Math.abs(eval(expression.replace(re, lowx)));
-        ans = Math.abs(eval(expression.replace(re, midx)));
-        const highy = Math.abs(eval(expression.replace(re, highx)));
+        const lowy = Math.abs(evalWithContext(expression.replace(re, lowx)));
+        ans = Math.abs(evalWithContext(expression.replace(re, midx)));
+        const highy = Math.abs(evalWithContext(expression.replace(re, highx)));
         // Choose an endpoint if lower, otherwise narrow in on the center
         if (lowy < ans && lowy < highy) {
             guess = lowx;
@@ -315,7 +317,7 @@ export function generateVariables(variables) {
         }
         // Evaluate expression (trusted code provided by the question-creator)
         //console.log("Evaluating",exp);
-        variablevalues[name] = eval(exp);
+        variablevalues[name] = evalWithContext(exp);
     }
     // Numberfy strings
     for (let name of Object.keys(variables.calculated)) {
@@ -374,16 +376,6 @@ export function checkCookie() {
     }
 }
 
-
-export function Antoine(T, A, B, C) {
-    return Math.pow(10, A - B / (T + C))
-}
-
-export function InvAntoine(P, A, B, C) {
-    return B / (A - Math.log10(P)) - C;
-}
-
-
 /**
  * Calculates theta
  * @param {number} x1  Base point
@@ -405,4 +397,12 @@ export function getAngle(x1, y1, x2, y2) {
         theta -= 2 * Math.PI;
     }
     return theta;
+}
+
+export function evalWithContext(code) {
+    var Antoine = ChemFunction.Antoine;
+    var InvAntoine = ChemFunction.InvAntoine;
+    var BubblePoint = ChemFunction.BubblePoint;
+    var DewPoint = ChemFunction.DewPoint;
+    return eval(code);
 }
