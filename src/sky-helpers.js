@@ -1,4 +1,4 @@
-import * as Foo from './ChemFunctions.js';
+import * as ChemFunction from './ChemFunctions.js';
 
 const VAR = "@";
 const SPVAR = "~";
@@ -400,9 +400,9 @@ export function getAngle(x1, y1, x2, y2) {
 }
 
 export function evalWithContext(code) {
-    var Antoine = Foo.Antoine;
-    var InvAntoine = Foo.InvAntoine;
-    var BubblePoint = Foo.BubblePoint;
-    var DewPoint = Foo.DewPoint;
+    var Antoine = ChemFunction.Antoine;
+    var InvAntoine = ChemFunction.InvAntoine;
+    var BubblePoint = ChemFunction.BubblePoint;
+    var DewPoint = ChemFunction.DewPoint;
     return eval(code);
 }
