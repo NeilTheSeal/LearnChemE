@@ -7,8 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "docs": "jsdoc ./src/ -r -d ./docs/",
     "webpack": "webpack --config webpack.config.js",
+    "gitcommit": "git add * && git commit",
     "gitpush": "git push",
-    "build": "npm run docs && npm run webpack && npm run gitpush"
+    "build": "npm run docs && npm run webpack"
+    "deploy": "npm run gitcommit && npm run gitpush"
   },
   "repository": {
     "type": "git",
