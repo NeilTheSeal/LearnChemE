@@ -1,15 +1,14 @@
 import {Question} from "./Question.js";
 import {roundTo, getCookie, setCookie, generateVariables} from "./sky-helpers.js";
-//import {Antoine, InvAntoine, DewPoint, BubblePoint} from "./ChemFunctions.js";
+
+const VAR = "@";
+const HIDESCOREWINDOWWIDTH = 875;
+const spreadsheetURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
 
 /**
     Master class for controlling page <br>
-    Consists of a series of questions
-
+    Each problem consists of a series of {@link Question}s
 */
-const VAR = "@";
-const HIDESCOREWINDOWWIDTH = 875;
-
 export class ProblemController {
     /**
         @param {object} inputarguments
@@ -85,12 +84,14 @@ export class ProblemController {
             "gradedivid": "submitgrade",
                 "nametextid": "nametext",
                 "cuidtextid": "cuidtext",
+                "coursetextid": "classtext",
                 "gradebuttonid": "gradebutton",
         "footerdivid": "footer",
         "hiddentextclass": "hiddentext",
         "hiddenclass": "hidden",
         "disabledclass": "disabled",
         "hidescoreclass": "hidescore",
+        "gradeform": "gradeform",
 
         "tipboxdivclass" : "tipbox",
         "tipboxdivid" : "tipbox--" + VAR + "id" + VAR,
@@ -185,32 +186,77 @@ export class ProblemController {
     */
     insertScoreInput() {
         let container = document.getElementById(this.DOM.gradedivid);
-        let html = `<div class="${this.DOM.textboxdivclass}">`;
-        html += `<span class="${this.DOM.textboxspanclass}">Name:</span>`;
-        html += `<br>`;
-        html += `<input class="${this.DOM.textboxclass}" id="${this.DOM.nametextid}">`;
-        html += `</input></div>`;
-        html += `<div class="${this.DOM.textboxdivclass}">`;
-        html += `<span class="${this.DOM.textboxspanclass}">Student ID:</span>`;
-        html += `<br>`;
-        html += `<input class="${this.DOM.textboxclass}" id="${this.DOM.cuidtextid}">`;
-        html += `</input></div>`;
+        let html = `<form id="${this.DOM.gradeform}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
+  action="${spreadsheetURL}">`;
+
+        html += `<div class="${this.DOM.textboxdivclass}"><span class="${this.DOM.textboxspanclass}">Name:</span><br><input class="${this.DOM.textboxclass}" id="${this.DOM.nametextid}"></input></div>`;
+
+        html += `<div class="${this.DOM.textboxdivclass}"><span class="${this.DOM.textboxspanclass}">Student ID:</span><br><input class="${this.DOM.textboxclass}" id="${this.DOM.cuidtextid}"></input></div>`;
+
+        html += `<div class="${this.DOM.textboxdivclass}"><span class="${this.DOM.textboxspanclass}">Course code:</span><br><input class="${this.DOM.textboxclass}" id="${this.DOM.coursetextid}"></input></div>`;
+
         html += `<button id="${this.DOM.gradebuttonid}">Submit for Grade (optional)</button>`;
-        html += "<br><br><br><br>"
+
+        html += `</form>`;
         container.insertAdjacentHTML("beforeend", html);
-        document.getElementById(this.DOM.gradebuttonid).addEventListener("click", e => this.submitforgrade(e));
+
+        document.getElementById(this.DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
+        //document.getElementById(this.DOM.gradebuttonid).addEventListener("click", e => this.submitForGrade(e));
     }
     /**
-        Placeholder grade submission function <br>
-        Should be replaced with server communication
+        Submits grade to spreadsheet <br>
+        Followed example at: https://github.com/dwyl/learn-to-send-email-via-google-script-html-no-server
     */
-    submitforgrade() {
-        const name = document.getElementById(this.DOM.nametextid).value;
-        const cuid = document.getElementById(this.DOM.cuidtextid).value;
-        const score = roundTo(this.sumScore().pct*100, 0);
-        const hash = this.generateHash(name, cuid, score);
-        console.log(name, cuid, score, hash);
-        alert(`Submission information:\n|${name}|\n|${cuid}|\n|${score}|\n|${hash}|`);
+    submitForGrade(e) {
+        e.preventDefault();     // Prevent default form submission, use xhr
+        let data = this.getSubmissionData();
+
+        if (data.cuid.length != 9) {
+            console.log('BAD ID LENGTH');
+            return false;
+        } else if (data.name.length === 0) {
+            console.log('BAD NAME LENGTH');
+            return false;
+        } else if (parseFloat(data.course.length) <= 0) {
+            console.log('BAD COURSE ID');
+            return false;
+        } else {
+            const url = e.target.action;
+            const method = 'POST';
+            let xhr = new XMLHttpRequest();
+            xhr.open(method, url);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.status == 200) {
+                    document.getElementById("gradeform").style.display = "none";
+                } else {
+                    console.log(xhr.status, xhr.statusText, xhr.responseText);
+                    alert("Error while submitting grade to server. Check console for detailed http report.");
+                }
+                return;
+            };
+            var encoded = Object.keys(data).map(function(k) {
+                return encodeURIComponent(k) + "=" + encodeURIComponent(data[k])
+            }).join('&');
+            xhr.send(encoded);
+        }
+    }
+    /**
+     * Gathers data from the page to submit to the spreadsheet
+     * @return {object} Data that will be passed to the web server
+     */
+    getSubmissionData() {
+        let data = {};
+        data.course = document.getElementById(this.DOM.coursetextid).value;
+        data.title = this.title;
+        data.name = document.getElementById(this.DOM.nametextid).value;
+        data.cuid = document.getElementById(this.DOM.cuidtextid).value;
+        data.score = this.sumScore().pct.toFixed(2);
+
+        data.formDataNameOrder = JSON.stringify(["course", "title", "name", "cuid", "score"]); // The data, in order, that is inserted into the sheet
+        data.formGoogleSheetName = data.course; // The subsheet to insert data onto
+
+        return data;
     }
     /**
         Concatenate a series of strings then run them through a simple hash function
