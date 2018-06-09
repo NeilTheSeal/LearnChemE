@@ -35,11 +35,18 @@ export class Line {
         this.color = "black";
         /**
             @name Line#width
-            @type string
+            @type number
             @default 2
             @desc Line width.
         */
         this.width = 2;
+        /**
+            @name Line#tension
+            @type number
+            @default 0
+            @desc Tension of spline drawn through points (0 is linear)
+        */
+        this.tension = 0;
         /**
             @name Line#answer
             @type boolean
@@ -71,19 +78,24 @@ export class Line {
         }
         let first = true;
         // Connect points
-        for (let pt of this.points) {
-            if (isBetween(pt.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
-                isBetween(pt.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
-                if (first) {
-                    // Move to start of line
-                    context.moveTo(pt.rawx, pt.rawy);
-                } else {
-                    // Draw segment
-                    context.lineTo(pt.rawx, pt.rawy);
-                    context.stroke();
+        if (this.tension == 0) {
+            // Draw point-to-point
+            for (let pt of this.points) {
+                if (isBetween(pt.rawx, this.graphinfo.graphleft, this.graphinfo.graphright) &&
+                    isBetween(pt.rawy, this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+                    if (first) {
+                        // Move to start of line
+                        context.moveTo(pt.rawx, pt.rawy);
+                    } else {
+                        // Draw segment
+                        context.lineTo(pt.rawx, pt.rawy);
+                        context.stroke();
+                    }
+                    first = false;
                 }
-                first = false;
             }
+        } else {
+            this.drawSpline(context, this.tension);
         }
         // Shade tolerance of points
         for (let pt of this.points) {
@@ -117,6 +129,63 @@ export class Line {
             }).draw(context);
         }
         context.restore();
+    }
+    getControlPoints(x0,y0,x1,y1,x2,y2,t){
+        //  x0,y0,x1,y1 are the coordinates of the end (knot) pts of this segment
+        //  x2,y2 is the next knot -- not connected here but needed to calculate p2
+        //  p1 is the control point calculated here, from x1 back toward x0.
+        //  p2 is the next control point, calculated here and returned to become the
+        //  next segment's p1.
+        //  t is the 'tension' which controls how far the control points spread.
+
+        //  Scaling factors: distances from this knot to the previous and following knots.
+        var d01=Math.sqrt(Math.pow(x1-x0,2)+Math.pow(y1-y0,2));
+        var d12=Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2));
+
+        var fa=t*d01/(d01+d12);
+        var fb=t-fa;
+
+        var p1x=x1+fa*(x0-x2);
+        var p1y=y1+fa*(y0-y2);
+
+        var p2x=x1-fb*(x0-x2);
+        var p2y=y1-fb*(y0-y2);
+
+        return [p1x,p1y,p2x,p2y]
+    }
+    /**
+    *  Using example at: http://scaledinnovation.com/analytics/splines/aboutSplines.html
+    */
+    drawSpline(context, t) {
+        let pts = [];
+        for (let pt of this.points) {
+            pts.push(pt.rawx);
+            pts.push(pt.rawy);
+        }
+        let cp = [];
+        const n = pts.length;
+        for(let i = 0; i < n - 4; i += 2) {
+            cp = cp.concat(this.getControlPoints(pts[i], pts[i+1], pts[i+2], pts[i+3], pts[i+4], pts[i+5],t));
+        }
+        for(var i=2;i<pts.length-5;i+=2){
+            context.beginPath();
+            context.moveTo(pts[i],pts[i+1]);
+            context.bezierCurveTo(cp[2*i-2],cp[2*i-1],cp[2*i],cp[2*i+1],pts[i+2],pts[i+3]);
+            context.stroke();
+            context.closePath();
+        }
+        //  For open curves the first and last arcs are simple quadratics.
+        context.beginPath();
+        context.moveTo(pts[0],pts[1]);
+        context.quadraticCurveTo(cp[0],cp[1],pts[2],pts[3]);
+        context.stroke();
+        context.closePath();
+
+        context.beginPath();
+        context.moveTo(pts[n-2],pts[n-1]);
+        context.quadraticCurveTo(cp[2*n-10],cp[2*n-9],pts[n-4],pts[n-3]);
+        context.stroke();
+        context.closePath();
     }
     /**
         @return {int} The number of line segments
