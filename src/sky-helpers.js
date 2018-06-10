@@ -57,59 +57,84 @@ export function ifTF(condition, iftrue, iffalse) {
 }
 
 /**
- * Numerically finds a root of an expression <br>
- * TODO: Generalize to multi-variable root finding
+ * Numerically finds a root of an expression using Newton's method<br>
+ * TODO: Generalize to multi-variable root finding using Jacobian
  * @param { string} expression  Equation that is set equal to 0
  * @param { string} variable    Variable name to replace in equation
  * @param { number} min     Minimum value to try
  * @param { number} max     Maximum value to try
  * @param { number} precision   Allowable error in the answer
  * @param { number} initialguess    Start guessing from here
- * @return {    number}     A root of the expression within the precision tolerance
+ * @param { int} maxloops Maximum iterations to attempt
+ * @return { number}     A root of the expression within the precision tolerance
  */
-/**
- * Numerically finds a root of an expression <br>
- * TODO: Generalize to multi-variable root finding
- * @param { string} expression  Equation that is set equal to 0
- * @param { string} variable    Variable name to replace in equation
- * @param { number} min     Minimum value to try
- * @param { number} max     Maximum value to try
- * @param { number} precision   Allowable error in the answer
- * @param { number} initialguess    Start guessing from here
- * @return {    number}     A root of the expression within the precision tolerance
- */
-export function FindRoot(expression, variable, min, max, precision, initialguess) {
+export function FindRoot(expression, variable, min, max, precision, initialguess, maxloops=100) {
+    const re = new RegExp(variable, "g");
     let guess = initialguess ? initialguess : (min + max) / 2;
-    let step = Math.min(max - guess, guess - min);
-    let ans = precision+1;
-    const maxloops = 100;
+    let step = (max - min) / 1000;
     let loops = 0;
-    while (ans > precision) {
-        loops++;
-        // Check above and below the current guess
-        const lowx = Math.max(guess - step, min);
-        const midx = guess;
-        const highx = Math.min(guess + step, max);
-        // Calculate value at each of the three points
-        const re = new RegExp(variable, "g");
-        const lowy = Math.abs(evalWithContext(expression.replace(re, lowx)));
-        ans = Math.abs(evalWithContext(expression.replace(re, midx)));
-        const highy = Math.abs(evalWithContext(expression.replace(re, highx)));
-        // Choose an endpoint if lower, otherwise narrow in on the center
-        if (lowy < ans && lowy < highy) {
-            guess = lowx;
-        } else if (highy < ans && highy < lowy) {
-            guess = highx;
-        } else {
-            step = step / 2;
-        }
+
+    let err = evalWithContext(expression.replace(re, guess));
+    while (Math.abs(err) > precision) {
         // Escape if function does not converge in time
         if (loops > maxloops) {
             console.log(`FindRoot exceeding max loops for arguments: (${expression}, ${variable}, ${min}, ${max}, ${precision}, ${initialguess})`);
             break;
+        } else {
+            loops++;
         }
+        // Find local derivative at guess
+        const xp = guess + step;
+        const xm = guess - step;
+        const yp = evalWithContext(expression.replace(re, xp));
+        const ym = evalWithContext(expression.replace(re, xm));
+        const derivative = (yp - ym) / (2 * step);
+        // Find intersection of tangent line
+        guess -= err / derivative;
+        // Check new guess
+        err = evalWithContext(expression.replace(re, guess));
     }
     return guess;
+}
+
+/**
+ * TODO: use Jacobian to find optimal solution
+ */
+export function FindRootMulti(expressions, variables, maxloops = 100) {
+    for (let expression of expressions) {
+        expression.err = expression.precision + 1; // Arbitrary number greater than 0 to initialize
+    }
+    for (let variable of variables) {
+        variable.guess = variable.guess ? variable.guess : (variable.min + variable.max) / 2;
+        variable.step = Math.min(variable.max - variable.guess, variable.guess - variable.min);
+        variable.re = new RegExp(variable.symbol, "g");
+    }
+    let loops = 0;
+
+    let systemvalid = false;
+    while (!systemvalid) {
+        loops++;
+        // Assume true
+        systemvalid = true;
+        // Check each equation
+        for (let expression of expressions) {
+            let eqn = expression.equation;
+            for (let variable of variables) {
+                eqn = eqn.replace(variable.re, variable.guess);
+            }
+            // Evaluate expression
+            expression.err = Math.abs(evalWithContext(eqn)); // 0 err is perfect accuracy
+
+            expression.valid = expression.err <= expression.precision;
+            systemvalid = systemvalid && expression.valid;
+        }
+        if (loops > maxloops) {
+            console.log(`FindRootMulti exceeding max loops (${maxloops}) for arguments: (${expressions}, ${variables})`);
+            break;
+        }
+    }
+
+    return variables;
 }
 
 /**
@@ -248,14 +273,19 @@ String.prototype.hashCode = function() {
 }
 
 /**
-    Returns true if x is between a and b (or equal to either)
+    Returns true if x is between a and b
     @param {num} x Test number
     @param {num} a First boundary
     @param {num} b Second boundary
+    @param {boolean} [inclusive=true] Include boundaries
     @return {boolean} True or false
 */
-export function isBetween(x, a, b) {
-    return (a <= x && x <= b) || (a >= x && x >= b)
+export function isBetween(x, a, b, inclusive = true) {
+    if (inclusive) {
+        return (a <= x && x <= b) || (a >= x && x >= b)
+    } else {
+        return (a < x && x < b) || (a > x && x > b)
+    }
 }
 
 /**
