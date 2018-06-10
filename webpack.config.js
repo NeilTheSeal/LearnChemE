@@ -1,9 +1,9 @@
 const path = require("path");
 
 var immicibleP = {
-    entry: "./prb/immicibleP.js",
+    entry: "./prb/ImmiscibleP.js",
     output: {
-        filename: "bundleImmicibleP.js",
+        filename: "bundleImmiscibleP.js",
         path: path.resolve(__dirname, "dist")
     },
     module: {
@@ -20,9 +20,9 @@ var immicibleP = {
 };
 
 var immicibleT = {
-    entry: "./prb/immicibleT.js",
+    entry: "./prb/ImmiscibleT.js",
     output: {
-        filename: "bundleImmicibleT.js",
+        filename: "bundleImmiscibleT.js",
         path: path.resolve(__dirname, "dist")
     },
     module: {
