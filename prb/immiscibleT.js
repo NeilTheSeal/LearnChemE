@@ -1,6 +1,6 @@
 import {ProblemController} from "../src/ProblemController.js";
 
-const datalabel = "pressure = @P@ bar <br> saturation temperatures: T<sub>sat,W</sub> = @TsatW@ ºC, T<sub>sat,@org@</sub> = @TsatO@ ºC";
+const datalabel = "pressure = @P@ bar <br> saturation temperatures: T<sub>sat,W</sub> = @TsatW@ C, T<sub>sat,@org@</sub> = @TsatO@ ºC";
 
 const watercolor = "blue";
 const organiccolor = "orange";
@@ -10,6 +10,8 @@ const graycolor = "#999999";
 const answercolor = "green";
 const Tmin = 100;
 const Tmax = 250;
+const Pmin = 5;
+const Pmax = 15;
 
 const graphinfo = {
     graphheight: 400,
@@ -86,7 +88,7 @@ const sidegraph = {
         "y": {
             "label": "pressure [bar]",
             "min": 1,
-            "max": 15,
+            "max": Pmax,
             "majortick": 3,
             "minortick": 1,
             "gridline": 1,
@@ -103,48 +105,68 @@ const sidegraph = {
     "default": {
         "line": [
             {"equation": "Antoine(~x~, @AW@, @BW@, @CW@)",
-//            {"equation": "Math.pow(10, @AW@ - @BW@ / (~x~ + @CW@))",
              "label": {
                  "text": "water",
                  "independent": 180,
                  "indoffset": 3,
                  "depoffset": 0,
              },
-             "independent": "x",
-             "dependent": "y",
-             "min": 100,
-             "max": 250,
-             "steps": 300,
+             "independent": {
+                 "symbol": "x",
+                 "min": Tmin,
+                 "max": Tmax
+             },
+             "dependent": {
+                 "symbol": "y",
+                 "min": 1,
+                 "max": Pmax
+             },
+             "tension": 0.5,
+             "steps": 30,
              "color": watercolor,
              "showpoints": false},
+
             {"equation": "Antoine(~x~, @A@org@@, @B@org@@, @C@org@@)",
-//            {"equation": "Math.pow(10, @A@org@@ - @B@org@@ / (~x~ + @C@org@@))",
              "label": {
                  "text": "@compound@",
                  "independent": 150,
                 "indoffset": 3,
                 "depoffset": 0,
              },
-             "independent": "x",
-             "dependent": "y",
-             "min": 100,
-             "max": 250,
-             "steps": 300,
+             "independent": {
+                 "symbol": "x",
+                 "min": Tmin,
+                 "max": Tmax
+             },
+             "dependent": {
+                 "symbol": "y",
+                 "min": 1,
+                 "max": Pmax
+             },
+             "tension": 0.5,
+             "steps": 30,
              "color": organiccolor,
              "showpoints": false},
+
             {"equation": "Antoine(~x~, @AW@, @BW@, @CW@) + Antoine(~x~, @A@org@@, @B@org@@, @C@org@@)",
-//            {"equation": "Math.pow(10, @AW@ - @BW@ / (~x~ + @CW@)) + Math.pow(10, @A@org@@ - @B@org@@ / (~x~ + @C@org@@))",
              "label": {
                  "text": "sum",
                  "independent": 150,
                  "indoffset": 3,
                  "depoffset": 0,
              },
-             "independent": "x",
-             "dependent": "y",
-             "min": 100,
-             "max": 250,
-             "steps": 300,
+             "independent": {
+                 "symbol": "x",
+                 "min": Tmin,
+                 "max": Tmax
+             },
+             "dependent": {
+                 "symbol": "y",
+                 "min": 1,
+                 "max": Pmax
+             },
+             "tension": 0.5,
+             "steps": 30,
              "color": "purple",
              "showpoints": false},
         ],
@@ -173,8 +195,8 @@ const problem = {
             "Tmax": 250,
         },
         "random": {
-            "P": {"min": 5,
-                  "max": 15,
+            "P": {"min": Pmin,
+                  "max": Pmax,
                   "digits": 1},
             "orgnum": {"min": 0,
                        "max": 2,
@@ -579,7 +601,7 @@ const problem = {
             [{
                 "type": "graph",
                 "graphinfo": graphinfo,
-                "mode": "move",
+                "mode": "view",
                 "answercount": {
                     "point": 0,
                     "line": 0
@@ -611,7 +633,7 @@ const problem = {
             }, // element
             [{
                 "type": "text",
-                "label": `In this demonstration, the user is lead through a step-by-step procedure to create a pressure-composition diagram for two immiscible liquids (water and an organic) at a fixed temperature. The organic can be benzene, toluene, or n-hexane.<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.<br><br>In some steps, saturation pressures are calculated from Antoine's equation shown in a second graph.`,
+                "label": `In this demonstration, the user is led through a step-by-step procedure to create a pressure-composition diagram for two immiscible liquids (water and an organic) at a fixed temperature. The organic can be benzene, toluene, or n-hexane.<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.<br><br>In some steps, saturation pressures are calculated from Antoine's equation shown in a second graph.`,
                 "style": "prompt"
             },
             {
