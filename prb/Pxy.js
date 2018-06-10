@@ -122,8 +122,8 @@ const problem = {
             "q4ly": "BubblePoint(@q4x@, @PsatH@, @PsatO@)",
             "q4vy": "DewPoint(@q4x@, @PsatH@, @PsatO@)",
             "q4y": "(@q4ly@ - @q4vy@) * @q4yscale@ + @q4vy@",
-            "q4lx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
-            "q4vx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+            "q4lx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x',0 ,1 ,0.001)",
+            "q4vx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', 0, 1 ,0.001)",
             "q5ans": "roundTo((@q4x@ - @q4lx@) / (@q4vx@ - @q4lx@), 2)",
         }
     },
