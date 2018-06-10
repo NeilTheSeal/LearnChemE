@@ -1,7 +1,7 @@
 import {Text} from "./Text.js";
 import {Line} from "./Line.js";
 import {Point} from "./Point.js";
-import {getDist, constrain, roundTo, getAngle, evalWithContext} from "./sky-helpers.js";
+import {getDist, constrain, roundTo, getAngle, evalWithContext, isBetween, FindRoot} from "./sky-helpers.js";
 
 const VAR = "@";
 const GRABRADIUS = 10;
@@ -152,16 +152,26 @@ export class CanvasController {
                 data.points = ptlist;
             } else if (data.equation) {
                 // line constructed from equation
-                const dx = (data.max - data.min) / data.steps;
-                // Replace variables
                 const ind = data.independent;
                 const dep = data.dependent;
-                const re = new RegExp(`${SPVAR}${data.independent}${SPVAR}`, "g");
-                for (let i=data.min; i<= data.max; i+=dx) {
+                const di = (ind.max - ind.min) / data.steps;
+                // Replace independent variable with value
+                const re = new RegExp(`${SPVAR}${data.independent.symbol}${SPVAR}`, "g");
+                // Find endpoints
+                const starti = Math.max(
+                    FindRoot(data.equation + ` - ${dep.min}`, `${SPVAR}${data.independent.symbol}${SPVAR}`, ind.min, ind.max, 0.001),
+                    ind.min
+                );
+                const endi = Math.min(
+                    FindRoot(data.equation + ` - ${dep.max}`, `${SPVAR}${data.independent.symbol}${SPVAR}`, ind.min, ind.max, 0.001),
+                    ind.max
+                );
+                let i = starti;
+                while (true) {
                     let ptdata = {};
-                    ptdata[ind] = i;
+                    ptdata[ind.symbol] = i;
                     // Evaluate expression (trusted code provided by the question-creator)
-                    ptdata[dep] = evalWithContext(data.equation.replace(re, i));
+                    ptdata[dep.symbol] = evalWithContext(data.equation.replace(re, i));
                     ptdata["graphinfo"] = this.graphinfo;
                     if (data.showpoints) {
                         ptdata.show = true;
@@ -173,14 +183,22 @@ export class CanvasController {
                     if (pt.show) {
                         this.finished.push(pt);
                     }
+
+                    if (i == endi) {
+                        break;
+                    } else if (i + di < endi) {
+                        i += di;
+                    } else if (i + di >= endi) {
+                        i = endi;
+                    }
                 }
                 if (data.label) {
                     // Calculate y position
                     data.label.dependent = evalWithContext(data.equation.replace(re, data.label.independent));
                     // Calculate slope
-                    const nextpt = evalWithContext(data.equation.replace(re, data.label.independent + dx));
+                    const nextpt = evalWithContext(data.equation.replace(re, data.label.independent + di));
                     const dy = nextpt - data.label.dependent;
-                    const slope = Math.atan((dy * this.graphinfo.y.scale) / (dx * this.graphinfo.x.scale));
+                    const slope = Math.atan((dy * this.graphinfo.y.scale) / (di * this.graphinfo.x.scale));
                     data.label.rotate = 180 / Math.PI * slope;
                     // Adjust for offset
                     data.label.independent += data.label.indoffset;
