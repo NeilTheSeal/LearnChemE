@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: GraphElement.js</title>
+    <title>JSDoc: Source: CanvasElement.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,33 +17,32 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: GraphElement.js</h1>
-
-    
+    <h1 class="page-title">Source: CanvasElement.js</h1>
 
 
 
-    
+
+
+
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {QuestionElement} from "./QuestionElement.js";
+            <pre class="prettyprint source linenums"><code>import {DOM} from "./DOM.js";
+import {QuestionElement} from "./QuestionElement.js";
 import {GraphInfo} from "./GraphInfo.js";
-import {CanvasController} from "./CanvasController.js";
+import {GraphCanvasController, LAYERS} from "./GraphCanvasController.js";
+import {ZCanvas} from "./ZCanvas.js";
 import {Point} from "./Point.js";
 import {Line} from "./Line.js";
 
 const VAR = "@";
 
 /**
-    Container class for graph-entry questions
+    Container class for canvas-entry questions
 */
-/**
-    Container class for graph-entry questions
-*/
-export class GraphElement extends QuestionElement {
+export class CanvasElement extends QuestionElement {
     /**
         @param {object} inputarguments
-        @param {string} inputarguments.mode ("move, "point", "line")
+        @param {string} inputarguments.mode ("view, "move", "draw")
         @param {object} inputarguments.answercount Number of elements allowed on graph at time
         @param {object} inputarguments.answercount.point
         @param {object} inputarguments.answercount.line
@@ -58,9 +57,13 @@ export class GraphElement extends QuestionElement {
     */
     constructor(inputarguments) {
         super(inputarguments);
-        // Convert graphinfo data into class instance
-        this.graphinfo = new GraphInfo(this.graphinfo)
+
+        if (!(this.graphinfo instanceof GraphInfo)) {
+            // Convert graphinfo data into class instance
+            this.graphinfo = new GraphInfo(this.graphinfo)
+        }
     }
+
     /**
         Check user-submitted answers against correct answers
         @param {Element} answer The correct answer
@@ -143,36 +146,46 @@ export class GraphElement extends QuestionElement {
         }
         return score.pct;
     }
+
     /**
         Generates the HTML for this element &lt;br>
         Includes a style tag to set the min-width to the graph width
-        @param {object} DOM Document object model name associations
-        @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    getHTML(DOM, containerid, id) {
+    getHTML(id) {
+
+        let sk = ZCanvas.getHTMLSkeleton({
+            "layers":  Object.keys(LAYERS).length,
+            "width": this.graphinfo.width,
+            "height": this.graphinfo.height,
+            "containerid": `canvasarea--${id}`,
+            "containerclass": DOM.canvasdivclass,
+            "canvasidprefix": "canvas--",
+            "canvasclass": DOM.canvasclass,
+        });
+        //console.log(sk);
+        return sk;
+
         let html = `&lt;div style="min-width:${this.graphinfo.width}px; min-height:${this.graphinfo.height}px;" class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
         html += `&lt;canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1">&lt;/canvas>`;
         html += `&lt;canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2">&lt;/canvas>`;
-        html += `&lt;br>`;
-        html += `&lt;div class="${DOM.canvasinfodivclass}">`;
-        html += `&lt;/div>&lt;/div>`;
+        html += `&lt;/div>`;
         html = html.replace(new RegExp(`${VAR}id${VAR}`, "g"), id);
         return html;
     }
+
     /**
-        Inserts the HTML for a GraphElement onto the page
-        @param {object} DOM Document object model name associations
+        Inserts the HTML for a CanvasElement onto the page
         @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    insertHTML(DOM, containerid, id) {
-        super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
-        this.init(DOM, id);
+    insertHTML(containerid, id) {
+        super.insertHTML(containerid, this.getHTML(id));
+        this.init(id);
     }
 
-    init(DOM, id) {
-        this.canvascontroller = new CanvasController(DOM, id, this);
+    init(id) {
+        this.GraphCanvasController = new GraphCanvasController(id, this);
     }
 }
 
@@ -186,13 +199,13 @@ export class GraphElement extends QuestionElement {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasController.html">CanvasController</a></li><li><a href="GraphElement.html">GraphElement</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#FindRootMulti">FindRootMulti</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasElement.html">CanvasElement</a></li><li><a href="GraphCanvasController.html">GraphCanvasController</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#DOM">DOM</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#FindRootMulti">FindRootMulti</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Jun 10 2018 12:25:15 GMT-0600 (Mountain Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jun 11 2018 00:27:38 GMT-0600 (Mountain Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

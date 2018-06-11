@@ -98,6 +98,68 @@
 
         
             
+<h4 class="name" id="DOM"><span class="type-signature"></span>DOM<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Document object model for the page
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DOM.js.html">DOM.js</a>, <a href="DOM.js.html#line6">line 6</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
 <h4 class="name" id="VAR"><span class="type-signature">(constant) </span>VAR<span class="type-signature"></span></h4>
 
 
@@ -143,7 +205,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Question.js.html">Question.js</a>, <a href="Question.js.html#line10">line 10</a>
+        <a href="Question.js.html">Question.js</a>, <a href="Question.js.html#line11">line 11</a>
     </li></ul></dd>
     
 
@@ -223,7 +285,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line367">line 367</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line434">line 434</a>
     </li></ul></dd>
     
 
@@ -404,7 +466,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line268">line 268</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line335">line 335</a>
     </li></ul></dd>
     
 
@@ -460,7 +522,7 @@
     
 
     
-    <h4 class="name" id="FindRoot"><span class="type-signature"></span>FindRoot<span class="signature">(expression, variable, min, max, precision, initialguess)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="FindRoot"><span class="type-signature"></span>FindRoot<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
     
 
     
@@ -468,7 +530,7 @@
 
 
 <div class="description">
-    Numerically finds a root of an expression <br>TODO: Generalize to multi-variable root finding
+    Numerically finds a root of an expression using Newton's method<br>TODO: Generalize to multi-variable root finding using Jacobian
 </div>
 
 
@@ -492,8 +554,12 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+
 
         
+        <th>Default</th>
+
 
         <th class="last">Description</th>
     </tr>
@@ -504,7 +570,7 @@
 
         <tr>
             
-                <td class="name"><code>expression</code></td>
+                <td class="name"><code>args.expression</code></td>
             
 
             <td class="type">
@@ -517,8 +583,20 @@
             </td>
 
             
+                <td class="attributes">
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">Equation that is set equal to 0</td>
         </tr>
@@ -527,7 +605,7 @@
 
         <tr>
             
-                <td class="name"><code>variable</code></td>
+                <td class="name"><code>args.variable</code></td>
             
 
             <td class="type">
@@ -540,7 +618,19 @@
             </td>
 
             
+                <td class="attributes">
 
+
+
+
+
+                </td>
+
+
+
+                <td class="default">
+
+                </td>
             
 
             <td class="description last">Variable name to replace in equation</td>
@@ -550,7 +640,7 @@
 
         <tr>
             
-                <td class="name"><code>min</code></td>
+                <td class="name"><code>args.min</code></td>
             
 
             <td class="type">
@@ -563,8 +653,20 @@
             </td>
 
             
+                <td class="attributes">
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">Minimum value to try</td>
         </tr>
@@ -573,7 +675,7 @@
 
         <tr>
             
-                <td class="name"><code>max</code></td>
+                <td class="name"><code>args.max</code></td>
             
 
             <td class="type">
@@ -586,8 +688,20 @@
             </td>
 
             
+                <td class="attributes">
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">Maximum value to try</td>
         </tr>
@@ -596,7 +710,7 @@
 
         <tr>
             
-                <td class="name"><code>precision</code></td>
+                <td class="name"><code>args.precision</code></td>
             
 
             <td class="type">
@@ -609,8 +723,20 @@
             </td>
 
             
+                <td class="attributes">
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">Allowable error in the answer</td>
         </tr>
@@ -619,7 +745,7 @@
 
         <tr>
             
-                <td class="name"><code>initialguess</code></td>
+                <td class="name"><code>args.initialguess</code></td>
             
 
             <td class="type">
@@ -632,13 +758,66 @@
             </td>
 
             
+                <td class="attributes">
+
+                    &lt;optional><br>
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">Start guessing from here</td>
         </tr>
 
     
+
+        <tr>
+
+                <td class="name"><code>args.maxloops</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">int</span>
+
+
+
+            </td>
+
+
+                <td class="attributes">
+
+                    &lt;optional><br>
+
+
+
+
+
+                </td>
+
+
+
+                <td class="default">
+
+                    100
+
+                </td>
+
+
+            <td class="description last">Maximum iterations to attempt</td>
+        </tr>
+
+
     </tbody>
 </table>
 
@@ -676,7 +855,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line81">line 81</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line71">line 71</a>
     </li></ul></dd>
     
 
@@ -732,6 +911,92 @@
     
 
     
+    <h4 class="name" id="FindRootMulti"><span class="type-signature"></span>FindRootMulti<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+
+<div class="description">
+    TODO: use Jacobian to find optimal solution
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line140">line 140</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <h4 class="name" id="generateVariables"><span class="type-signature"></span>generateVariables<span class="signature">(variables)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
@@ -1026,7 +1291,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line288">line 288</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line355">line 355</a>
     </li></ul></dd>
     
 
@@ -1252,7 +1517,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line387">line 387</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line454">line 454</a>
     </li></ul></dd>
     
 
@@ -1409,7 +1674,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line348">line 348</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line415">line 415</a>
     </li></ul></dd>
     
 
@@ -2047,7 +2312,7 @@
     
 
     
-    <h4 class="name" id="isBetween"><span class="type-signature"></span>isBetween<span class="signature">(x, a, b)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="isBetween"><span class="type-signature"></span>isBetween<span class="signature">(x, a, b, inclusive<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
     
 
     
@@ -2055,7 +2320,7 @@
 
 
 <div class="description">
-    Returns true if x is between a and b (or equal to either)
+    Returns true if x is between a and b
 </div>
 
 
@@ -2079,8 +2344,12 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+
 
         
+        <th>Default</th>
+
 
         <th class="last">Description</th>
     </tr>
@@ -2104,8 +2373,20 @@
             </td>
 
             
+                <td class="attributes">
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">Test number</td>
         </tr>
@@ -2127,8 +2408,20 @@
             </td>
 
             
+                <td class="attributes">
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">First boundary</td>
         </tr>
@@ -2150,13 +2443,64 @@
             </td>
 
             
+                <td class="attributes">
+
+
+
+
+
+                </td>
+
 
             
+                <td class="default">
+
+                </td>
+
 
             <td class="description last">Second boundary</td>
         </tr>
 
     
+
+        <tr>
+
+                <td class="name"><code>inclusive</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">boolean</span>
+
+
+
+            </td>
+
+
+                <td class="attributes">
+
+                    &lt;optional><br>
+
+
+
+
+
+                </td>
+
+
+
+                <td class="default">
+
+                    true
+
+                </td>
+
+
+            <td class="description last">Include boundaries</td>
+        </tr>
+
+
     </tbody>
 </table>
 
@@ -2194,7 +2538,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line257">line 257</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line320">line 320</a>
     </li></ul></dd>
     
 
@@ -2351,7 +2695,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line139">line 139</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line201">line 201</a>
     </li></ul></dd>
     
 
@@ -2508,7 +2852,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line120">line 120</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line182">line 182</a>
     </li></ul></dd>
     
 
@@ -2688,7 +3032,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line188">line 188</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line250">line 250</a>
     </li></ul></dd>
     
 
@@ -2868,7 +3212,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line210">line 210</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line272">line 272</a>
     </li></ul></dd>
     
 
@@ -3025,7 +3369,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line171">line 171</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line233">line 233</a>
     </li></ul></dd>
     
 
@@ -3228,7 +3572,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line153">line 153</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line215">line 215</a>
     </li></ul></dd>
     
 
@@ -3611,7 +3955,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line337">line 337</a>
+        <a href="sky-helpers.js.html">sky-helpers.js</a>, <a href="sky-helpers.js.html#line404">line 404</a>
     </li></ul></dd>
     
 
@@ -3655,13 +3999,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasController.html">CanvasController</a></li><li><a href="GraphElement.html">GraphElement</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasElement.html">CanvasElement</a></li><li><a href="GraphCanvasController.html">GraphCanvasController</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#DOM">DOM</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#FindRootMulti">FindRootMulti</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jun 05 2018 16:36:38 GMT-0600 (Mountain Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jun 11 2018 00:27:38 GMT-0600 (Mountain Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

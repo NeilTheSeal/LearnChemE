@@ -85,59 +85,121 @@ export function ifTF(condition, iftrue, iffalse) {
 }
 
 /**
- * Numerically finds a root of an expression &lt;br>
- * TODO: Generalize to multi-variable root finding
- * @param { string} expression  Equation that is set equal to 0
- * @param { string} variable    Variable name to replace in equation
- * @param { number} min     Minimum value to try
- * @param { number} max     Maximum value to try
- * @param { number} precision   Allowable error in the answer
- * @param { number} initialguess    Start guessing from here
- * @return {    number}     A root of the expression within the precision tolerance
+ * Numerically finds a root of an expression using Newton's method&lt;br>
+ * TODO: Generalize to multi-variable root finding using Jacobian
+ * @param { string} args.expression  Equation that is set equal to 0
+ * @param { string} args.variable    Variable name to replace in equation
+ * @param { number} args.min     Minimum value to try
+ * @param { number} args.max     Maximum value to try
+ * @param { number} args.precision   Allowable error in the answer
+ * @param { number} [args.initialguess]    Start guessing from here
+ * @param { int} [args.maxloops=100] Maximum iterations to attempt
+ * @return { number}     A root of the expression within the precision tolerance
  */
-/**
- * Numerically finds a root of an expression &lt;br>
- * TODO: Generalize to multi-variable root finding
- * @param { string} expression  Equation that is set equal to 0
- * @param { string} variable    Variable name to replace in equation
- * @param { number} min     Minimum value to try
- * @param { number} max     Maximum value to try
- * @param { number} precision   Allowable error in the answer
- * @param { number} initialguess    Start guessing from here
- * @return {    number}     A root of the expression within the precision tolerance
- */
-export function FindRoot(expression, variable, min, max, precision, initialguess) {
-    let guess = initialguess ? initialguess : (min + max) / 2;
-    let step = Math.min(max - guess, guess - min);
-    let ans = precision+1;
-    const maxloops = 100;
+export function FindRoot(args) {
+    const re = new RegExp(args.variable, "g");
     let loops = 0;
-    while (ans > precision) {
+    let guess = args.guess ? args.guess : (args.min + args.max) / 2;
+    let method = args.method ? args.method : "newton";
+    let maxloops = args.maxloops ? args.maxloops : 100;
+    let err = evalWithContext(args.expression.replace(re, guess));
+
+    switch (method) {
+        case "newton":
+            let step = (args.max - args.min) / 1000;
+            while (Math.abs(err) > args.precision) {
+                let ss = "";
+                for (let z=0; z&lt;loops; z++) {
+                    ss += " ";
+                }
+                // Find local derivative at guess
+                const xp = guess + step;
+                const xm = guess - step;
+                const yp = evalWithContext(args.expression.replace(re, xp));
+                const ym = evalWithContext(args.expression.replace(re, xm));
+                const derivative = (yp - ym) / (2 * step);
+                // Find intersection of tangent line
+                if (derivative != 0) {
+                    guess -= err / derivative;
+                } else {
+                    console.log('FindRoot: local minimum found, try a different initial guess.', args);
+                    break;
+                }
+                // Check new guess
+                err = evalWithContext(args.expression.replace(re, guess));
+                // Escape if function does not converge in time
+                loops++;
+                if (loops > maxloops) {
+                    console.log(`FindRoot exceeding max loops for arguments: ${args}`);
+                    break;
+                }
+            }
+            break;
+        case "bisect":
+            let low = args.min;
+            let high = args.max;
+            while (Math.abs(err) > args.precision) {
+                const ylow = evalWithContext(args.expression.replace(re, low));
+                const yhigh = evalWithContext(args.expression.replace(re, high));
+                if (Math.abs(ylow) &lt; Math.abs(yhigh)) {
+                    guess = low;
+                    err = ylow;
+                    high -= ((low + high) / 2 - low);
+                } else {
+                    guess = high;
+                    err = yhigh;
+                    low += ((low + high) / 2 - low)
+                }
+
+                loops++;
+                if (loops > maxloops) {
+                    console.log(`FindRoot exceeding max loops for arguments: ${args}`);
+                    break;
+                }
+            }
+            break;
+    }
+    return guess;
+}
+
+/**
+ * TODO: use Jacobian to find optimal solution
+ */
+export function FindRootMulti(expressions, variables, maxloops = 100) {
+    for (let expression of expressions) {
+        expression.err = expression.precision + 1; // Arbitrary number greater than 0 to initialize
+    }
+    for (let variable of variables) {
+        variable.guess = variable.guess ? variable.guess : (variable.min + variable.max) / 2;
+        variable.step = Math.min(variable.max - variable.guess, variable.guess - variable.min);
+        variable.re = new RegExp(variable.symbol, "g");
+    }
+    let loops = 0;
+
+    let systemvalid = false;
+    while (!systemvalid) {
         loops++;
-        // Check above and below the current guess
-        const lowx = Math.max(guess - step, min);
-        const midx = guess;
-        const highx = Math.min(guess + step, max);
-        // Calculate value at each of the three points
-        const re = new RegExp(variable, "g");
-        const lowy = Math.abs(evalWithContext(expression.replace(re, lowx)));
-        ans = Math.abs(evalWithContext(expression.replace(re, midx)));
-        const highy = Math.abs(evalWithContext(expression.replace(re, highx)));
-        // Choose an endpoint if lower, otherwise narrow in on the center
-        if (lowy &lt; ans &amp;&amp; lowy &lt; highy) {
-            guess = lowx;
-        } else if (highy &lt; ans &amp;&amp; highy &lt; lowy) {
-            guess = highx;
-        } else {
-            step = step / 2;
+        // Assume true
+        systemvalid = true;
+        // Check each equation
+        for (let expression of expressions) {
+            let eqn = expression.equation;
+            for (let variable of variables) {
+                eqn = eqn.replace(variable.re, variable.guess);
+            }
+            // Evaluate expression
+            expression.err = Math.abs(evalWithContext(eqn)); // 0 err is perfect accuracy
+
+            expression.valid = expression.err &lt;= expression.precision;
+            systemvalid = systemvalid &amp;&amp; expression.valid;
         }
-        // Escape if function does not converge in time
         if (loops > maxloops) {
-            console.log(`FindRoot exceeding max loops for arguments: (${expression}, ${variable}, ${min}, ${max}, ${precision}, ${initialguess})`);
+            console.log(`FindRootMulti exceeding max loops (${maxloops}) for arguments: (${expressions}, ${variables})`);
             break;
         }
     }
-    return guess;
+
+    return variables;
 }
 
 /**
@@ -276,14 +338,19 @@ String.prototype.hashCode = function() {
 }
 
 /**
-    Returns true if x is between a and b (or equal to either)
+    Returns true if x is between a and b
     @param {num} x Test number
     @param {num} a First boundary
     @param {num} b Second boundary
+    @param {boolean} [inclusive=true] Include boundaries
     @return {boolean} True or false
 */
-export function isBetween(x, a, b) {
-    return (a &lt;= x &amp;&amp; x &lt;= b) || (a >= x &amp;&amp; x >= b)
+export function isBetween(x, a, b, inclusive = true) {
+    if (inclusive) {
+        return (a &lt;= x &amp;&amp; x &lt;= b) || (a >= x &amp;&amp; x >= b)
+    } else {
+        return (a &lt; x &amp;&amp; x &lt; b) || (a > x &amp;&amp; x > b)
+    }
 }
 
 /**
@@ -444,13 +511,13 @@ export function evalWithContext(code) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasController.html">CanvasController</a></li><li><a href="GraphElement.html">GraphElement</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasElement.html">CanvasElement</a></li><li><a href="GraphCanvasController.html">GraphCanvasController</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#DOM">DOM</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#FindRootMulti">FindRootMulti</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jun 05 2018 16:36:38 GMT-0600 (Mountain Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jun 11 2018 00:27:38 GMT-0600 (Mountain Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

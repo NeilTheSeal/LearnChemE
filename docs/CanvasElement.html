@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: TextboxElement</title>
+    <title>JSDoc: Class: CanvasElement</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,9 +17,9 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: TextboxElement</h1>
+    <h1 class="page-title">Class: CanvasElement</h1>
 
-    
+
 
 
 
@@ -27,28 +27,28 @@
 <section>
 
 <header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>TextboxElement<span class="signature">(inputarguments)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">Container class for textbox-entry questions</div>
-        
-    
+
+        <h2><span class="attribs"><span class="type-signature"></span></span>CanvasElement<span class="signature">(inputarguments)</span><span class="type-signature"></span></h2>
+
+            <div class="class-description">Container class for canvas-entry questions</div>
+
+
 </header>
 
 <article>
     <div class="container-overview">
-    
-        
 
-    
+
+
+
     <h2>Constructor</h2>
-    
 
-    
-    <h4 class="name" id="TextboxElement"><span class="type-signature"></span>new TextboxElement<span class="signature">(inputarguments)</span><span class="type-signature"></span></h4>
-    
 
-    
+
+    <h4 class="name" id="CanvasElement"><span class="type-signature"></span>new CanvasElement<span class="signature">(inputarguments)</span><span class="type-signature"></span></h4>
+
+
+
 
 
 
@@ -61,266 +61,404 @@
 
 
     <h5>Parameters:</h5>
-    
+
 
 <table class="params">
     <thead>
     <tr>
-        
+
         <th>Name</th>
-        
+
 
         <th>Type</th>
 
-        
 
-        
+
+
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-    
+
 
         <tr>
-            
+
                 <td class="name"><code>inputarguments</code></td>
-            
+
 
             <td class="type">
-            
-                
+
+
 <span class="param-type">object</span>
 
 
-            
+
             </td>
 
-            
 
-            
+
+
 
             <td class="description last">
                 <h6>Properties</h6>
-                
+
 
 <table class="params">
     <thead>
     <tr>
-        
+
         <th>Name</th>
-        
+
 
         <th>Type</th>
 
-        
 
-        
+
+
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-    
+
 
         <tr>
-            
-                <td class="name"><code>placeholder</code></td>
-            
+
+                <td class="name"><code>mode</code></td>
+
 
             <td class="type">
-            
-                
-<span class="param-type">string</span>
 
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Placeholder text in textbox</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>answertype</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">"number" or "text"</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>answer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">float</span>
-|
 
 <span class="param-type">string</span>
 
 
-            
+
             </td>
 
-            
 
-            
 
-            <td class="description last">Correct answer</td>
+
+
+            <td class="description last">("view, "move", "draw")</td>
         </tr>
 
-    
+
 
         <tr>
-            
-                <td class="name"><code>tolerance</code></td>
-            
+
+                <td class="name"><code>answercount</code></td>
+
 
             <td class="type">
-            
-                
+
+
 <span class="param-type">object</span>
 
 
-            
+
             </td>
 
-            
 
-            
 
-            <td class="description last">Range above or below answer to count as correct
+
+
+            <td class="description last">Number of elements allowed on graph at time
                 <h6>Properties</h6>
-                
+
 
 <table class="params">
     <thead>
     <tr>
-        
+
         <th>Name</th>
-        
+
 
         <th>Type</th>
 
-        
 
-        
+
+
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-    
+
 
         <tr>
-            
-                <td class="name"><code>x</code></td>
-            
+
+                <td class="name"><code>point</code></td>
+
 
             <td class="type">
-            
-                
-<span class="param-type">float</span>
 
 
-            
+<span class="param-type">object</span>
+
+
+
             </td>
 
-            
 
-            
+
+
 
             <td class="description last"></td>
         </tr>
 
-    
+
 
         <tr>
-            
-                <td class="name"><code>y</code></td>
-            
+
+                <td class="name"><code>line</code></td>
+
 
             <td class="type">
-            
-                
-<span class="param-type">float</span>
 
 
-            
+<span class="param-type">object</span>
+
+
+
             </td>
 
-            
 
-            
+
+
 
             <td class="description last"></td>
         </tr>
 
-    
+
     </tbody>
 </table>
 
             </td>
         </tr>
 
-    
+
 
         <tr>
-            
-                <td class="name"><code>points</code></td>
-            
+
+                <td class="name"><code>answer</code></td>
+
 
             <td class="type">
-            
-                
+
+
+<span class="param-type">list</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Correct answers</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>default</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">list</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">QuestionElements that appear on graph by default</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>tolerance</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Range above and below answer to accept
+                <h6>Properties</h6>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>x</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">float</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>y</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">float</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>points</code></td>
+
+
+            <td class="type">
+
+
 <span class="param-type">int</span>
 
 
-            
+
             </td>
 
-            
 
-            
 
-            <td class="description last">Number of points question is worth</td>
+
+
+            <td class="description last">How many points this element is worth</td>
         </tr>
 
-    
+
+
+        <tr>
+
+                <td class="name"><code>imgsrc</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">(deprecated) Location of image source file</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>imgcal</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Calibration</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">(deprecated) Calibration data for image</td>
+        </tr>
+
+
     </tbody>
 </table>
 
             </td>
         </tr>
 
-    
+
     </tbody>
 </table>
 
@@ -331,42 +469,42 @@
 
 <dl class="details">
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="TextboxElement.js.html">TextboxElement.js</a>, <a href="TextboxElement.js.html#line9">line 9</a>
+        <a href="CanvasElement.js.html">CanvasElement.js</a>, <a href="CanvasElement.js.html#line14">line 14</a>
     </li></ul></dd>
-    
 
-    
 
-    
 
-    
+
+
+
+
 </dl>
 
 
@@ -386,41 +524,41 @@
 
 
 
-    
+
     </div>
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
+
+
+
+
+
+
+
+
         <h3 class="subsection-title">Methods</h3>
 
-        
-            
 
-    
 
-    
-    <h4 class="name" id="checkanswer"><span class="type-signature"></span>checkanswer<span class="signature">(answer)</span><span class="type-signature"> &rarr; {float}</span></h4>
-    
 
-    
+
+
+
+    <h4 class="name" id="checkanswer"><span class="type-signature"></span>checkanswer<span class="signature">(answer)</span><span class="type-signature"></span></h4>
+
+
+
 
 
 
 <div class="description">
-    Checks the answer of the TextboxElement
+    Check user-submitted answers against correct answers
 </div>
 
 
@@ -432,53 +570,50 @@
 
 
     <h5>Parameters:</h5>
-    
+
 
 <table class="params">
     <thead>
     <tr>
-        
+
         <th>Name</th>
-        
+
 
         <th>Type</th>
 
-        
 
-        
+
+
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-    
+
 
         <tr>
-            
+
                 <td class="name"><code>answer</code></td>
-            
+
 
             <td class="type">
-            
-                
-<span class="param-type">float</span>
-|
-
-<span class="param-type">string</span>
 
 
-            
+<span class="param-type">Element</span>
+
+
+
             </td>
 
-            
 
-            
 
-            <td class="description last">The user-submitted answer</td>
+
+
+            <td class="description last">The correct answer</td>
         </tr>
 
-    
+
     </tbody>
 </table>
 
@@ -489,42 +624,42 @@
 
 <dl class="details">
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="TextboxElement.js.html">TextboxElement.js</a>, <a href="TextboxElement.js.html#line28">line 28</a>
+        <a href="CanvasElement.js.html">CanvasElement.js</a>, <a href="CanvasElement.js.html#line44">line 44</a>
     </li></ul></dd>
-    
 
-    
 
-    
 
-    
+
+
+
+
 </dl>
 
 
@@ -541,46 +676,35 @@
 
 <h5>Returns:</h5>
 
-        
+
 <div class="param-desc">
-    Correctness (0 to 1)
+    The score as a percentage (0 to 1)
 </div>
 
 
 
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">float</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
 
 
-        
-            
 
-    
 
-    
+
+
+
+
+
     <h4 class="name" id="getHTML"><span class="type-signature"></span>getHTML<span class="signature">(id)</span><span class="type-signature"></span></h4>
-    
 
-    
+
+
 
 
 
 <div class="description">
-    Generates the HTML for this element
+    Generates the HTML for this element <br>
+        Includes a style tag to set the min-width to the graph width
 </div>
 
 
@@ -592,50 +716,50 @@
 
 
     <h5>Parameters:</h5>
-    
+
 
 <table class="params">
     <thead>
     <tr>
-        
+
         <th>Name</th>
-        
+
 
         <th>Type</th>
 
-        
 
-        
+
+
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-    
+
 
         <tr>
 
                 <td class="name"><code>id</code></td>
-            
+
 
             <td class="type">
-            
-                
+
+
 <span class="param-type">int</span>
 
 
-            
+
             </td>
 
-            
 
-            
+
+
 
             <td class="description last">Unique id to be included in the HTML elements</td>
         </tr>
 
-    
+
     </tbody>
 </table>
 
@@ -646,42 +770,42 @@
 
 <dl class="details">
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="TextboxElement.js.html">TextboxElement.js</a>, <a href="TextboxElement.js.html#line51">line 51</a>
+        <a href="CanvasElement.js.html">CanvasElement.js</a>, <a href="CanvasElement.js.html#line127">line 127</a>
     </li></ul></dd>
-    
 
-    
 
-    
 
-    
+
+
+
+
 </dl>
 
 
@@ -701,21 +825,21 @@
 
 
 
-        
-            
 
-    
 
-    
+
+
+
+
     <h4 class="name" id="insertHTML"><span class="type-signature"></span>insertHTML<span class="signature">(containerid, id)</span><span class="type-signature"></span></h4>
-    
 
-    
+
+
 
 
 
 <div class="description">
-    Inserts the HTML for this element
+    Inserts the HTML for a CanvasElement onto the page
 </div>
 
 
@@ -727,73 +851,73 @@
 
 
     <h5>Parameters:</h5>
-    
+
 
 <table class="params">
     <thead>
     <tr>
-        
+
         <th>Name</th>
-        
+
 
         <th>Type</th>
 
-        
 
-        
+
+
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-    
+
 
         <tr>
 
                 <td class="name"><code>containerid</code></td>
-            
+
 
             <td class="type">
-            
-                
+
+
 <span class="param-type">string</span>
 
 
-            
+
             </td>
 
-            
 
-            
+
+
 
             <td class="description last">HTML id of parent element</td>
         </tr>
 
-    
+
 
         <tr>
-            
+
                 <td class="name"><code>id</code></td>
-            
+
 
             <td class="type">
-            
-                
+
+
 <span class="param-type">int</span>
 
 
-            
+
             </td>
 
-            
 
-            
+
+
 
             <td class="description last">Unique id to be included in the HTML elements</td>
         </tr>
 
-    
+
     </tbody>
 </table>
 
@@ -804,42 +928,42 @@
 
 <dl class="details">
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="TextboxElement.js.html">TextboxElement.js</a>, <a href="TextboxElement.js.html#line65">line 65</a>
+        <a href="CanvasElement.js.html">CanvasElement.js</a>, <a href="CanvasElement.js.html#line154">line 154</a>
     </li></ul></dd>
-    
 
-    
 
-    
 
-    
+
+
+
+
 </dl>
 
 
@@ -859,12 +983,12 @@
 
 
 
-        
-    
 
-    
 
-    
+
+
+
+
 </article>
 
 </section>
