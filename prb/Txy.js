@@ -8,9 +8,10 @@ const triplecolor = "green";
 const textcolor = "black";
 const graycolor = "#999999";
 const answercolor = "green";
+const linesteps = 15;
 const Tmin = 40;
 const Tmax = 160;
-const Pmin = 0.5;
+const Pmin = 0.4;
 const Pmax = 2;
 
 const graphinfo = {
@@ -66,7 +67,7 @@ const secondarycursor = {
 const sidegraphtext = {
     "type": "text",
     "label": "the saturation pressures for each component are plotted versus temperature",
-    "style": "data"
+    "class": "data"
 };
 
 const sidegraph = {
@@ -89,7 +90,7 @@ const sidegraph = {
             "label": "pressure [bar]",
             "min": Pmin,
             "max": Pmax,
-            "majortick": 0.25,
+            "majortick": 0.4,
             "minortick": 0.05,
             "gridline": 0.05,
         },
@@ -105,33 +106,49 @@ const sidegraph = {
     "default": {
         "line": [
             {"equation": "Antoine(~x~, @AO@, @BO@, @CO@)",
+             "independent": {
+                 "symbol": "x",
+                 "min": Tmin,
+                 "max": Tmax
+             },
+             "dependent": {
+                 "symbol": "y",
+                 "min": Pmin,
+                 "max": Pmax
+             },
+             "steps": 50,
              "label": {
                  "text": "n-octane",
                  "independent": 130,
                  "indoffset": 3,
                  "depoffset": 0,
              },
-             "independent": "x",
-             "dependent": "y",
-             "min": Tmin,
-             "max": Tmax,
-             "steps": 300,
+             "tension": 0.5,
              "color": watercolor,
              "showpoints": false},
+
             {"equation": "Antoine(~x~, @AH@, @BH@, @CH@)",
+              "independent": {
+                 "symbol": "x",
+                 "min": Tmin,
+                 "max": Tmax
+             },
+             "dependent": {
+                 "symbol": "y",
+                 "min": Pmin,
+                 "max": Pmax
+             },
+             "steps": 50,
              "label": {
                  "text": "n-hexane",
                  "independent": 70,
                 "indoffset": 3,
                 "depoffset": 0,
              },
-             "independent": "x",
-             "dependent": "y",
-             "min": Tmin,
-             "max": Tmax,
-             "steps": 300,
+             "tension": 0.5,
              "color": organiccolor,
              "showpoints": false},
+
         ],
     },
     "cursor": secondarycursor,
@@ -150,20 +167,36 @@ const problem = {
             "CH": 224.366,
             "Tmin": Tmin,
             "Tmax": Tmax,
+            "Tinit": 70,
 
-            "P": 1.6,
+            "P": Pmin,
         },
         "random": {
-            /*
-            "P": {"min": Pmin,
-                  "max": Pmax,
-                  "digits": 1},
-            */
+            "P": {
+                "min": Pmin,
+                "max": Pmax,
+                "digits": 1
+            },
+            "q5": {
+                "min": 0,
+                "max": 1,
+                "digits": 0
+            },
+            "q6x": {
+                "min": 0.2,
+                "max": 0.8,
+                "digits": 2
+            },
+            "q6yscale": {
+                "min": 0.2,
+                "max": 0.8,
+                "digits": 2
+            },
         },
         "calculated": {
             "TsatO": "InvAntoine(@P@, @AO@, @BO@, @CO@).toFixed(0)",
             "TsatH": "InvAntoine(@P@, @AH@, @BH@, @CH@).toFixed(0)",
-            "Tsum": "FindRoot('Antoine(T, @AO@, @BO@, @CO@) + Antoine(T, @AH@, @BH@, @CH@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+            "Tsum": "FindRoot({expression:'Antoine(T, @AO@, @BO@, @CO@) + Antoine(T, @AH@, @BH@, @CH@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
             "PsatO": "Antoine(@Tsum@, @AO@, @BO@, @CO@)",
             "PsatH": "Antoine(@Tsum@, @AH@, @BH@, @CH@)",
             "Psum": "@PsatH@ + @PsatH@",
@@ -176,34 +209,29 @@ const problem = {
             "x5": "1",
 
             // calculate real bubble and dew points
-            "by2": "FindRoot('@x2@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
-            "by3": "FindRoot('@x3@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
-            "by4": "FindRoot('@x4@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+            "by2": "FindRoot({expression:'@x2@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+            "by3": "FindRoot({expression:'@x3@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+            "by4": "FindRoot({expression:'@x4@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
 
-            "dy2": "FindRoot('@x2@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
-            "dy3": "FindRoot('@x3@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
-            "dy4": "FindRoot('@x4@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
+            "dy2": "FindRoot({expression:'@x2@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.01})",
+            "dy3": "FindRoot({expression:'@x3@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.01})",
+            "dy4": "FindRoot({expression:'@x4@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.01})",
 
-            /*
-            "xc": "@PsatH@ / @Psum@",
-            "x1": "@xc@ * 3/6",
-            "x2": "@xc@ * 4/6",
-            "x3": "@xc@ * 5/6",
-            "x4": "@xc@ + (1-@xc@) * 1/6",
-            "x5": "@xc@ + (1-@xc@) * 2/6",
-            "x6": "@xc@ + (1-@xc@) * 3/6",
+            "yvlabel": "(@Tmax@ - @Tmin@) * .9 + @Tmin@",
+            "yvllabel": "(@by3@ + @dy3@) / 2",
+            "yllabel": "(@Tmax@ - @Tmin@) * .1 + @Tmin@",
 
-            "y1": "InvAntoine(@P@ * (1 - @x1@), @AO@, @BO@, @CO@)",
-            "y2": "InvAntoine(@P@ * (1 - @x2@), @AO@, @BO@, @CO@)",
-            "y3": "InvAntoine(@P@ * (1 - @x3@), @AO@, @BO@, @CO@)",
-            "y4": "InvAntoine(@P@ * @x4@, @AH@, @BH@, @CH@)",
-            "y5": "InvAntoine(@P@ * @x5@, @AH@, @BH@, @CH@)",
-            "y6": "InvAntoine(@P@ * @x6@, @AH@, @BH@, @CH@)",
-            "yvlabel": "@Tmax@ * .75 + .25 * @Tsum@",
-            "yllabel": "@Tmin@ * .5 + .5 * @Tsum@",
-            "ywlabel": "(@TsatO@ + @Tsum@)/2",
-            "yolabel": "(@TsatH@ + @Tsum@)/2",
-            */
+            "q5text": "['vapor', 'liquid'][@q5@]",
+            "q5ans": "['A', 'C'][@q5@]",
+
+            "q6ly": "FindRoot({expression:'@q6x@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @q6x@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+            "q6vy": "FindRoot({expression:'@q6x@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @q6x@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+            "q6y": "(@q6vy@ - @q6ly@) * @q6yscale@ + @q6ly@",
+
+            "q6lx": "FindRoot({expression:'x * Antoine(@q6y@, @AH@, @BH@, @CH@) + (1 - x) * Antoine(@q6y@, @AO@, @BO@, @CO@) - @P@', variable:'x', min:0, max:1, precision:0.01})",
+            "q6vx": "FindRoot({expression:'x / Antoine(@q6y@, @AH@, @BH@, @CH@) + (1 - x) / Antoine(@q6y@, @AO@, @BO@, @CO@) - 1 / @P@', variable:'x', min:0, max:1, precision:0.01})",
+
+            "q7ans": "roundTo((@q6x@ - @q6lx@) / (@q6vx@ - @q6lx@), 2)",
         }
     }, // variables
     "questions": [
@@ -224,7 +252,7 @@ const problem = {
                     },
                     "default": {
                         "point": [
-                            {"x":0.5, "y":Tmax / 2, "movex":true, "movey":true, "color":"orange"}
+                            {"x":0.5, "y":Tmax / 2, "movex":true, "movey":true, "color":"orange", "answer":true}
                         ],
                     },
                     "cursor": normalcursor,
@@ -233,17 +261,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: determine saturation temperature using the P-T graph",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
                     "label": "1) Click and drag the orange point to the location where pure n-hexane is in vapor-liquid equilibrium.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraphtext,
                 sidegraph]],
@@ -268,8 +296,8 @@ const problem = {
                     },
                     "default": {
                         "point": [
-                            {"x":1, "y":"@TsatH@", "movex":true, "movey":true, "color":"orange"},
-                            {"x":0.5, "y":Tmax / 2, "color":"blue"},
+                            {"x":1, "y":"@TsatH@", "color":"orange"},
+                            {"x":0.5, "y":Tmax / 2, "movex":true, "movey":true, "color":"blue", "answer":true},
                         ],
                     },
                     "cursor": normalcursor,
@@ -278,17 +306,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: determine saturation temperature using the P-T graph",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
                     "label": "2) Click and drag the blue point to the location where pure n-octane is in vapor-liquid equilibrium.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraphtext,
                 sidegraph]],
@@ -335,17 +363,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint:<br>K<sub>i</sub> = P<sup>sat</sup><sub>i</sub> / P<br>Σ (K<sub>i</sub> · x<sub>i</sub>) = 1",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
                     "label": "3) Click and drag the black points to draw the bubble-point curve.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraphtext,
                 sidegraph]]
@@ -376,19 +404,26 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"equation": "FindRoot('~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
-                             "independent": "x",
-                             "dependent": "y",
-                             "min": 0,
-                             "max": 1,
-                             "steps": 100,
+                            {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": linesteps,
+                             "tension": 0.5,
                              "color": graycolor,
                              "showpoints": false},
 
                             {"points":[{"x":"@x1@", "y":"@TsatO@", "color":watercolor},
-                                       {"x":"@x2@", "y":"@Tinit@"},
-                                       {"x":"@x3@", "y":"@Tinit@"},
-                                       {"x":"@x4@", "y":"@Tinit@"},
+                                       {"x":"@x2@", "y":"@Tinit@", "movey":true},
+                                       {"x":"@x3@", "y":"@Tinit@", "movey":true},
+                                       {"x":"@x4@", "y":"@Tinit@", "movey":true},
                                        {"x":"@x5@", "y":"@TsatH@", "color":organiccolor},],
                              "color":graycolor,
                              "answer":true,},
@@ -401,20 +436,113 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint:<br>K<sub>i</sub> = P<sup>sat</sup><sub>i</sub> / P<br>Σ (y<sub>i</sub> / K<sub>i</sub>) = 1",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
                     "label": "4) Click and drag the black points to draw the dew-point curve.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraphtext,
                 sidegraph]]
+            ],
+            "requiredscore": 0.00
+        }, // question
+
+        { // question
+            "questionelements": [
+                [[{
+                    "type": "graph",
+                    "graphinfo": graphinfo,
+                    "mode": "move",
+                    "answercount": {
+                        "point": 0,
+                        "line": 0
+                    },
+                    "answer": {
+
+                    },
+                    "default": {
+                        "point": [
+                            {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                            {"x":"@x5@", "y":"@TsatH@", "color":organiccolor},
+                        ],
+                        "line": [
+                            {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": linesteps,
+                             "tension": 0.5,
+                             "color": graycolor,
+                             "showpoints": false},
+
+                            {"equation": "FindRoot({expression:'~x~ / Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": linesteps,
+                             "tension": 0.5,
+                             "color": graycolor,
+                             "showpoints": false},
+                        ],
+                        "text": [
+                            {"text":"region A", "position": {"x": 0.5, "y": "@yvlabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
+                            {"text":"region B", "position": {"x": 0.5, "y": "@yvllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
+                            {"text":"region C", "position": {"x": 0.5, "y": "@yllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
+                        ]
+
+                    },
+                    "cursor": normalcursor,
+                    "points": 0
+                },
+                {
+                    "type": "text",
+                    "label": "Hint:<br>K<sub>i</sub> = P<sup>sat</sup><sub>i</sub> / P<br>Σ (y<sub>i</sub> / K<sub>i</sub>) = 1",
+                    "class": "hiddentext hint"
+                }],
+                [{
+                    "type": "text",
+                    "label": datalabel,
+                    "class": "data"
+                },
+                [{
+                    "type": "text",
+                    "label": "5) Which region has pure @q5text@?",
+                    "class": "prompt"
+                },
+                {
+                    "type": "textbox",
+                    "placeholder": "type A, B, or C",
+                    "answertype": "text",
+                    "answer": "@q5ans@",
+                    "tolerance": 0,
+                    "points": 10
+                },
+                {
+                    "type": "text",
+                    "label": "Hint: liquids are more stable at higher pressures",
+                    "class": "hiddentext hint"
+                }]]]
             ],
             "requiredscore": 0.00
         }, // question
@@ -431,58 +559,168 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@TsatO@", "show":false},
-                                       {"x":"@x2@", "y":"@dy2@", "show":false, "answer":true},
-                                       {"x":"@x3@", "y":"@dy3@", "show":false, "answer":true},
-                                       {"x":"@x4@", "y":"@dy4@", "show":false, "answer":true},
-                                       {"x":"@x5@", "y":"@TsatH@", "show":false},],
+                            {"points":[{"x":"@q6lx@", "y":"@q6y@","color":"purple", "show":false, "answer":true},
+                                       {"x":"@q6x@", "y":"@q6y@", "show":false},
+                                       {"x":"@q6vx@", "y":"@q6y@","color":"yellow", "show":false, "answer":true},],
+                             "color":"black",
                              "tolerance":pointtolerance,
-                             "color":answercolor},
+                             "color":answercolor}
                         ]
                     },
                     "default": {
+                        "point":[
+                            {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                            {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                        ],
                         "line": [
-                            {"equation": "FindRoot('~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', 'T', @Tmin@, @Tmax@, 0.001)",
-                             "independent": "x",
-                             "dependent": "y",
-                             "min": 0,
-                             "max": 1,
-                             "steps": 100,
+                            {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": linesteps,
+                             "tension": 0.5,
                              "color": graycolor,
                              "showpoints": false},
 
-                            {"equation": "FindRoot('~x~ / Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', 'T', @Tmin@, @Tmax@, 0.001)",
-                             "independent": "x",
-                             "dependent": "y",
-                             "min": 0,
-                             "max": 1,
-                             "steps": 100,
+                            {"equation": "FindRoot({expression:'~x~ / Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": linesteps,
+                             "tension": 0.5,
                              "color": graycolor,
                              "showpoints": false},
+
+                            {"points":[{"x":0.1, "y":"@Tinit@", "movex":true, "movey":true, "color":"purple"},
+                                       {"x":"@q6x@", "y":"@q6y@"},
+                                       {"x":0.9, "y":"@Tinit@", "movex":true, "movey":true, "color":"yellow"},],
+                             "color":"black",
+                             "answer":true}
 
                         ],
+                        "text": [
+                            {"text":"liquid", "position": {"x": 0.5, "y": "@yllabel@"}, "align":"center", "color":textcolor},
+                            {"text":"vapor", "position": {"x": 0.5, "y": "@yvlabel@"}, "align":"center", "color":textcolor},
+                        ]
 
                     },
                     "cursor": normalcursor,
                     "points": 10
                 },
-                {
-                    "type": "text",
-                    "label": "Hint:<br>K<sub>i</sub> = P<sup>sat</sup><sub>i</sub> / P<br>Σ (y<sub>i</sub> / K<sub>i</sub>) = 1",
-                    "style": "hiddentext hint"
-                }],
+                ],
                 [{
                     "type": "text",
-                    "label": "5) ???",
-                    "style": "prompt"
+                    "label": "6) Click and drag the purple (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
-                    "label": datalabel,
-                    "style": "data"
+                    "label": "Hint: draw a tie line",
+                    "class": "hiddentext hint"
+                }]]
+            ],
+            "requiredscore": 0.00
+        }, // question
+
+        { // question
+            "questionelements": [
+                [[{
+                    "type": "graph",
+                    "graphinfo": graphinfo,
+                    "mode": "move",
+                    "answercount": {
+                        "point": 0,
+                        "line": 0
+                    },
+                    "answer": {
+
+                    },
+                    "default": {
+                        "point":[
+                            {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                            {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                        ],
+                        "line": [
+                            {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": linesteps,
+                             "tension": 0.5,
+                             "color": graycolor,
+                             "showpoints": false},
+
+                            {"equation": "FindRoot({expression:'~x~ / Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": linesteps,
+                             "tension": 0.5,
+                             "color": graycolor,
+                             "showpoints": false},
+
+                            {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":"purple"},
+                                       {"x":"@q6x@", "y":"@q6y@"},
+                                       {"x":"@q6vx@", "y":"@q6y@", "color":"yellow"},],
+                             "color":graycolor}
+
+                        ],
+                        "text": [
+                            {"text":"liquid", "position": {"x": 0.5, "y": "@yllabel@"}, "align":"center", "color":textcolor},
+                            {"text":"vapor", "position": {"x": 0.5, "y": "@yvlabel@"}, "align":"center", "color":textcolor},
+                        ]
+
+                    },
+                    "cursor": normalcursor,
+                    "points": 0
                 },
-                sidegraphtext,
-                sidegraph]]
+                ],
+                [{
+                    "type": "text",
+                    "label": "7) What is fraction of vapor of a mixture located at the black point?",
+                    "class": "prompt"
+                },
+                {
+                    "type": "textbox",
+                    "placeholder": "type a number",
+                    "answertype": "number",
+                    "answer": "@q7ans@",
+                    "tolerance": 0.05,
+                    "points": 10
+                },
+                {
+                    "type": "text",
+                    "label": "Hint: use the lever rule",
+                    "class": "hiddentext hint"
+                }]]
             ],
             "requiredscore": 0.00
         }, // question
@@ -494,38 +732,62 @@ const problem = {
             {
                 "type": "graph",
                 "graphinfo": graphinfo,
-                "mode": "move",
+                "mode": "view",
                 "answercount": {
                     "point": 0,
                     "line": 0
                 },
                 "answer": {},
                 "default": {
-                    "point": [],
+                    "point":[
+                        {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                        {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                    ],
                     "line": [
-                        {"points":[{"x":0, "y":"@Tsum@", "radius":1, "show":false},
-                                   {"x":1, "y":"@Tsum@", "radius":1, "show":false}], "color":graycolor},
-                        {"points":[{"x":"0", "y":"@Tsum@", "show":false},
-                                   {"x":"0", "y":"@TsatO@", "color":watercolor},
-                                   {"x":"@x1@", "y":"@y1@", "show": false},
-                                   {"x":"@x2@", "y":"@y2@", "show": false},
-                                   {"x":"@x3@", "y":"@y3@", "show": false},
-                                   {"x":"@xc@", "y":"@Tsum@", "color":"green"}], "color":graycolor,
-                                   "fill":{"color":watercolor, "opacity":0.2}},
-                        {"points":[{"x":"@xc@", "y":"@Tsum@", "color":"green"},
-                                   {"x":"@x4@", "y":"@y4@", "show": false},
-                                   {"x":"@x5@", "y":"@y5@", "show": false},
-                                   {"x":"@x6@", "y":"@y6@", "show": false},
-                                   {"x":"1", "y":"@TsatH@", "color":organiccolor},
-                                   {"x":"1", "y":"@Tsum@", "show":false}],
-                                   "color":graycolor,
-                                   "fill":{"color":organiccolor, "opacity":0.2}}
+                        {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                         "independent": {
+                             "symbol": "x",
+                             "min": 0,
+                             "max": 1
+                         },
+                         "dependent": {
+                             "symbol": "y",
+                             "min": Pmin,
+                             "max": Pmax
+                         },
+                         "steps": linesteps,
+                         "tension": 0.5,
+                         "color": graycolor,
+                         "showpoints": false},
+
+                        {"equation": "FindRoot({expression:'~x~ / Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                         "independent": {
+                             "symbol": "x",
+                             "min": 0,
+                             "max": 1
+                         },
+                         "dependent": {
+                             "symbol": "y",
+                             "min": Pmin,
+                             "max": Pmax
+                         },
+                         "steps": linesteps,
+                         "tension": 0.5,
+                         "color": graycolor,
+                         "showpoints": false},
+
+                        {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":"purple"},
+                                   {"x":"@q6x@", "y":"@q6y@", "label": {
+                                       "text": "fraction vapor: @q7ans@",
+                                       "align": "center",
+                                       "offset": {"rawx":0, "rawy":20}}},
+                                   {"x":"@q6vx@", "y":"@q6y@", "color":"yellow"},],
+                         "color":graycolor}
+
                     ],
                     "text": [
+                        {"text":"liquid", "position": {"x": 0.5, "y": "@yllabel@"}, "align":"center", "color":textcolor},
                         {"text":"vapor", "position": {"x": 0.5, "y": "@yvlabel@"}, "align":"center", "color":textcolor},
-                        {"text":"vapor + liquid water", "position": {"x": 0.01, "y": "@ywlabel@"}, "align":"left", "color":textcolor},
-                        {"text":"vapor + liquid @compound@", "position": {"x": 0.99, "y": "@yolabel@"}, "align":"right", "color":textcolor},
-                        {"text":"liquid @compound@ + liquid water", "position": {"x": 0.5, "y": "@yllabel@"}, "align":"center", "color":textcolor}
                     ]
                 },
                 "cursor": normalcursor,
@@ -536,27 +798,95 @@ const problem = {
     "begin": {
         "variables": {
             "constants": {
-                "P": "25",
-                "org": "B",
+                "P": 1,
+                "q6x": 0.4,
+                "q6yscale": 0.5,
             },
             "random": {},
             "calculated": {
+                "TsatO": "InvAntoine(@P@, @AO@, @BO@, @CO@).toFixed(0)",
+                "TsatH": "InvAntoine(@P@, @AH@, @BH@, @CH@).toFixed(0)",
+                "Tsum": "FindRoot({expression:'Antoine(T, @AO@, @BO@, @CO@) + Antoine(T, @AH@, @BH@, @CH@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                "PsatO": "Antoine(@Tsum@, @AO@, @BO@, @CO@)",
+                "PsatH": "Antoine(@Tsum@, @AH@, @BH@, @CH@)",
+                "Psum": "@PsatH@ + @PsatH@",
 
+                "Tinit": "55",
+                "x1": "0",
+                "x2": "0.25",
+                "x3": "0.5",
+                "x4": "0.75",
+                "x5": "1",
+
+                // calculate real bubble and dew points
+                "by2": "FindRoot({expression:'@x2@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+                "by3": "FindRoot({expression:'@x3@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+                "by4": "FindRoot({expression:'@x4@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+
+                "dy2": "FindRoot({expression:'@x2@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x2@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.01})",
+                "dy3": "FindRoot({expression:'@x3@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x3@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.01})",
+                "dy4": "FindRoot({expression:'@x4@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @x4@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.01})",
+
+                "q6ly": "FindRoot({expression:'@q6x@ * Antoine(T, @AH@, @BH@, @CH@) + (1 - @q6x@) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+                "q6vy": "FindRoot({expression:'@q6x@ / Antoine(T, @AH@, @BH@, @CH@) + (1 - @q6x@) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.1})",
+                "q6y": "(@q6vy@ - @q6ly@) * @q6yscale@ + @q6ly@",
+
+                "q6lx": "FindRoot({expression:'x * Antoine(@q6y@, @AH@, @BH@, @CH@) + (1 - x) * Antoine(@q6y@, @AO@, @BO@, @CO@) - @P@', variable:'x', min:0, max:1, precision:0.01})",
+                "q6vx": "FindRoot({expression:'x / Antoine(@q6y@, @AH@, @BH@, @CH@) + (1 - x) / Antoine(@q6y@, @AO@, @BO@, @CO@) - 1 / @P@', variable:'x', min:0, max:1, precision:0.01})",
             }
         },
         "questionelements": [
             [{
                 "type": "graph",
                 "graphinfo": graphinfo,
-                "mode": "move",
+                "mode": "view",
                 "answercount": {
                     "point": 0,
                     "line": 0
                 },
                 "answer": {},
                 "default": {
-                    "point": [],
+                    "point":[
+                        {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                        {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                    ],
                     "line": [
+                        {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                         "independent": {
+                             "symbol": "x",
+                             "min": 0,
+                             "max": 1
+                         },
+                         "dependent": {
+                             "symbol": "y",
+                             "min": Pmin,
+                             "max": Pmax
+                         },
+                         "steps": linesteps,
+                         "tension": 0.5,
+                         "color": graycolor,
+                         "showpoints": false},
+
+                        {"equation": "FindRoot({expression:'~x~ / Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) / Antoine(T, @AO@, @BO@, @CO@) - 1 / @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
+                         "independent": {
+                             "symbol": "x",
+                             "min": 0,
+                             "max": 1
+                         },
+                         "dependent": {
+                             "symbol": "y",
+                             "min": Pmin,
+                             "max": Pmax
+                         },
+                         "steps": linesteps,
+                         "tension": 0.5,
+                         "color": graycolor,
+                         "showpoints": false},
+
+                        {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":"purple"},
+                                   {"x":"@q6x@", "y":"@q6y@"},
+                                   {"x":"@q6vx@", "y":"@q6y@", "color":"yellow"},],
+                         "color":graycolor}
 
                     ],
                 },
@@ -564,17 +894,16 @@ const problem = {
             }, // element
             [{
                 "type": "text",
-                "label": `Placeholder`,
-                "style": "prompt"
+                "label": `This demonstration leads the user through the construction of a temperature-composition (T-x-y) diagram step-by-step for vapor-liquid equilibrium of an n-hexane/n-octane ideal mixture.<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.`,
+                "class": "prompt"
             },
             {
                 "type": "text",
                 "label": "Hint: click 'Begin' to start the problem",
-                "style": "hiddentext hint"
+                "class": "hiddentext hint"
             }]], // element
         ] // questionelements
     } // begin
 };
 
 let problemController = new ProblemController(problem, "body");
-problemController.load();

@@ -122,8 +122,8 @@ const problem = {
             "q4ly": "BubblePoint(@q4x@, @PsatH@, @PsatO@)",
             "q4vy": "DewPoint(@q4x@, @PsatH@, @PsatO@)",
             "q4y": "(@q4ly@ - @q4vy@) * @q4yscale@ + @q4vy@",
-            "q4lx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x',0 ,1 ,0.001)",
-            "q4vx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', 0, 1 ,0.001)",
+            "q4lx": "FindRoot({expression:'BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', variable:'x', min:0, max:1, precision:0.001})",
+            "q4vx": "FindRoot({expression:'DewPoint(x, @PsatH@, @PsatO@) - @q4y@', variable:'x', min:0, max:1 , precision:.001})",
             "q5ans": "roundTo((@q4x@ - @q4lx@) / (@q4vx@ - @q4lx@), 2)",
         }
     },
@@ -168,12 +168,12 @@ const problem = {
                 [{
                     "type": "text",
                     "label": "1) Click and drag the black points to draw the bubble-point curve.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": "Hint: use Raoult's law for each component",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }]]
             ],
             "requiredscore": 0.00
@@ -225,12 +225,12 @@ const problem = {
                 [{
                     "type": "text",
                     "label": "2) Click and drag the black points to draw the dew-point curve.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": "Hint: use Raoult's law for each component",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }]]
             ],
             "requiredscore": 0.00
@@ -259,11 +259,18 @@ const problem = {
                              "color":graycolor},
 
                             {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
-                             "independent": "x",
-                             "dependent": "y",
-                             "min": 0,
-                             "max": 1,
-                             "steps": 200,
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": 60,
+                             "tension": 0.5,
                              "color": graycolor,
                              "showpoints": false},
                         ],
@@ -279,7 +286,7 @@ const problem = {
                 [{
                     "type": "text",
                     "label": "3) Which region has pure @q3text@?",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                  {
                     "type": "textbox",
@@ -292,7 +299,7 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: liquids are more stable at higher pressures",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }]],
             ],
             "requiredscore": 0.00
@@ -328,11 +335,18 @@ const problem = {
                              "color":graycolor},
 
                             {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
-                             "independent": "x",
-                             "dependent": "y",
-                             "min": 0,
-                             "max": 1,
-                             "steps": 200,
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": 60,
+                             "tension": 0.5,
                              "color": graycolor,
                              "showpoints": false},
 
@@ -354,12 +368,12 @@ const problem = {
                 [{
                     "type": "text",
                     "label": "4) Click and drag the purple (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": "Hint: draw a tie line",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }]]
             ],
             "requiredscore": 0.00
@@ -388,11 +402,18 @@ const problem = {
                              "color":graycolor},
 
                             {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
-                             "independent": "x",
-                             "dependent": "y",
-                             "min": 0,
-                             "max": 1,
-                             "steps": 200,
+                             "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": 60,
+                             "tension": 0.5,
                              "color": graycolor,
                              "showpoints": false},
 
@@ -413,7 +434,7 @@ const problem = {
                 [{
                     "type": "text",
                     "label": "5) What is fraction of vapor of a mixture located at the black point?",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "textbox",
@@ -426,7 +447,7 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: use the lever rule",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }]]
             ],
             "requiredscore": 0.00
@@ -457,11 +478,18 @@ const problem = {
                          "color":graycolor},
 
                         {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
-                         "independent": "x",
-                         "dependent": "y",
-                         "min": 0,
-                         "max": 1,
-                         "steps": 300,
+                         "independent": {
+                                 "symbol": "x",
+                                 "min": 0,
+                                 "max": 1
+                             },
+                             "dependent": {
+                                 "symbol": "y",
+                                 "min": Pmin,
+                                 "max": Pmax
+                             },
+                             "steps": 60,
+                             "tension": 0.5,
                          "color": graycolor,
                          "showpoints": false},
 
@@ -515,8 +543,8 @@ const problem = {
                 "q4ly": "BubblePoint(@q4x@, @PsatH@, @PsatO@)",
                 "q4vy": "DewPoint(@q4x@, @PsatH@, @PsatO@)",
                 "q4y": "(@q4ly@ - @q4vy@) * @q4yscale@ + @q4vy@",
-                "q4lx": "FindRoot('BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
-                "q4vx": "FindRoot('DewPoint(x, @PsatH@, @PsatO@) - @q4y@', 'x', @Pmin@ ,@Pmax@ ,0.001)",
+                "q4lx": "FindRoot({expression:'BubblePoint(x, @PsatH@, @PsatO@) - @q4y@', variable:'x', min:0, max:1, precision:0.001})",
+                "q4vx": "FindRoot({expression:'DewPoint(x, @PsatH@, @PsatO@) - @q4y@', variable:'x', min:0, max:1, precision:0.001})",
                 "q5ans": "roundTo((@q4x@ - @q4lx@) / (@q4vx@ - @q4lx@), 2)",
             },
         },
@@ -535,11 +563,18 @@ const problem = {
                          "color":graycolor},
 
                         {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
-                         "independent": "x",
-                         "dependent": "y",
-                         "min": 0,
-                         "max": 1,
-                         "steps": 300,
+                         "independent": {
+                             "symbol": "x",
+                             "min": 0,
+                             "max": 1
+                         },
+                         "dependent": {
+                             "symbol": "y",
+                             "min": Pmin,
+                             "max": Pmax
+                         },
+                         "steps": 60,
+                         "tension": 0.5,
                          "color": graycolor,
                          "showpoints": false},
 
@@ -555,16 +590,15 @@ const problem = {
             [{
                 "type": "text",
                 "label": `This demonstration leads the user through the construction of a pressure-composition (P-x-y) diagram step-by-step for vapor-liquid equilibrium of an n-hexane/n-octane ideal mixture (Raoult's law).<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.`,
-                "style": "prompt"
+                "class": "prompt"
             }, // element
             {
                 "type": "text",
                 "label": "Hint: click 'Begin' to start the problem",
-                "style": "hiddentext hint"
+                "class": "hiddentext hint"
             }]],
         ] // questionelements
     } // begin
 };
 
 let problemController = new ProblemController(problem, "body");
-problemController.load();

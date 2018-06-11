@@ -1,22 +1,39 @@
+import {DOM} from "./DOM.js";
 import {Text} from "./Text.js";
 import {Line} from "./Line.js";
 import {Point} from "./Point.js";
+import {ZCanvas} from "./ZCanvas.js";
 import {getDist, constrain, roundTo, getAngle, evalWithContext, isBetween, FindRoot} from "./sky-helpers.js";
 
 const VAR = "@";
 const GRABRADIUS = 10;
 const SPVAR = "~";
 
+// Layer information
+export const LAYERS = {
+    "GRID": 0,
+    "UNDER": 1,
+    "FRAME": 2,
+    "OVER": 3,
+    "CURSOR": 4,
+};
+
 /**
     Controller class for HTML canvas objects<br>
     Uses two overlaid canvases for background and foreground drawing.
 */
-export class CanvasController {
+export class GraphCanvasController{
     /**
-        @param {object} DOM Document object model name associations
         @param {int} index Index to identify canvas
         @param {object} args Object of input arguments
-        @param {object} args.cursor Object describing how the cursor should look (used as cursordata for {@link CanvasController#drawCursor})
+        @param {int} args.layers Number of layers
+        @param {int} args.width Width of canvases
+        @param {int} args.height Height of canvases
+        @param {string} args.containerid ID of container element
+        @param {string} args.containerclass class of container element
+        @param {string} args.canvasidprefix ID of each canvas, postpended by its layer number
+        @param {string} args.canvasclass Classes added to each canvas
+        @param {object} args.cursor Object describing how the cursor should look (used as cursordata for {@link GraphCanvasController#drawCursor})
         @param {string} args.mode Valid modes are "none", "view", "move"
         @param {object} args.answercount Maximum number of elements to allow on graph
         @param {int} args.answercount.point
@@ -25,39 +42,34 @@ export class CanvasController {
         @param {list} args.default.point
         @param {list} args.default.line
     */
-    constructor(DOM, index, args) {
-        //this.img = new Image();
-        //this.img.src = args.imgsrc;
-        //this.imgcalibration = args.imgcal;
-
+    constructor(index, args) {
+        // Pull in arguments
         this.mode = args.mode;
-        this.graphinfo = args.graphinfo
-        if (args.cursor != undefined) {
-            this.cursor = args.cursor;
-        }
+        this.graphinfo = args.graphinfo;
+        this.cursor = args.cursor;
 
         // Unique number for this canvas
         this.index = index;
         const re = new RegExp(`${VAR}id${VAR}`, "g");
-        // Retrieve DOM elements
-        this.div = document.getElementById(DOM.canvasdivid.replace(re, index));
 
-        this.staticcanvas = document.getElementById(DOM.staticcanvasid.replace(re, index));
-        this.dynamiccanvas = document.getElementById(DOM.dynamiccanvasid.replace(re, index));
+        // Retrieve DOM elements
+        let zc = new ZCanvas({
+            "layers": Object.keys(LAYERS).length,
+            "width": this.graphinfo.width,
+            "height": this.graphinfo.height,
+            "containerid": `canvasarea--${index}`,
+            "containerclass": DOM.canvasdivclass,
+            "canvasidprefix": "canvas--",
+            "canvasclass": DOM.canvasclass,
+        });
+        this.canvas = zc.canvas;
+        this.ctx = zc.ctx;
 
         // Set up canvas size
         this.height = this.graphinfo.height;
         this.width = this.graphinfo.width;
-        this.staticcanvas.width = this.width;
-        this.staticcanvas.height = this.height;
-        this.dynamiccanvas.width = this.width;
-        this.dynamiccanvas.height = this.height;
-        // Set div to correct height
-        this.div.style.height = this.height + "px";
-        // Context objects for drawing
-        this.staticctx = this.staticcanvas.getContext('2d');
-        this.dynamicctx = this.dynamiccanvas.getContext('2d');
 
+        // Draw graph layout
         this.drawGraph();
 
         // State variables
@@ -83,20 +95,25 @@ export class CanvasController {
         }
 
         // Set up mouse events
-        this.dynamiccanvas.addEventListener("mousemove", e => this.mouseMove(e));
-        this.dynamiccanvas.addEventListener("mousedown", e => this.mouseDown(e));
-        this.dynamiccanvas.addEventListener("mouseup", e => this.mouseUp(e));
+        this.canvas["top"].addEventListener("mousemove", e => this.mouseMove(e));
+        this.canvas["top"].addEventListener("mousedown", e => this.mouseDown(e));
+        this.canvas["top"].addEventListener("mouseup", e => this.mouseUp(e));
 
         // Initialize
         this.update();
     }
+
     /**
         Clears the foreground canvas
     */
     clear() {
         //this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-        this.dynamiccanvas.width = this.dynamiccanvas.width; // Hacky workaround
+        // Hacky workaround
+        this.canvas[LAYERS.UNDER].width = this.canvas[LAYERS.UNDER].width;
+        this.canvas[LAYERS.OVER].width = this.canvas[LAYERS.OVER].width;
+        this.canvas[LAYERS.CURSOR].width = this.canvas[LAYERS.CURSOR].width;
     }
+
     /**
         Updates the canvas to its current state
     */
@@ -154,20 +171,13 @@ export class CanvasController {
                 // line constructed from equation
                 const ind = data.independent;
                 const dep = data.dependent;
-                const di = (ind.max - ind.min) / data.steps;
+                const di = (ind.max - ind.min) / (data.steps - 1);
                 // Replace independent variable with value
                 const re = new RegExp(`${SPVAR}${data.independent.symbol}${SPVAR}`, "g");
-                // Find endpoints
-                const starti = Math.max(
-                    FindRoot(data.equation + ` - ${dep.min}`, `${SPVAR}${data.independent.symbol}${SPVAR}`, ind.min, ind.max, 0.001),
-                    ind.min
-                );
-                const endi = Math.min(
-                    FindRoot(data.equation + ` - ${dep.max}`, `${SPVAR}${data.independent.symbol}${SPVAR}`, ind.min, ind.max, 0.001),
-                    ind.max
-                );
-                let i = starti;
-                while (true) {
+
+                // Calculate points along line
+                let i = ind.min;
+                while (i <= ind.max) {
                     let ptdata = {};
                     ptdata[ind.symbol] = i;
                     // Evaluate expression (trusted code provided by the question-creator)
@@ -184,13 +194,7 @@ export class CanvasController {
                         this.finished.push(pt);
                     }
 
-                    if (i == endi) {
-                        break;
-                    } else if (i + di < endi) {
-                        i += di;
-                    } else if (i + di >= endi) {
-                        i = endi;
-                    }
+                    i += di;
                 }
                 if (data.label) {
                     // Calculate y position
@@ -217,8 +221,8 @@ export class CanvasController {
         @return {Point} Point object at the current location of the mouse cursor
     */
     getMousePoint(e) {
-        return new Point({"rawx":e.pageX - this.dynamiccanvas.offsetParent.offsetLeft,
-                          "rawy":e.pageY - this.dynamiccanvas.offsetParent.offsetTop,
+        return new Point({"rawx":e.pageX - this.canvas[LAYERS.CURSOR].offsetParent.offsetLeft,
+                          "rawy":e.pageY - this.canvas[LAYERS.CURSOR].offsetParent.offsetTop,
                           "graphinfo":this.graphinfo});
     }
     /**
@@ -227,9 +231,14 @@ export class CanvasController {
         @param {Point|Line|Text} element QuestionElement to be drawn
     */
     draw(element) {
-        this.dynamicctx.save();
-        element.draw(this.dynamicctx);
-        this.dynamicctx.restore();
+        let layer = undefined;
+        if (element.layer) {
+            layer = element.layer;
+        }
+        this.ctx[element.layer]
+        this.ctx[layer].save();
+        element.draw(this.ctx[layer]);
+        this.ctx[layer].restore();
     }
     /**
         Draws the background of the graph (background colors, axes, labels)<br>
@@ -237,13 +246,15 @@ export class CanvasController {
     */
     drawGraph() {
         // Border region
-        this.staticctx.beginPath();
-        this.staticctx.fillStyle = this.graphinfo.axesbackground;
-        this.staticctx.fillRect(0, 0, this.graphinfo.width, this.graphinfo.height);
+        this.ctx[LAYERS.FRAME].fillStyle = this.graphinfo.axesbackground;
+        this.ctx[LAYERS.FRAME].fillRect(0, 0, this.graphinfo.width, this.graphinfo.graphtop);
+        this.ctx[LAYERS.FRAME].fillRect(0, 0, this.graphinfo.graphleft, this.graphinfo.height);
+        this.ctx[LAYERS.FRAME].fillRect(this.graphinfo.graphright, 0, this.graphinfo.width, this.graphinfo.height);
+        this.ctx[LAYERS.FRAME].fillRect(0, this.graphinfo.graphbottom, this.graphinfo.width, this.graphinfo.height);
+
         // Graph region
-        this.staticctx.fillStyle = this.graphinfo.graphbackground;
-        this.staticctx.fillRect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
-        //this.staticctx.beginPath();
+        this.ctx[LAYERS.GRID].fillStyle = this.graphinfo.graphbackground;
+        this.ctx[LAYERS.GRID].fillRect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
 
         // TODO use text measuring to place label text
 
@@ -309,10 +320,10 @@ export class CanvasController {
              });
         }
         // Bounding box
-        this.staticctx.rect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
-        this.staticctx.strokeStyle = "black";
-        this.staticctx.lineWidth = 1;
-        this.staticctx.stroke();
+        this.ctx[LAYERS.FRAME].rect(this.graphinfo.padding.left, this.graphinfo.padding.top, this.graphinfo.graphwidth, this.graphinfo.graphheight);
+        this.ctx[LAYERS.FRAME].strokeStyle = "black";
+        this.ctx[LAYERS.FRAME].lineWidth = 1;
+        this.ctx[LAYERS.FRAME].stroke();
     }
     /**
         Abstract method to replace drawGraph
@@ -339,49 +350,49 @@ export class CanvasController {
         let txt = "";
 
         // Draw gridlines
-        this.staticctx.strokeStyle = GridColor;
-        this.staticctx.lineWidth = GridThickness;
+        this.ctx[LAYERS.GRID].strokeStyle = GridColor;
+        this.ctx[LAYERS.GRID].lineWidth = GridThickness;
         for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.gridline * args.axisinfo.scale)) {
-            this.staticctx.beginPath();
+            this.ctx[LAYERS.GRID].beginPath();
             if (args.axisY0 && args.axisY1) {
-                this.staticctx.moveTo(i, args.axisY0);
-                this.staticctx.lineTo(i, args.axisY1);
+                this.ctx[LAYERS.GRID].moveTo(i, args.axisY0);
+                this.ctx[LAYERS.GRID].lineTo(i, args.axisY1);
             } else if (args.axisX0 && args.axisX1) {
-                this.staticctx.moveTo(args.axisX0, i);
-                this.staticctx.lineTo(args.axisX1, i);
+                this.ctx[LAYERS.GRID].moveTo(args.axisX0, i);
+                this.ctx[LAYERS.GRID].lineTo(args.axisX1, i);
             }
-            this.staticctx.stroke();
+            this.ctx[LAYERS.GRID].stroke();
         }
         // Draw minor ticks
-        this.staticctx.strokeStyle = TickColor;
-        this.staticctx.lineWidth = TickThickness;
+        this.ctx[LAYERS.FRAME].strokeStyle = TickColor;
+        this.ctx[LAYERS.FRAME].lineWidth = TickThickness;
         for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.minortick * args.axisinfo.scale)) {
-            this.staticctx.beginPath();
+            this.ctx[LAYERS.FRAME].beginPath();
             if (args.axisY0 && args.axisY1) {
-                this.staticctx.moveTo(i, args.axisY0);
-                this.staticctx.lineTo(i, args.axisY0 + args.tickSign * MinorAxisTickLength);
+                this.ctx[LAYERS.FRAME].moveTo(i, args.axisY0);
+                this.ctx[LAYERS.FRAME].lineTo(i, args.axisY0 + args.tickSign * MinorAxisTickLength);
             } else if (args.axisX0 && args.axisX1) {
-                this.staticctx.moveTo(args.axisX0, i);
-                this.staticctx.lineTo(args.axisX0 + args.tickSign * MinorAxisTickLength, i);
+                this.ctx[LAYERS.FRAME].moveTo(args.axisX0, i);
+                this.ctx[LAYERS.FRAME].lineTo(args.axisX0 + args.tickSign * MinorAxisTickLength, i);
             }
-            this.staticctx.stroke();
+            this.ctx[LAYERS.FRAME].stroke();
         }
         // Draw major ticks and numbers
         for (let i = args.stepStart; i <= args.stepLimit; i += Math.abs(args.axisinfo.majortick * args.axisinfo.scale)) {
-            this.staticctx.beginPath();
-            this.staticctx.strokeStyle = TickColor;
+            this.ctx[LAYERS.FRAME].beginPath();
+            this.ctx[LAYERS.FRAME].strokeStyle = TickColor;
             if (args.axisY0 && args.axisY1) {
-                this.staticctx.moveTo(i, args.axisY0);
-                this.staticctx.lineTo(i, args.axisY0 + args.tickSign * MajorAxisTickLength);
+                this.ctx[LAYERS.FRAME].moveTo(i, args.axisY0);
+                this.ctx[LAYERS.FRAME].lineTo(i, args.axisY0 + args.tickSign * MajorAxisTickLength);
                 txt = roundTo(args.axisinfo.RawToCal(i), LabelDigits);
                 pt = new Point({rawx:i, rawy:args.axisY0 + args.numberOffset, graphinfo:this.graphinfo});
             } else if (args.axisX0 && args.axisX1) {
-                this.staticctx.moveTo(args.axisX0, i);
-                this.staticctx.lineTo(args.axisX0 + args.tickSign * MajorAxisTickLength, i);
+                this.ctx[LAYERS.FRAME].moveTo(args.axisX0, i);
+                this.ctx[LAYERS.FRAME].lineTo(args.axisX0 + args.tickSign * MajorAxisTickLength, i);
                 txt = roundTo(args.axisinfo.RawToCal(i), LabelDigits);
                 pt = new Point({rawx:args.axisX0 + args.numberOffset, rawy:i, graphinfo:this.graphinfo});
             }
-            this.staticctx.stroke();
+            this.ctx[LAYERS.FRAME].stroke();
 
             new Text({
                 "text": txt,
@@ -391,32 +402,9 @@ export class CanvasController {
                 "fontsize": TextFontSize,
                 "fontstyle": TextFontStyle,
                 "position": pt
-            }).draw(this.staticctx);
+            }).draw(this.ctx[LAYERS.FRAME]);
 
         }
-
-        /*
-        // Draw last number
-        if (args.axisY0 && args.axisY1) {
-            txt = roundTo(args.axisinfo.RawToCal(args.stepLimit), LabelDigits);
-            pt = new Point({rawx:args.stepLimit, rawy:args.axisY0 + args.numberOffset, graphinfo:this.graphinfo});
-        } else if (args.axisX0 && args.axisX1) {
-            txt = roundTo(args.axisinfo.RawToCal(args.stepLimit), LabelDigits);
-            pt = new Point({rawx:args.axisX0 + args.numberOffset, rawy:args.stepLimit, graphinfo:this.graphinfo});
-        }
-
-        new Text({
-            "text": txt,
-            "align": "center",
-            "color": TextColor,
-            "font": TextFont,
-            "fontsize": TextFontSize,
-            "fontstyle": TextFontStyle,
-            "position": pt,
-            graphinfo: this.graphinfo
-
-        }).draw(this.staticctx);
-        */
 
         // Draw label
         new Text({
@@ -429,19 +417,7 @@ export class CanvasController {
             "position": new Point({rawx:args.labelX, rawy:args.labelY, graphinfo:this.graphinfo}),
             graphinfo: this.graphinfo,
             rotate: args.labelrotate,
-        }).draw(this.staticctx);
-    }
-    /**
-        Draws an image to the background canvas.<br>
-        Deprecated, but may reuse in future problems
-    */
-    drawImage() {
-        /*this.img.onload = function(a) {
-            console.log('whats this');
-            console.log(a);
-            this.ctx.drawImage(this.img, 0, 0);
-        }*/
-        this.staticctx.drawImage(this.img, 0, 0);
+        }).draw(this.ctx[LAYERS.FRAME]);
     }
     /**
         Checks each type of element (point, line, etc) and removes the oldest member(s) if more than the maximum exist

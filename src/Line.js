@@ -1,5 +1,6 @@
 import {Text} from "./Text.js";
 import {randomID, isBetween, getDist} from "./sky-helpers.js";
+import {LAYERS} from "./GraphCanvasController.js";
 
 const IDLENGTH = 16;
 
@@ -47,6 +48,13 @@ export class Line {
             @desc Tension of spline drawn through points (0 is linear)
         */
         this.tension = 0;
+        /**
+            @name Line#layer
+            @type number
+            @default 1
+            @desc Layer to draw element onto
+        */
+        this.layer = LAYERS.UNDER;
         /**
             @name Line#answer
             @type boolean
@@ -174,34 +182,34 @@ export class Line {
             cp = cp.concat(this.getControlPoints(pts[i], pts[i+1], pts[i+2], pts[i+3], pts[i+4], pts[i+5], t));
         }
         for (var i = 2; i < pts.length - 5; i += 2) {
-            if (isBetween(pts[i], this.graphinfo.graphleft, this.graphinfo.graphright) &&
-                isBetween(pts[i+1], this.graphinfo.graphtop, this.graphinfo.graphbottom) &&
-                isBetween(pts[i+2], this.graphinfo.graphleft, this.graphinfo.graphright) &&
-                isBetween(pts[i+3], this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+//            if (isBetween(pts[i], this.graphinfo.graphleft, this.graphinfo.graphright) &&
+//                isBetween(pts[i+1], this.graphinfo.graphtop, this.graphinfo.graphbottom) &&
+//                isBetween(pts[i+2], this.graphinfo.graphleft, this.graphinfo.graphright) &&
+//                isBetween(pts[i+3], this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
                 context.beginPath();
                 context.moveTo(pts[i], pts[i+1]);
                 context.bezierCurveTo(cp[2*i-2], cp[2*i-1], cp[2*i], cp[2*i+1], pts[i+2], pts[i+3]);
                 context.stroke();
                 context.closePath();
-            }
+//            }
         }
         //  For open curves the first and last arcs are simple quadratics.
-        if (isBetween(pts[0], this.graphinfo.graphleft, this.graphinfo.graphright) &&
-            isBetween(pts[1], this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+//        if (isBetween(pts[0], this.graphinfo.graphleft, this.graphinfo.graphright) &&
+//            isBetween(pts[1], this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
             context.beginPath();
             context.moveTo(pts[0], pts[1]);
             context.quadraticCurveTo(cp[0], cp[1], pts[2], pts[3]);
             context.stroke();
             context.closePath();
-        }
-        if (isBetween(pts[n-4], this.graphinfo.graphleft, this.graphinfo.graphright) &&
-            isBetween(pts[n-3], this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
+//        }
+//        if (isBetween(pts[n-4], this.graphinfo.graphleft, this.graphinfo.graphright) &&
+//            isBetween(pts[n-3], this.graphinfo.graphtop, this.graphinfo.graphbottom)) {
             context.beginPath();
             context.moveTo(pts[n-2], pts[n-1]);
             context.quadraticCurveTo(cp[2*n-10], cp[2*n-9], pts[n-4], pts[n-3]);
             context.stroke();
             context.closePath();
-        }
+//        }
     }
     /**
         @return {int} The number of line segments

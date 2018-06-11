@@ -1,4 +1,5 @@
-import {GraphElement} from "./GraphElement.js";
+import {DOM} from "./DOM.js";
+import {CanvasElement} from "./CanvasElement.js";
 import {TextElement} from "./TextElement.js";
 import {TextboxElement} from "./TextboxElement.js";
 import {recursiveFind, recursiveNumberfy, recursiveReplace, recursiveExists, generateVariables} from "./sky-helpers.js";
@@ -29,21 +30,23 @@ export class Question {
         }
         this.createHTML(inputarguments.questionelements);
     }
+
     /**
         Creates the appropriate class for a given element
         @param {object} elementdata The data object containing everything about the element
         @param {string} elementdata.type "text", "graph", or "textbox"
-        @return {TextElement|GraphElement|TextboxElement} The class instance for the element
+        @return {TextElement|CanvasElement|TextboxElement} The class instance for the element
     */
     createElement(elementdata) {
         if (elementdata.type === "textbox") {
             return new TextboxElement(elementdata);
         } else if (elementdata.type === "graph") {
-            return new GraphElement(elementdata);
+            return new CanvasElement(elementdata);
         } else if (elementdata.type === "text") {
             return new TextElement(elementdata);
         }
     }
+
     /**
         TODO
     */
@@ -60,12 +63,13 @@ export class Question {
                 this.createHTML(element, recursion+1);
             } else {
                 this.elements.push(this.createElement(element));
-                this.html += this.elements[this.elements.length - 1].getHTML(this.DOM, this.DOM.questiondivid, this.elements.length-1);
+                this.html += this.elements[this.elements.length - 1].getHTML(this.elements.length-1);
             }
             // Finish row/column
             this.html += `</div>`;
         }
     }
+
     /**
         The total point worth of the question
     */
@@ -78,6 +82,7 @@ export class Question {
         }
         return total;
     }
+
     /**
         Replace variable placeholders with values in all contained elements
     */
@@ -101,12 +106,12 @@ export class Question {
             element = recursiveNumberfy(element);
         }
     }
+
     /**
         Display this question
-        @param {object} DOM Document object model name associations
         @param {object} parentvariables Variable values from parent (ProblemController)
     */
-    display(DOM, parentvariables) {
+    display(parentvariables) {
 
         for (let name of Object.keys(parentvariables)) {
             // If variable is not defined more locally
@@ -135,19 +140,19 @@ export class Question {
         this.assignVariables();
         // Insert question HTML
         document.getElementById(DOM.questiondivid).insertAdjacentHTML("beforeend", this.html);
-        // Create CanvasController objects for each GraphElement
+        // Create GraphCanvasController objects for each CanvasElement
         for (let i in this.elements) {
-            if (this.elements[i] instanceof GraphElement) {
-                this.elements[i].init(DOM, i);
+            if (this.elements[i] instanceof CanvasElement) {
+                this.elements[i].init(i);
             }
         }
     }
+
     /**
         Check answers and display correct ones
-        @param {object} DOM Document object model name associations
         @return {score} Score object containing "got", "max", and "pct" keys
     */
-    submit(DOM) {
+    submit() {
         // Add up score and reveal answers
         let score = {"max": 0,
                      "got": 0,
@@ -167,13 +172,13 @@ export class Question {
                 document.getElementById(DOM.textboxanswerid.replace(re, i)).textContent = element.answer;
                 // Add box around answer
                 document.getElementById(DOM.textboxanswerid.replace(re, i)).classList.add(DOM.textboxanswershown);
-            } else if (element instanceof GraphElement) {
+            } else if (element instanceof CanvasElement) {
                 // Get answers from canvas
-                let ans = element.canvascontroller.getanswers();
+                let ans = element.GraphCanvasController.getanswers();
                 // Check answers
                 score.max += element.points;
                 score.got += (element.points * element.checkanswer(ans));
-                element.canvascontroller.showanswers(element.answer);
+                element.GraphCanvasController.showanswers(element.answer);
             }
             score.pct = score.got / score.max;
         }

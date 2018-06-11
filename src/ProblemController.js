@@ -1,3 +1,4 @@
+import {DOM} from "./DOM.js";
 import {Question} from "./Question.js";
 import {roundTo, getCookie, setCookie, generateVariables} from "./sky-helpers.js";
 
@@ -18,103 +19,22 @@ export class ProblemController {
         @param {object} inputarguments.finish Object containing data for display of finishing page
     */
     constructor(inputarguments, containerid) {
-        /**
-            @name ProblemController#currentquestion
-            @type int
-            @desc Index of the {@link Question} currently displayed to the user
-        */
-        this.DOM = this.getDOM;
-        // Insert problem onto page here
-        this.pagesetup(this.DOM, containerid);
-        // Load problem data
-        this.title = inputarguments.pagetitle;
-        this.inputvariables = inputarguments.variables;
-        this.questions = [];
-        for (let q of inputarguments.questions) {
-            q.DOM = this.DOM;
-            this.questions.push(new Question(q));
-        }
-        inputarguments.finish.DOM = this.DOM;
-        inputarguments.begin.DOM = this.DOM;
-        this.finishquestion = new Question(inputarguments.finish);
-        this.beginquestion = new Question(inputarguments.begin);
-        // Initialize local data
-        this.score = {};
-        // Set/insert heading title
-        document.title = this.title;
-        document.getElementById(this.DOM.titledivid).insertAdjacentHTML("beforeend", this.title);
-        // Catch keyboard events
-        document.addEventListener("keydown", e => this.keyEvent(e));
+        this.inputarguments = inputarguments;
+        this.containerid = containerid;
+        this.init(this.inputarguments, this.containerid);
     }
-    /**
-        Document object model for the page
-    */
-    get getDOM() {
-        return {
-        "headerdivid": "header",
-        "bodydivid": "body",
-            "titledivid": "title",
-            "questiondivid": "question",
-                "canvasdivclass": "canvasarea",
-                "canvasdivid": "canvasarea--" + VAR + "id" + VAR,
-                    "canvasclass": "canvas",
-                    "canvasid": "canvas--" + VAR + "id" + VAR,
-                    "staticcanvasid": "canvas--static--" + VAR + "id" + VAR,
-                    "dynamiccanvasid": "canvas--dynamic--" + VAR + "id" + VAR,
-                    "canvasinfodivclass": "canvasinfo",
-                        "canvaspointclass": "canvaspoint",
-                        "canvaspointid": "canvaspoint--" + VAR + "id" + VAR,
-                        "canvasmodeclass": "canvasmode",
-                        "canvasmodeid": "canvasmode--" + VAR + "id" + VAR,
-                "textboxdivclass": "textentry",
-                    "textboxspanclass": "textboxlabel",
-                    "textboxclass": "textbox",
-                    "textboxid": "textbox--" + VAR + "id" + VAR,
-                    "textboxanswerclass": "textboxanswer",
-                    "textboxanswerid": "textboxanswer--" + VAR + "id" + VAR,
-                    "textboxanswershown": "textboxanswershown",
-                "textspanclass": "textspan",
-            "buttonsdivid": "buttons",
-                "restartbuttonid": "restartbutton",
-                "hintbuttonid": "hintbutton",
-                "submitbuttonid": "submitbutton",
-                "nextbuttonid": "nextbutton",
-            "scoredivid": "scorediv",
-                "scoretitleid": "scoretitle",
-            "gradedivid": "submitgrade",
-                "nametextid": "nametext",
-                "cuidtextid": "cuidtext",
-                "coursetextid": "classtext",
-                "gradebuttonid": "gradebutton",
-        "footerdivid": "footer",
-        "hiddentextclass": "hiddentext",
-        "hiddenclass": "hidden",
-        "disabledclass": "disabled",
-        "hidescoreclass": "hidescore",
-        "gradeform": "gradeform",
 
-        "tipboxdivclass" : "tipbox",
-        "tipboxdivid" : "tipbox--" + VAR + "id" + VAR,
-        "tipboxtextclass" : "tiptext",
-        "tipboxcheckid" : "tipcheck--" + VAR + "id" + VAR,
-        "tipboxdontshowclass" : "tipdontshow",
-        "tipboxbuttonclass" : "tipbutton",
-        "tipboxbuttonid" : "tipbutton--" + VAR + "id" + VAR,
-        };
-    }
-    /**
-        Show or hide scores box based on window width, and set up listening event to do so on page resizing
-        @param {object} DOM Document object model name associations
-    */
-    pagesetup(DOM, containerid) {
-        // Insert main page elements
-        let html = ``;
+    init(inputarguments, containerid) {
+        // Insert main page containers
+        let html = `<div id=${DOM.problemdivid}>`;
         html += `<div id="${DOM.titledivid}"></div>`;
+        html += `<hr>`;
         html += `<div id="${DOM.questiondivid}"></div>`;
         html += `<hr>`;
         html += `<div id="${DOM.buttonsdivid}"></div>`;
         html += `<div id="${DOM.scoredivid}"></div>`;
         html += `<div id="${DOM.gradedivid}"></div>`;
+        html += `</div>`;
         document.getElementById(containerid).insertAdjacentHTML("beforeend", html);
 
         // Set up score box
@@ -130,29 +50,66 @@ export class ProblemController {
                 document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
             }
         };
+
+        // Create buttons
+        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, "Begin", "restart");
+        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, "Hint", "showhint");
+        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, "Submit Answers", "submit");
+        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, "Next Part", "next");
+
+        // Initialize button states
+        this.hideElement(DOM.nextbuttonid);
+        this.disableElement(DOM.submitbuttonid);
+        document.getElementById(DOM.restartbuttonid).focus();
+
+        // Set problem title
+        this.title = inputarguments.pagetitle;
+        document.title = this.title;
+        document.getElementById(DOM.titledivid).insertAdjacentHTML("beforeend", this.title);
+
+        // Create questions
+        this.questions = [];
+        for (let q of inputarguments.questions) {
+            this.questions.push(new Question(q));
+        }
+        this.finishquestion = new Question(inputarguments.finish);
+        this.beginquestion = new Question(inputarguments.begin);
+
+        // Create variables
+        this.variablevalues = generateVariables(inputarguments.variables);
+
+        // Catch keyboard events
+        document.addEventListener("keydown", e => this.keyEvent(e));
+
+        // Initialize variables
+        this.currentquestion = undefined;
+        this.score = {};
+        for (let i in this.questions) {
+            this.score[i] = {"max": this.questions[i].totalPoints,
+                             "got": 0,
+                             "pct": 0};
+        }
+
+        // Show pre-question page
+        this.beginquestion.display(this.variablevalues);
     }
+
     /**
-        Refresh the page, starting a new problem
+    *   Restart the problem
     */
-    refresh() {
+    restart() {
         if (this.currentquestion === undefined) {
             this.begin();
         } else {
             if (confirm("Really start a new problem?")) {
-                // One of many ways to refresh the page
-                location = location;
+                // Clear container
+                document.getElementById(DOM.problemdivid).remove();
+                // Start new problem
+                this.init(this.inputarguments, this.containerid);
             }
         }
     }
-    /**
-        Proceed to the next question in the problem
-    */
-    nextQuestion() {
-        this.currentquestion++;
-        this.display();
-        // Move to top of page
-        window.scrollTo(0,0);
-    }
+
     /**
         Handler for keypress events
     */
@@ -161,22 +118,23 @@ export class ProblemController {
         if (e.key === "Enter") {
             if (this.currentquestion === undefined) {
                 // Begin problem
-                document.getElementById(this.DOM.restartbuttonid).click();
+                document.getElementById(DOM.restartbuttonid).click();
             } else if (this.currentquestion < this.questions.length) {
-                if (!document.getElementById(this.DOM.submitbuttonid).classList.contains(this.DOM.hiddenclass)) {
-                    document.getElementById(this.DOM.submitbuttonid).click();
+                if (!document.getElementById(DOM.submitbuttonid).classList.contains(DOM.disabledclass)) {
+                    document.getElementById(DOM.submitbuttonid).click();
                 } else {
-                    document.getElementById(this.DOM.nextbuttonid).click();
+                    document.getElementById(DOM.nextbuttonid).click();
                 }
             }
         }
     }
+
     /**
         Removes all html elements from the question div, clearing the page for the next question
     */
     clearPage() {
         // Clear question objects from html
-        let container = document.getElementById(this.DOM.questiondivid);
+        let container = document.getElementById(DOM.questiondivid);
         while (container.hasChildNodes()) {
             container.firstChild.remove();
         }
@@ -185,24 +143,25 @@ export class ProblemController {
         Inserts the HTML for grading submission input
     */
     insertScoreInput() {
-        let container = document.getElementById(this.DOM.gradedivid);
-        let html = `<form id="${this.DOM.gradeform}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
+        let container = document.getElementById(DOM.gradedivid);
+        let html = `<form id="${DOM.gradeform}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
   action="${spreadsheetURL}">`;
 
-        html += `<div class="${this.DOM.textboxdivclass}"><span class="${this.DOM.textboxspanclass}">Name:</span><br><input class="${this.DOM.textboxclass}" id="${this.DOM.nametextid}"></input></div>`;
+        html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.nametextid}"></input></div>`;
 
-        html += `<div class="${this.DOM.textboxdivclass}"><span class="${this.DOM.textboxspanclass}">Student ID:</span><br><input class="${this.DOM.textboxclass}" id="${this.DOM.cuidtextid}"></input></div>`;
+        html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.cuidtextid}"></input></div>`;
 
-        html += `<div class="${this.DOM.textboxdivclass}"><span class="${this.DOM.textboxspanclass}">Course code:</span><br><input class="${this.DOM.textboxclass}" id="${this.DOM.coursetextid}"></input></div>`;
+        html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.coursetextid}"></input></div>`;
 
-        html += `<button id="${this.DOM.gradebuttonid}">Submit for Grade (optional)</button>`;
+        html += `<button id="${DOM.gradebuttonid}">Submit for Grade (optional)</button>`;
 
         html += `</form>`;
         container.insertAdjacentHTML("beforeend", html);
 
-        document.getElementById(this.DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
-        //document.getElementById(this.DOM.gradebuttonid).addEventListener("click", e => this.submitForGrade(e));
+        document.getElementById(DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
+        //document.getElementById(DOM.gradebuttonid).addEventListener("click", e => this.submitForGrade(e));
     }
+
     /**
         Submits grade to spreadsheet <br>
         Followed example at: https://github.com/dwyl/learn-to-send-email-via-google-script-html-no-server
@@ -241,16 +200,17 @@ export class ProblemController {
             xhr.send(encoded);
         }
     }
+
     /**
      * Gathers data from the page to submit to the spreadsheet
      * @return {object} Data that will be passed to the web server
      */
     getSubmissionData() {
         let data = {};
-        data.course = document.getElementById(this.DOM.coursetextid).value;
+        data.course = document.getElementById(DOM.coursetextid).value;
         data.title = this.title;
-        data.name = document.getElementById(this.DOM.nametextid).value;
-        data.cuid = document.getElementById(this.DOM.cuidtextid).value;
+        data.name = document.getElementById(DOM.nametextid).value;
+        data.cuid = document.getElementById(DOM.cuidtextid).value;
         data.score = this.sumScore().pct.toFixed(2);
 
         data.formDataNameOrder = JSON.stringify(["course", "title", "name", "cuid", "score"]); // The data, in order, that is inserted into the sheet
@@ -258,84 +218,7 @@ export class ProblemController {
 
         return data;
     }
-    /**
-        Concatenate a series of strings then run them through a simple hash function
-    */
-    generateHash() {
-        let str = "";
-        for (let i = 0; i < arguments.length; i++) {
-            str += arguments[i];
-        }
-        return str.hashCode();
-    }
-    /**
-        Insert HTML for the Hint button
-    */
-    insertHintButton() {
-        let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.hintbuttonid}">Hint</button>`;
-        container.insertAdjacentHTML("beforeend", html);
-        document.getElementById(this.DOM.hintbuttonid).addEventListener("click", e => this.showhint(e));
-    }
-    /**
-        Insert HTML for the Submit button
-    */
-    insertSubmitButton() {
-        let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.submitbuttonid}">Submit Answers</button>`;
-        container.insertAdjacentHTML("beforeend", html);
-        document.getElementById(this.DOM.submitbuttonid).addEventListener("click", e => this.submit(e));
-    }
-    /**
-        Insert HTML for the Next button
-    */
-    insertNextButton() {
-        let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.nextbuttonid}">Next Part</button>`;
-        container.insertAdjacentHTML("beforeend", html);
-        document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.next(e));
-    }
-    /**
-        Insert HTML for the Restart button
-    */
-    insertRestartButton() {
-        // Add button
-        let container = document.getElementById(this.DOM.buttonsdivid);
-        let html = `<button id="${this.DOM.restartbuttonid}">Restart Problem</button>`;
-        container.insertAdjacentHTML("beforeend", html);
-        // Add event listener to button
-        document.getElementById(this.DOM.restartbuttonid).addEventListener("click", e => this.refresh(e));
-    }
-    /**
-        Make Hint button clickable
-    */
-    enableHintButton() {
-        document.getElementById(this.DOM.hintbuttonid).classList.remove(this.DOM.disabledclass);
-    }
-    /**
-        Make Hint button un-clickable
-    */
-    disableHintButton() {
-        document.getElementById(this.DOM.hintbuttonid).classList.add(this.DOM.disabledclass);
-    }
-    /**
-        Hide/show Submit button
-    */
-    toggleSubmitButton() {
-        document.getElementById(this.DOM.submitbuttonid).classList.toggle(this.DOM.hiddenclass);
-    }
-    /**
-        Hide/show Next button
-    */
-    toggleNextButton() {
-        document.getElementById(this.DOM.nextbuttonid).classList.toggle(this.DOM.hiddenclass);
-    }
-    /**
-        Hide/show Hint button
-    */
-    toggleHintButton() {
-        document.getElementById(this.DOM.hintbuttonid).classList.toggle(this.DOM.hiddenclass);
-    }
+
     /**
         Gets the total score for the problem
         return {object} Score object containing "got", "max", and "pct" keys
@@ -353,11 +236,12 @@ export class ProblemController {
             "pct": sumscore / sumpoints,
         };
     }
+
     /**
         Update score summary table on page
     */
     updateScores() {
-        let container = document.getElementById(this.DOM.scoredivid);
+        let container = document.getElementById(DOM.scoredivid);
 
         // Clear score objects from html
         while (container.hasChildNodes()) {
@@ -365,7 +249,7 @@ export class ProblemController {
         }
 
         // Create new score object
-        let html = `<div id=${this.DOM.scoretitleid}>SCORE</div>`;
+        let html = `<div id=${DOM.scoretitleid}>SCORE</div>`;
         html += "<table>";
         html += "<tr><th>Part</th><th>Points</th><th>Total</th><th>Pct</th></tr>";
         for (let i in this.score) {
@@ -378,6 +262,7 @@ export class ProblemController {
 
         container.insertAdjacentHTML("beforeend", html);
     }
+
     /**
         Insert a dismissable tip box on the page
         @param {string} tip Text content
@@ -387,23 +272,23 @@ export class ProblemController {
     */
     insertTipBox(tip, left, top, uuid) {
         const COOKIEEXPIRATION = 30*1000; // In milliseconds
-        let container = document.getElementById(this.DOM.bodydivid);
+        let container = document.getElementById(DOM.bodydivid);
         // Generate uuid from tip string
         uuid = tip.hashCode();
         // If haven't been told to not show
         if (!getCookie(uuid) === true) {
             // Create id strings
             const re = new RegExp(`${VAR}id${VAR}`, "g");
-            const divid = this.DOM.tipboxdivid.replace(re, uuid);
-            const checkid = this.DOM.tipboxcheckid.replace(re, uuid);
-            const buttonid = this.DOM.tipboxbuttonid.replace(re, uuid);
+            const divid = DOM.tipboxdivid.replace(re, uuid);
+            const checkid = DOM.tipboxcheckid.replace(re, uuid);
+            const buttonid = DOM.tipboxbuttonid.replace(re, uuid);
             // Create html payload for tip
-            let html = `<div class="${this.DOM.tipboxdivclass}" id="${divid}" style="left: ${left}px; top:${top}px;">
-                        <span class="${this.DOM.tipboxtextclass}">${tip}</span>
+            let html = `<div class="${DOM.tipboxdivclass}" id="${divid}" style="left: ${left}px; top:${top}px;">
+                        <span class="${DOM.tipboxtextclass}">${tip}</span>
                         <br>
                         <input type="checkbox" id="${checkid}">
-                        <span class="${this.DOM.tipboxdontshowclass}">don't show this again</span>
-                        <button class="${this.DOM.tipboxbuttonclass}" id="${buttonid}">OK</button>
+                        <span class="${DOM.tipboxdontshowclass}">don't show this again</span>
+                        <button class="${DOM.tipboxbuttonclass}" id="${buttonid}">OK</button>
                         </div>`;
             // Function for closing tip and creating cookie
             let f = function() {
@@ -420,6 +305,7 @@ export class ProblemController {
             document.getElementById(buttonid).addEventListener("click", e => f(e));
         }
     }
+
     /**
         Display current question to page
     */
@@ -430,12 +316,12 @@ export class ProblemController {
             // Add current question objects to html
             if (this.currentquestion < this.questions.length) {
                 // TODO remove this if wrapper, instead remove event from Next button
-                this.questions[this.currentquestion].display(this.DOM, this.variablevalues);
+                this.questions[this.currentquestion].display(this.variablevalues);
             }
         }
         this.updateScores();
         // Slide scores off screen
-        document.getElementById(this.DOM.scoredivid).classList.remove("showscore");
+        document.getElementById(DOM.scoredivid).classList.remove("showscore");
 
         /*      TEST COOKIE TIPS
         this.insertTipBox("Interact with the graph by clicking and dragging elements", 270, 300);
@@ -445,109 +331,120 @@ export class ProblemController {
         this.insertTipBox("Click here to check your answers and move on to the next step", 410, 890);
         //*/
     }
-    /**
-        Show the hints for the current {@link Question}
-    */
-    showhint() {
-        // Prevent multiple clicks
-        this.disableHintButton();
-        // Loop through all hints, remove hidden text class
-        let elements = document.getElementsByClassName(this.DOM.hiddentextclass);
-        while (elements[0]) {
-            elements[0].classList.remove(this.DOM.hiddentextclass);
-        }
-    }
-    /**
-        Check user-submitted answers, show correct answers, update score
-    */
-    submit() {
-        // Update score for this question, call Question.submit
-        this.score[this.currentquestion] = this.questions[this.currentquestion].submit(this.DOM);
-        if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
-            // If on last question, adjust button label and click event
-            if (this.currentquestion == this.questions.length - 1) {
-                document.getElementById(this.DOM.nextbuttonid).textContent = "Finish";
-                document.getElementById(this.DOM.nextbuttonid).addEventListener("click", e => this.finish(e));
-            }
-        } else {
-            document.getElementById(this.DOM.nextbuttonid).textContent = "Retry";
-        }
-        this.toggleSubmitButton();
-        this.toggleNextButton();
-        this.showhint();
-        this.updateScores();
-        document.getElementById(this.DOM.scoredivid).classList.add("showscore");
-    }
+
     /**
         Repeat the current question
     */
     repeat() {
         this.currentquestion--;
-        this.nextQuestion();
+        this.next();
     }
+
     /**
-        Create HTML elements and set initial variable values
+    *   Inserts HTML for a button with specified properties <br>
+    *   Uses weird string calling because arrow functions are odd
+    *   @param {string} containerid ID of container element for button
+    *   @param {string} buttonid ID of button
+    *   @param {string} buttontext Text to display in button
+    *   @param {string} callback Name of function in {@link ProblemController}
     */
-    load() {
-        // Initialize scores
-        for (let i in this.questions) {
-            this.score[i] = {"max": this.questions[i].totalPoints,
-                             "got": 0,
-                             "pct": 0};
-        }
-
-        // Create buttons
-        this.insertRestartButton(this.DOM);
-        this.insertHintButton(this.DOM);
-        this.insertSubmitButton(this.DOM);
-        this.insertNextButton(this.DOM);
-        this.toggleNextButton(this.DOM);
-
-        // Create variables
-        this.variablevalues = generateVariables(this.inputvariables);
-
-        this.beginquestion.display(this.DOM, this.variablevalues);
-
-        // Hide buttons
-        document.getElementById(this.DOM.submitbuttonid).classList.add(this.DOM.disabledclass);
-        document.getElementById(this.DOM.restartbuttonid).textContent = "Begin";
-        document.getElementById(this.DOM.restartbuttonid).focus();
+    insertButton(containerid, buttonid, buttontext, callback) {
+        let container = document.getElementById(containerid);
+        let html = `<button id="${buttonid}">${buttontext}</button>`;
+        container.insertAdjacentHTML("beforeend", html);
+        document.getElementById(buttonid).addEventListener("click", e => this[callback](e));
     }
+
+    enableElement(elementid) {
+        document.getElementById(elementid).classList.remove(DOM.disabledclass);
+    }
+    disableElement(elementid) {
+        document.getElementById(elementid).classList.add(DOM.disabledclass);
+    }
+    hideElement(elementid) {
+        document.getElementById(elementid).classList.add(DOM.hiddenclass);
+    }
+    showElement(elementid) {
+        document.getElementById(elementid).classList.remove(DOM.hiddenclass);
+    }
+
     /**
      *  Begin the question
      */
     begin() {
         // Show buttons
-        document.getElementById(this.DOM.submitbuttonid).classList.remove(this.DOM.disabledclass);
-        document.getElementById(this.DOM.restartbuttonid).textContent = "Restart Problem";
-        this.enableHintButton()
-        document.getElementById(this.DOM.restartbuttonid).blur();
+        this.enableElement(DOM.submitbuttonid);
+        document.getElementById(DOM.restartbuttonid).textContent = "Restart Problem";
+        this.enableElement(DOM.hintbuttonid);
+        document.getElementById(DOM.restartbuttonid).blur(); // defocus restart button
 
         // Start question sequence
         this.currentquestion = -1;
-        this.nextQuestion();
+        this.next();
     }
+
+    /**
+        Show the hints for the current {@link Question}
+    */
+    showhint(e) {
+        this.disableElement(DOM.hintbuttonid);
+        // Loop through all hints, remove hidden text class
+        let elements = document.getElementsByClassName(DOM.hiddentextclass);
+        while (elements[0]) {
+            elements[0].classList.remove(DOM.hiddentextclass);
+        }
+    }
+
+    /**
+        Check user-submitted answers, show correct answers, update score
+    */
+    submit() {
+        // Update score for this question, call Question.submit
+        this.score[this.currentquestion] = this.questions[this.currentquestion].submit();
+        if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
+            // If on last question, adjust button label and click event
+            if (this.currentquestion == this.questions.length - 1) {
+                document.getElementById(DOM.nextbuttonid).textContent = "Finish";
+                document.getElementById(DOM.nextbuttonid).addEventListener("click", e => this.finish(e));
+            }
+        } else {
+            document.getElementById(DOM.nextbuttonid).textContent = "Retry";
+        }
+        this.disableElement(DOM.submitbuttonid);
+        this.showElement(DOM.nextbuttonid);
+        if (this.score[this.currentquestion].pct < 1) {
+            this.showhint();
+        }
+        this.updateScores();
+        document.getElementById(DOM.scoredivid).classList.add("showscore");
+    }
+
     /**
         Finish reviewing correct answers, move on to the next question
     */
     next() {
-        this.toggleSubmitButton();
-        this.toggleNextButton();
-        this.enableHintButton();
-        this.nextQuestion();
+        this.enableElement(DOM.submitbuttonid);
+        this.hideElement(DOM.nextbuttonid);
+        this.enableElement(DOM.hintbuttonid);
+
+        this.currentquestion++;
+        this.display();
+
+        window.scrollTo(0,0); // Move to top of page
     }
+
     /**
         Finish the problem, display the finishing page
     */
     finish() {
         this.clearPage();
-        document.getElementById(this.DOM.hintbuttonid).remove();
-        document.getElementById(this.DOM.submitbuttonid).remove();
-        document.getElementById(this.DOM.nextbuttonid).remove();
+        document.getElementById(DOM.hintbuttonid).remove();
+        document.getElementById(DOM.submitbuttonid).remove();
+        document.getElementById(DOM.nextbuttonid).remove();
         this.insertScoreInput();
         this.updateScores();
-        this.finishquestion.display(this.DOM, this.variablevalues);
-        document.getElementById(this.DOM.scoredivid).classList.add("showscore");
+        this.finishquestion.display(this.variablevalues);
+        document.getElementById(DOM.scoredivid).classList.add("showscore");
     }
 }
 

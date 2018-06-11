@@ -1,5 +1,3 @@
-// ##### Problem/question classes #####
-
 /**
     Generic element for display on page
 */

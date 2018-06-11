@@ -1,21 +1,20 @@
+import {DOM} from "./DOM.js";
 import {QuestionElement} from "./QuestionElement.js";
 import {GraphInfo} from "./GraphInfo.js";
-import {CanvasController} from "./CanvasController.js";
+import {GraphCanvasController, LAYERS} from "./GraphCanvasController.js";
+import {ZCanvas} from "./ZCanvas.js";
 import {Point} from "./Point.js";
 import {Line} from "./Line.js";
 
 const VAR = "@";
 
 /**
-    Container class for graph-entry questions
+    Container class for canvas-entry questions
 */
-/**
-    Container class for graph-entry questions
-*/
-export class GraphElement extends QuestionElement {
+export class CanvasElement extends QuestionElement {
     /**
         @param {object} inputarguments
-        @param {string} inputarguments.mode ("move, "point", "line")
+        @param {string} inputarguments.mode ("view, "move", "draw")
         @param {object} inputarguments.answercount Number of elements allowed on graph at time
         @param {object} inputarguments.answercount.point
         @param {object} inputarguments.answercount.line
@@ -30,9 +29,13 @@ export class GraphElement extends QuestionElement {
     */
     constructor(inputarguments) {
         super(inputarguments);
-        // Convert graphinfo data into class instance
-        this.graphinfo = new GraphInfo(this.graphinfo)
+
+        if (!(this.graphinfo instanceof GraphInfo)) {
+            // Convert graphinfo data into class instance
+            this.graphinfo = new GraphInfo(this.graphinfo)
+        }
     }
+
     /**
         Check user-submitted answers against correct answers
         @param {Element} answer The correct answer
@@ -115,36 +118,46 @@ export class GraphElement extends QuestionElement {
         }
         return score.pct;
     }
+
     /**
         Generates the HTML for this element <br>
         Includes a style tag to set the min-width to the graph width
-        @param {object} DOM Document object model name associations
-        @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    getHTML(DOM, containerid, id) {
+    getHTML(id) {
+
+        let sk = ZCanvas.getHTMLSkeleton({
+            "layers":  Object.keys(LAYERS).length,
+            "width": this.graphinfo.width,
+            "height": this.graphinfo.height,
+            "containerid": `canvasarea--${id}`,
+            "containerclass": DOM.canvasdivclass,
+            "canvasidprefix": "canvas--",
+            "canvasclass": DOM.canvasclass,
+        });
+        //console.log(sk);
+        return sk;
+
         let html = `<div style="min-width:${this.graphinfo.width}px; min-height:${this.graphinfo.height}px;" class="${DOM.canvasdivclass}" id="${DOM.canvasdivid}">`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.staticcanvasid}" style="z-index:1"></canvas>`;
         html += `<canvas class="${DOM.canvasclass}" id="${DOM.dynamiccanvasid}" style="z-index:2"></canvas>`;
-        html += `<br>`;
-        html += `<div class="${DOM.canvasinfodivclass}">`;
-        html += `</div></div>`;
+        html += `</div>`;
         html = html.replace(new RegExp(`${VAR}id${VAR}`, "g"), id);
         return html;
     }
+
     /**
-        Inserts the HTML for a GraphElement onto the page
-        @param {object} DOM Document object model name associations
+        Inserts the HTML for a CanvasElement onto the page
         @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    insertHTML(DOM, containerid, id) {
-        super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
-        this.init(DOM, id);
+    insertHTML(containerid, id) {
+        super.insertHTML(containerid, this.getHTML(id));
+        this.init(id);
     }
 
-    init(DOM, id) {
-        this.canvascontroller = new CanvasController(DOM, id, this);
+    init(id) {
+        this.GraphCanvasController = new GraphCanvasController(id, this);
     }
 }
 

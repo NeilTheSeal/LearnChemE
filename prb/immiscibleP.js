@@ -166,17 +166,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: sum the saturation pressures",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
                     "label": "1) Drag the dotted line to the pressure where three phases coexist.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 }]]
             ],
             "requiredscore": 0.00
@@ -212,17 +212,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: sum the saturation pressures",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
                     "label": "2) Which region has two liquids in equilibrium and no vapor?",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                  {
                     "type": "textbox",
@@ -235,7 +235,7 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: liquids are more stable at higher pressures",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }]],
             ],
             "requiredscore": 0.00
@@ -276,17 +276,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: pure component saturation pressures",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
                     "label": "3) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure @compound@ is in VLE. <br>",
-                    "style": "prompt"
+                    "class": "prompt"
                 }, // element
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 }]], // element
             ], // questionelements
             "requiredscore": 0.00
@@ -327,17 +327,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: each liquid exerts its saturation pressure",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
                     "label": "4) Drag the green point to where vapor is in equilibrium with two liquid phases. <br>",
-                    "style": "prompt"
+                    "class": "prompt"
                 }, // element
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 }]], // element
             ], // questionelements
             "requiredscore": 0.00
@@ -402,17 +402,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: the vapor mole fraction for component i is P<sub>i</sub><sup>sat</sup> / P",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
                     "label": "5) Drag each black point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
-                    "style": "prompt"
+                    "class": "prompt"
                 }, // element
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 }]], // element
             ], // questionelements
             "requiredscore": 0.00
@@ -529,16 +529,15 @@ const problem = {
             [{
                 "type": "text",
                 "label": `In this demonstration, the user is led through a step-by-step procedure to create a temperature-composition diagram for two immiscible liquids (water and an organic) at a fixed pressure. The organic can be benzene, toluene, or n-hexane.<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.`,
-                "style": "prompt"
+                "class": "prompt"
             },
             {
                 "type": "text",
                 "label": "Hint: click 'Begin' to start the problem",
-                "style": "hiddentext hint"
+                "class": "hiddentext hint"
             }]], // element
         ] // questionelements
     } // begin
 };
 
 let problemController = new ProblemController(problem, "body");
-problemController.load();

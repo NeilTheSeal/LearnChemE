@@ -59,40 +59,77 @@ export function ifTF(condition, iftrue, iffalse) {
 /**
  * Numerically finds a root of an expression using Newton's method<br>
  * TODO: Generalize to multi-variable root finding using Jacobian
- * @param { string} expression  Equation that is set equal to 0
- * @param { string} variable    Variable name to replace in equation
- * @param { number} min     Minimum value to try
- * @param { number} max     Maximum value to try
- * @param { number} precision   Allowable error in the answer
- * @param { number} initialguess    Start guessing from here
- * @param { int} maxloops Maximum iterations to attempt
+ * @param { string} args.expression  Equation that is set equal to 0
+ * @param { string} args.variable    Variable name to replace in equation
+ * @param { number} args.min     Minimum value to try
+ * @param { number} args.max     Maximum value to try
+ * @param { number} args.precision   Allowable error in the answer
+ * @param { number} [args.initialguess]    Start guessing from here
+ * @param { int} [args.maxloops=100] Maximum iterations to attempt
  * @return { number}     A root of the expression within the precision tolerance
  */
-export function FindRoot(expression, variable, min, max, precision, initialguess, maxloops=100) {
-    const re = new RegExp(variable, "g");
-    let guess = initialguess ? initialguess : (min + max) / 2;
-    let step = (max - min) / 1000;
+export function FindRoot(args) {
+    const re = new RegExp(args.variable, "g");
     let loops = 0;
+    let guess = args.guess ? args.guess : (args.min + args.max) / 2;
+    let method = args.method ? args.method : "newton";
+    let maxloops = args.maxloops ? args.maxloops : 100;
+    let err = evalWithContext(args.expression.replace(re, guess));
 
-    let err = evalWithContext(expression.replace(re, guess));
-    while (Math.abs(err) > precision) {
-        // Escape if function does not converge in time
-        if (loops > maxloops) {
-            console.log(`FindRoot exceeding max loops for arguments: (${expression}, ${variable}, ${min}, ${max}, ${precision}, ${initialguess})`);
+    switch (method) {
+        case "newton":
+            let step = (args.max - args.min) / 1000;
+            while (Math.abs(err) > args.precision) {
+                let ss = "";
+                for (let z=0; z<loops; z++) {
+                    ss += " ";
+                }
+                // Find local derivative at guess
+                const xp = guess + step;
+                const xm = guess - step;
+                const yp = evalWithContext(args.expression.replace(re, xp));
+                const ym = evalWithContext(args.expression.replace(re, xm));
+                const derivative = (yp - ym) / (2 * step);
+                // Find intersection of tangent line
+                if (derivative != 0) {
+                    guess -= err / derivative;
+                } else {
+                    console.log('FindRoot: local minimum found, try a different initial guess.', args);
+                    break;
+                }
+                // Check new guess
+                err = evalWithContext(args.expression.replace(re, guess));
+                // Escape if function does not converge in time
+                loops++;
+                if (loops > maxloops) {
+                    console.log(`FindRoot exceeding max loops for arguments: ${args}`);
+                    break;
+                }
+            }
             break;
-        } else {
-            loops++;
-        }
-        // Find local derivative at guess
-        const xp = guess + step;
-        const xm = guess - step;
-        const yp = evalWithContext(expression.replace(re, xp));
-        const ym = evalWithContext(expression.replace(re, xm));
-        const derivative = (yp - ym) / (2 * step);
-        // Find intersection of tangent line
-        guess -= err / derivative;
-        // Check new guess
-        err = evalWithContext(expression.replace(re, guess));
+        case "bisect":
+            let low = args.min;
+            let high = args.max;
+            while (Math.abs(err) > args.precision) {
+                const ylow = evalWithContext(args.expression.replace(re, low));
+                const yhigh = evalWithContext(args.expression.replace(re, high));
+                if (Math.abs(ylow) < Math.abs(yhigh)) {
+                    guess = low;
+                    err = ylow;
+                    high -= ((low + high) / 2 - low);
+                } else {
+                    guess = high;
+                    err = yhigh;
+                    low += ((low + high) / 2 - low)
+                }
+
+                loops++;
+                if (loops > maxloops) {
+                    console.log(`FindRoot exceeding max loops for arguments: ${args}`);
+                    break;
+                }
+            }
+            break;
     }
     return guess;
 }

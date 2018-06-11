@@ -1,10 +1,11 @@
 import {Point} from "./Point.js";
 import {randomID} from "./sky-helpers.js";
+import {LAYERS} from "./GraphCanvasController.js";
 
 const IDLENGTH = 16;
 
 /**
-    Text element for display through CanvasController
+    Text element for display through GraphCanvasController
     @param {string} text Text to display
     @param {string} [font="sans-serif"] Which font to use
     @param {string} [fontsize="20"] Size of the font (in px)
@@ -27,6 +28,13 @@ export class Text {
         this.align = "left";
         this.valign = "center";
         this.color = "black";
+        /**
+            @name Text#layer
+            @type number
+            @default 3
+            @desc Layer to draw element onto
+        */
+        this.layer = LAYERS.OVER;
         this.opacity = 1;
         this.rotate = 0;
         // Argument values

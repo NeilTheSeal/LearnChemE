@@ -1,5 +1,6 @@
 import {randomID, isBetween} from "./sky-helpers.js";
 import {Text} from "./Text.js";
+import {LAYERS} from "./GraphCanvasController.js";
 
 const IDLENGTH = 16;
 
@@ -86,6 +87,13 @@ export class Point {
             @desc Radius of the point
         */
         this.radius = 5;
+        /**
+            @name Point#layer
+            @type number
+            @default 3
+            @desc Layer to draw element onto
+        */
+        this.layer = LAYERS.OVER;
         /**
             @name Point#answer
             @type boolean

@@ -1,3 +1,4 @@
+import {DOM} from "./DOM.js";
 import {QuestionElement} from "./QuestionElement.js";
 
 const VAR = "@";
@@ -45,11 +46,9 @@ export class TextboxElement extends QuestionElement{
     }
     /**
         Generates the HTML for this element
-        @param {object} DOM Document object model name associations
-        @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    getHTML(DOM, containerid, id) {
+    getHTML(id) {
         let html = `<div class="${DOM.textboxdivclass}">`;
         html += `<input class="${DOM.textboxclass}" placeholder="${this.placeholder}" id="${DOM.textboxid}">`;
         html += `<br><br>`
@@ -60,12 +59,11 @@ export class TextboxElement extends QuestionElement{
     }
     /**
         Inserts the HTML for this element
-        @param {object} DOM Document object model name associations
         @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    insertHTML(DOM, containerid, id) {
-        super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
+    insertHTML(containerid, id) {
+        super.insertHTML(containerid, this.getHTML(id));
     }
 }
 

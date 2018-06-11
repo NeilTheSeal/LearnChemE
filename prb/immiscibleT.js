@@ -66,7 +66,7 @@ const secondarycursor = {
 const sidegraphtext = {
     "type": "text",
     "label": "the saturation pressures for each component and the sum of the saturation pressures are plotted versus temperature",
-    "style": "prompt"
+    "class": "prompt"
 };
 
 const sidegraph = {
@@ -122,7 +122,7 @@ const sidegraph = {
                  "max": Pmax
              },
              "tension": 0.5,
-             "steps": 30,
+             "steps": 50,
              "color": watercolor,
              "showpoints": false},
 
@@ -144,7 +144,7 @@ const sidegraph = {
                  "max": Pmax
              },
              "tension": 0.5,
-             "steps": 30,
+             "steps": 50,
              "color": organiccolor,
              "showpoints": false},
 
@@ -166,7 +166,7 @@ const sidegraph = {
                  "max": Pmax
              },
              "tension": 0.5,
-             "steps": 30,
+             "steps": 50,
              "color": "purple",
              "showpoints": false},
         ],
@@ -207,7 +207,7 @@ const problem = {
             "compound": "['benzene', 'toluene', 'hexane'][@orgnum@]",
             "TsatW": "InvAntoine(@P@, @AW@, @BW@, @CW@).toFixed(0)",
             "TsatO": "InvAntoine(@P@, @A@org@@, @B@org@@, @C@org@@).toFixed(0)",
-            "Tsum": "FindRoot('Antoine(T, @AW@, @BW@, @CW@) + Antoine(T, @A@org@@, @B@org@@, @C@org@@) - @P@','T',@Tmin@,@Tmax@,0.001)",
+            "Tsum": "FindRoot({expression:'Antoine(T, @AW@, @BW@, @CW@) + Antoine(T, @A@org@@, @B@org@@, @C@org@@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
             "PsatW": "Antoine(@Tsum@, @AW@, @BW@, @CW@)",
             "PsatO": "Antoine(@Tsum@, @A@org@@, @B@org@@, @C@org@@)",
             "Psum": "@PsatW@ + @PsatO@",
@@ -271,17 +271,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: saturation pressures sum to the total pressure",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
                     "label": "1) Drag the dotted line in the figure on the left to the temperature where three phases coexist. Use the P-T chart to determine the saturation pressure at a given temperature.",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraphtext,
                 sidegraph]],
@@ -317,12 +317,12 @@ const problem = {
                 [{
                     "type": "text",
                     "label": "2) Which region has two liquids in equilibrium and no vapor?",
-                    "style": "prompt"
+                    "class": "prompt"
                 },
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 {
                     "type": "textbox",
@@ -335,7 +335,7 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: liquids are more stable at lower temperatures",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }]],
             ],
             "requiredscore": 0.00
@@ -376,17 +376,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: use the P-T diagram to determine saturation temperatures at this pressure",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
                     "label": "3) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure @compound@ is in VLE. <br>",
-                    "style": "prompt"
+                    "class": "prompt"
                 }, // element
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraph]], // element
             ], // questionelements
@@ -428,17 +428,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: calculate the mole fraction using the saturation pressures",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
                     "label": "4) Drag the green point to where vapor is in equilibrium with two liquid phases.",
-                    "style": "prompt"
+                    "class": "prompt"
                 }, // element
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraph]], // element
             ], // questionelements
@@ -505,17 +505,17 @@ const problem = {
                 {
                     "type": "text",
                     "label": "Hint: the vapor mole fraction for component i, y<sub>i</sub> = P<sub>i</sub><sup>sat</sup> / P",
-                    "style": "hiddentext hint"
+                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
                     "label": "5) Drag each black point to the temperature where vapor with that mole fraction is in equilbrium with liquid. <br>",
-                    "style": "prompt"
+                    "class": "prompt"
                 }, // element
                 {
                     "type": "text",
                     "label": datalabel,
-                    "style": "data"
+                    "class": "data"
                 },
                 sidegraph]], // element
             ], // questionelements
@@ -577,7 +577,7 @@ const problem = {
             "calculated": {
                 "TsatW": "InvAntoine(@P@, @AW@, @BW@, @CW@).toFixed(0)",
                 "TsatO": "InvAntoine(@P@, @A@org@@, @B@org@@, @C@org@@).toFixed(0)",
-                "Tsum": "FindRoot('Antoine(T, @AW@, @BW@, @CW@) + Antoine(T, @A@org@@, @B@org@@, @C@org@@) - @P@','T',@Tmin@,@Tmax@,0.001)",
+                "Tsum": "FindRoot({expression:'Antoine(T, @AW@, @BW@, @CW@) + Antoine(T, @A@org@@, @B@org@@, @C@org@@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
                 "PsatW": "Antoine(@Tsum@, @AW@, @BW@, @CW@)",
                 "PsatO": "Antoine(@Tsum@, @A@org@@, @B@org@@, @C@org@@)",
                 "Psum": "@PsatW@ + @PsatO@",
@@ -634,16 +634,15 @@ const problem = {
             [{
                 "type": "text",
                 "label": `In this demonstration, the user is led through a step-by-step procedure to create a pressure-composition diagram for two immiscible liquids (water and an organic) at a fixed temperature. The organic can be benzene, toluene, or n-hexane.<br><br>After answering, the user clicks "Submit Answers" to check their answers, followed by "Next" to proceed with the question. The user can only move forward or select "Restart Problem" to start over at a different temperature and a different organic. For any step, check "Hint" for help.<br><br>In some steps, saturation pressures are calculated from Antoine's equation shown in a second graph.`,
-                "style": "prompt"
+                "class": "prompt"
             },
             {
                 "type": "text",
                 "label": "Hint: click 'Begin' to start the problem",
-                "style": "hiddentext hint"
+                "class": "hiddentext hint"
             }]], // element
         ] // questionelements
     } // begin
 };
 
 let problemController = new ProblemController(problem, "body");
-problemController.load();

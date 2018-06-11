@@ -1,3 +1,4 @@
+import {DOM} from "./DOM.js";
 import {QuestionElement} from "./QuestionElement.js";
 
 /**
@@ -7,7 +8,7 @@ export class TextElement extends QuestionElement{
     /**
         @param {object} inputarguments
         @param {string} inputarguments.label Text to display
-        @param {string} inputarguments.style CSS style to apply
+        @param {string} inputarguments.class CSS classes to apply
     */
     constructor(inputarguments) {
         super(inputarguments);
@@ -15,15 +16,10 @@ export class TextElement extends QuestionElement{
     /**
         Generates the HTML for this element
         @param {object} DOM Document object model name associations
-        @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    getHTML(DOM, containerid, id) {
-        let html = `<span class="${DOM.textspanclass}`;
-        if (this.style != undefined) {
-            html += ` ${this.style}`;
-        }
-        html += `">${this.label}</span>`;
+    getHTML(id) {
+        let html = `<span class="${DOM.textspanclass} ${this.class}">${this.label}</span>`;
         return html;
     }
     /**
@@ -32,7 +28,7 @@ export class TextElement extends QuestionElement{
         @param {string} containerid HTML id of parent element
         @param {int} id Unique id to be included in the HTML elements
     */
-    insertHTML(DOM, containerid, id) {
-        super.insertHTML(containerid, this.getHTML(DOM, containerid, id));
+    insertHTML(containerid, id) {
+        super.insertHTML(containerid, this.getHTML(id));
     }
 }
