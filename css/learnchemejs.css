@@ -64,13 +64,8 @@ body {
 }
 
 #question {
-    padding: 10px;
+    padding: 0px;
     width: 100%;
-
-}
-
-#next {
-    padding: 10px;
 }
 
 /* ########## Score ########## */
