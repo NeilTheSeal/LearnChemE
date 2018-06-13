@@ -100,9 +100,9 @@ export class ProblemController {
             parentid:DOM.modaldivid,
             modalid:DOM.restartmodal,
             modalclass:DOM.modalclass,
-            header:"Restart Problem?",
-            backgroundcolor:"red",
-            content:`Really start a new problem?<br><button id="restartyes">Yes</button><button id="restartno">No</button>`,
+            header:"Restart Problem",
+            backgroundcolor:"#BC5F50",
+            content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="restartyes">Yes</button><button id="restartno">No</button>`,
         });
 
         m.show();

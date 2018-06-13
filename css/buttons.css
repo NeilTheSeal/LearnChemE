@@ -49,3 +49,10 @@ button:hover {
     background-color: #123456;
 }
 
+#restartyes {
+    background-color: #555555;
+}
+
+#restartno {
+    background-color: #444444;
+}
