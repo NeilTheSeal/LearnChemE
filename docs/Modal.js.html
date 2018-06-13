@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: TextboxElement.js</title>
+    <title>JSDoc: Source: Modal.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: TextboxElement.js</h1>
+    <h1 class="page-title">Source: Modal.js</h1>
 
     
 
@@ -26,75 +26,79 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {DOM} from "./DOM.js";
-import {QuestionElement} from "./QuestionElement.js";
-
-const VAR = "@";
-
-/**
-    Container class for textbox-entry questions
+            <pre class="prettyprint source linenums"><code>/**
+*
 */
-export class TextboxElement extends QuestionElement{
+export class Modal {
     /**
-        @param {object} inputarguments
-        @param {string} inputarguments.placeholder Placeholder text in textbox
-        @param {string} inputarguments.answertype "number" or "text"
-        @param {float|string} inputarguments.answer Correct answer
-        @param {object} inputarguments.tolerance Range above or below answer to count as correct
-        @param {float} inputarguments.tolerance.x
-        @param {float} inputarguments.tolerance.y
-        @param {int} inputarguments.points Number of points question is worth
+    *
     */
-    constructor(inputarguments) {
-        super(inputarguments);
-    }
-    /**
-        Checks the answer of the TextboxElement
-        @param {float|string} answer The user-submitted answer
-        @return {float} Correctness (0 to 1)
-    */
-    checkanswer(answer) {
-        if (this.answertype === "number") {
-            // If user entered a number as 45%, convert to 0.45
-            if (answer.slice(-1) === "%") {
-                answer = parseFloat(answer) / 100;
-            }
-            if (parseFloat(answer) >= this.answer - this.tolerance &amp;&amp; parseFloat(answer) &lt;= this.answer + this.tolerance) {
-                return 1;
-            } else {
-                return 0;
-            }
-        } else if (this.answertype === "text") {
-            if (answer.toUpperCase().trim() === this.answer.toUpperCase().trim()) {
-                return 1;
-            } else {
-                return 0;
-            }
+    constructor(args) {
+        // Pull in arguments
+        for (let key of Object.keys(args)) {
+            this[key] = args[key];
         }
+        if (!document.getElementById(this.modalid)) {
+            // Insert modal onto page
+            document.body.insertAdjacentHTML("beforeend", this.getHTML());
+        }
+        // Retrieve html element
+        this.modal = document.getElementById(this.modalid);
+        // Set up listener for 'x' box
+        this.modal.getElementsByClassName("close")[0].onclick = e => this.hide();
+        // Close if clicking outside the box
+        document.addEventListener("click", e => this.checkhide(e));
     }
+
     /**
-        Generates the HTML for this element
-        @param {int} id Unique id to be included in the HTML elements
+    *
     */
-    getHTML(id) {
-        let html = `&lt;div class="${DOM.textboxdivclass}">`;
-        html += `&lt;input class="${DOM.textboxclass}" placeholder="${this.placeholder}" id="${DOM.textboxid}">`;
-        html += `&lt;br>&lt;br>`
-        html += `&lt;span class="${DOM.textboxanswerclass}" id="${DOM.textboxanswerid}">&lt;/span>`;
-        html += `&lt;/input>&lt;/div>`;
-        html = html.replace(new RegExp(`${VAR}id${VAR}`, "g"), id);
+    getHTML() {
+        let html = `&lt;div id="${this.modalid}" class="${this.modalclass}">`;
+            html += `&lt;div class="modal-content">`;
+                html += `&lt;div class="modal-header" style="background-color:${this.backgroundcolor}">`;
+                    html += `&lt;span class="close"> &amp;times; &lt;/span>`;
+                    html += `&lt;p>${this.header}&lt;/p>`;
+                html += `&lt;/div>`;
+                html += `&lt;div class="modal-body">`;
+                    html += `&lt;p>${this.content}&lt;/p>`;
+                html += `&lt;/div>`;
+            html += `&lt;/div>`;
+        html += `&lt;/div>`;
         return html;
     }
+
     /**
-        Inserts the HTML for this element
-        @param {string} containerid HTML id of parent element
-        @param {int} id Unique id to be included in the HTML elements
+    * If clicking outside the modal box, hide it
     */
-    insertHTML(containerid, id) {
-        super.insertHTML(containerid, this.getHTML(id));
+    checkhide(e) {
+        if (e.target == this.modal) {
+            this.hide();
+        }
+    }
+
+    /**
+    *
+    */
+    show() {
+        this.modal.style.display = "block";
+    }
+
+    /**
+    *
+    */
+    hide() {
+        this.modal.style.display = "none";
+    }
+
+    /**
+    *
+    */
+    remove() {
+        this.modal.remove();
+        delete this;
     }
 }
-
 </code></pre>
         </article>
     </section>

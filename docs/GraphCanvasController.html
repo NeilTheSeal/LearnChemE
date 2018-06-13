@@ -19,7 +19,7 @@
 
     <h1 class="page-title">Class: GraphCanvasController</h1>
 
-
+    
 
 
 
@@ -27,29 +27,29 @@
 <section>
 
 <header>
-
+    
         <h2><span class="attribs"><span class="type-signature"></span></span>GraphCanvasController<span class="signature">(index, args)</span><span class="type-signature"></span></h2>
-
+        
             <div class="class-description">Controller class for HTML canvas objects<br>
     Uses two overlaid canvases for background and foreground drawing.</div>
-
-
+        
+    
 </header>
 
 <article>
     <div class="container-overview">
+    
+        
 
-
-
-
+    
     <h2>Constructor</h2>
+    
 
-
-
+    
     <h4 class="name" id="GraphCanvasController"><span class="type-signature"></span>new GraphCanvasController<span class="signature">(index, args)</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -62,496 +62,496 @@
 
 
     <h5>Parameters:</h5>
-
+    
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>index</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Index to identify canvas</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>args</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">object</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Object of input arguments
                 <h6>Properties</h6>
-
+                
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>layers</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Number of layers</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>width</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Width of canvases</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>height</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Height of canvases</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>containerid</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">ID of container element</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>containerclass</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">class of container element</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>canvasidprefix</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">ID of each canvas, postpended by its layer number</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>canvasclass</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Classes added to each canvas</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>cursor</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">object</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Object describing how the cursor should look (used as cursordata for <a href="GraphCanvasController.html#drawCursor">GraphCanvasController#drawCursor</a>)</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>mode</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Valid modes are "none", "view", "move"</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>answercount</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">object</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Maximum number of elements to allow on graph
                 <h6>Properties</h6>
-
+                
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>point</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>line</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
             </td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>default</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">object</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Default elements that exist on graph
                 <h6>Properties</h6>
-
+                
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>point</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">list</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>line</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">list</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
             </td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
             </td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
@@ -562,42 +562,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line25">line 25</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -617,36 +617,36 @@
 
 
 
-
+    
     </div>
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
+    
         <h3 class="subsection-title">Methods</h3>
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="clear"><span class="type-signature"></span>clear<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -668,42 +668,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line109">line 109</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -723,16 +723,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="dataToElement"><span class="type-signature"></span>dataToElement<span class="signature">(type, data)</span><span class="type-signature"> &rarr; {<a href="Point.html">Point</a>|<a href="Line.html">Line</a>|<a href="Text.html">Text</a>}</span></h4>
+    
 
-
-
+    
 
 
 
@@ -749,73 +749,73 @@
 
 
     <h5>Parameters:</h5>
-
+    
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>type</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">"point", "line", or "text"</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>data</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">object</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Object of input arguments for object</td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
@@ -826,42 +826,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line151">line 151</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -878,7 +878,7 @@
 
 <h5>Returns:</h5>
 
-
+        
 <div class="param-desc">
     An instance of the chosen class
 </div>
@@ -890,7 +890,7 @@
         Type
     </dt>
     <dd>
-
+        
 <span class="param-type"><a href="Point.html">Point</a></span>
 |
 
@@ -903,22 +903,22 @@
     </dd>
 </dl>
 
+    
 
 
 
 
 
+        
+            
 
+    
 
-
-
-
-
-
+    
     <h4 class="name" id="deletePointByID"><span class="type-signature"></span>deletePointByID<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -940,42 +940,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line466">line 466</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -995,16 +995,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="draw"><span class="type-signature"></span>draw<span class="signature">(element)</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -1022,36 +1022,36 @@
 
 
     <h5>Parameters:</h5>
-
+    
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>element</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type"><a href="Point.html">Point</a></span>
 |
 
@@ -1061,17 +1061,17 @@
 <span class="param-type"><a href="Text.html">Text</a></span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">QuestionElement to be drawn</td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
@@ -1082,42 +1082,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line233">line 233</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -1137,16 +1137,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="drawAxis"><span class="type-signature"></span>drawAxis<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -1168,42 +1168,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line331">line 331</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -1223,16 +1223,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="drawCursor"><span class="type-signature"></span>drawCursor<span class="signature">(cursorpt, cursordata)</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -1249,486 +1249,486 @@
 
 
     <h5>Parameters:</h5>
-
+    
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>cursorpt</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type"><a href="Point.html">Point</a></span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Location of the cursor</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>cursordata</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">object</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">How the cursor data should look
                 <h6>Properties</h6>
-
+                
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
-
+        
         <th>Attributes</th>
+        
 
-
-
+        
         <th>Default</th>
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>color</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
-
+            
                 <td class="attributes">
-
+                
                     &lt;optional><br>
+                
 
+                
 
-
-
-
+                
                 </td>
+            
 
-
-
+            
                 <td class="default">
-
+                
                     "black"
-
+                
                 </td>
-
+            
 
             <td class="description last">What color the text is written in</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>font</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
-
+            
                 <td class="attributes">
-
+                
                     &lt;optional><br>
+                
 
+                
 
-
-
-
+                
                 </td>
+            
 
-
-
+            
                 <td class="default">
-
+                
                     "sans-serif"
-
+                
                 </td>
-
+            
 
             <td class="description last">What font the text is written in</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>fontsize</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
-
+            
                 <td class="attributes">
-
+                
                     &lt;optional><br>
+                
 
+                
 
-
-
-
+                
                 </td>
+            
 
-
-
+            
                 <td class="default">
-
+                
                     "16"
-
+                
                 </td>
-
+            
 
             <td class="description last">What size the text is written in (in px)</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>fontstyle</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
-
+            
                 <td class="attributes">
-
+                
                     &lt;optional><br>
+                
 
+                
 
-
-
-
+                
                 </td>
+            
 
-
-
+            
                 <td class="default">
-
+                
                     "bold"
-
+                
                 </td>
-
+            
 
             <td class="description last">What style the text is written in</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>format</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">string</span>
 
 
-
+            
             </td>
 
-
+            
                 <td class="attributes">
+                
 
+                
 
-
-
-
+                
                 </td>
+            
 
-
-
+            
                 <td class="default">
-
+                
                 </td>
-
+            
 
             <td class="description last">Format of the string to display (use ~x~, ~x2~, ~y~, or ~y2~ for relevant coordinate)</td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>digits</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">object</span>
 
 
-
+            
             </td>
 
-
+            
                 <td class="attributes">
+                
 
+                
 
-
-
-
+                
                 </td>
+            
 
-
-
+            
                 <td class="default">
-
+                
                 </td>
-
+            
 
             <td class="description last">How many digits to round to for each axis. If using an axis in cursordata.format, it must have a number of digits set.
                 <h6>Properties</h6>
-
+                
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>x</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>x2</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>y</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>y2</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">int</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last"></td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
             </td>
         </tr>
 
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>distance</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">number</span>
 
 
-
+            
             </td>
 
-
+            
                 <td class="attributes">
-
+                
                     &lt;optional><br>
+                
 
+                
 
-
-
-
+                
                 </td>
+            
 
-
-
+            
                 <td class="default">
-
+                
                     25
-
+                
                 </td>
-
+            
 
             <td class="description last">Distance from the center of the cursor to the text display</td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
             </td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
@@ -1739,42 +1739,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line524">line 524</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -1794,16 +1794,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="drawGraph"><span class="type-signature"></span>drawGraph<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -1826,42 +1826,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line247">line 247</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -1881,16 +1881,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="getanswers"><span class="type-signature"></span>getanswers<span class="signature">()</span><span class="type-signature"> &rarr; {list}</span></h4>
+    
 
-
-
+    
 
 
 
@@ -1912,42 +1912,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line476">line 476</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -1964,7 +1964,7 @@
 
 <h5>Returns:</h5>
 
-
+        
 <div class="param-desc">
     A list of <a href="QuestionElement.html">QuestionElement</a>s
 </div>
@@ -1976,29 +1976,29 @@
         Type
     </dt>
     <dd>
-
+        
 <span class="param-type">list</span>
 
 
     </dd>
 </dl>
 
+    
 
 
 
 
 
+        
+            
 
+    
 
-
-
-
-
-
+    
     <h4 class="name" id="getMousePoint"><span class="type-signature"></span>getMousePoint<span class="signature">(e)</span><span class="type-signature"> &rarr; {<a href="Point.html">Point</a>}</span></h4>
+    
 
-
-
+    
 
 
 
@@ -2011,50 +2011,50 @@
 
 
     <h5>Parameters:</h5>
-
+    
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>e</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">event</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">Mouse event</td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
@@ -2065,42 +2065,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line223">line 223</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2117,7 +2117,7 @@
 
 <h5>Returns:</h5>
 
-
+        
 <div class="param-desc">
     Point object at the current location of the mouse cursor
 </div>
@@ -2129,29 +2129,29 @@
         Type
     </dt>
     <dd>
-
+        
 <span class="param-type"><a href="Point.html">Point</a></span>
 
 
     </dd>
 </dl>
 
+    
 
 
 
 
 
+        
+            
 
+    
 
-
-
-
-
-
+    
     <h4 class="name" id="getPointByID"><span class="type-signature"></span>getPointByID<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Point.html">Point</a>}</span></h4>
+    
 
-
-
+    
 
 
 
@@ -2173,42 +2173,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line457">line 457</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2225,7 +2225,7 @@
 
 <h5>Returns:</h5>
 
-
+        
 
 
 <dl>
@@ -2233,29 +2233,29 @@
         Type
     </dt>
     <dd>
-
+        
 <span class="param-type"><a href="Point.html">Point</a></span>
 
 
     </dd>
 </dl>
 
+    
 
 
 
 
 
+        
+            
 
+    
 
-
-
-
-
-
+    
     <h4 class="name" id="keyPress"><span class="type-signature"></span>keyPress<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -2278,42 +2278,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line853">line 853</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2333,16 +2333,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="mouseDown"><span class="type-signature"></span>mouseDown<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -2364,42 +2364,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line835">line 835</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2419,16 +2419,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="mouseMove"><span class="type-signature"></span>mouseMove<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -2450,42 +2450,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line764">line 764</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2505,16 +2505,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="mouseUp"><span class="type-signature"></span>mouseUp<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -2536,42 +2536,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line803">line 803</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2591,16 +2591,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="showanswers"><span class="type-signature"></span>showanswers<span class="signature">(answers)</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -2617,50 +2617,50 @@
 
 
     <h5>Parameters:</h5>
-
+    
 
 <table class="params">
     <thead>
     <tr>
-
+        
         <th>Name</th>
-
+        
 
         <th>Type</th>
 
+        
 
-
-
+        
 
         <th class="last">Description</th>
     </tr>
     </thead>
 
     <tbody>
-
+    
 
         <tr>
-
+            
                 <td class="name"><code>answers</code></td>
-
+            
 
             <td class="type">
-
-
+            
+                
 <span class="param-type">list</span>
 
 
-
+            
             </td>
 
+            
 
-
-
+            
 
             <td class="description last">List of <a href="QuestionElement.html">QuestionElement</a>s</td>
         </tr>
 
-
+    
     </tbody>
 </table>
 
@@ -2671,42 +2671,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line491">line 491</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2726,16 +2726,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="trimLists"><span class="type-signature"></span>trimLists<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -2757,42 +2757,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line425">line 425</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2812,16 +2812,16 @@
 
 
 
+        
+            
 
+    
 
-
-
-
-
+    
     <h4 class="name" id="update"><span class="type-signature"></span>update<span class="signature">()</span><span class="type-signature"></span></h4>
+    
 
-
-
+    
 
 
 
@@ -2843,42 +2843,42 @@
 
 <dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="GraphCanvasController.js.html">GraphCanvasController.js</a>, <a href="GraphCanvasController.js.html#line120">line 120</a>
     </li></ul></dd>
+    
 
+    
 
+    
 
-
-
-
-
+    
 </dl>
 
 
@@ -2898,12 +2898,12 @@
 
 
 
+        
+    
 
+    
 
-
-
-
-
+    
 </article>
 
 </section>
@@ -2914,13 +2914,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasElement.html">CanvasElement</a></li><li><a href="GraphCanvasController.html">GraphCanvasController</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#DOM">DOM</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#FindRootMulti">FindRootMulti</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CanvasElement.html">CanvasElement</a></li><li><a href="GraphCanvasController.html">GraphCanvasController</a></li><li><a href="GraphInfo.html">GraphInfo</a></li><li><a href="Line.html">Line</a></li><li><a href="Modal.html">Modal</a></li><li><a href="Point.html">Point</a></li><li><a href="ProblemController.html">ProblemController</a></li><li><a href="Question_Question.html">Question</a></li><li><a href="QuestionElement.html">QuestionElement</a></li><li><a href="Text.html">Text</a></li><li><a href="TextboxElement.html">TextboxElement</a></li><li><a href="TextElement.html">TextElement</a></li><li><a href="ZCanvas.html">ZCanvas</a></li></ul><h3>Global</h3><ul><li><a href="global.html#checkCookie">checkCookie</a></li><li><a href="global.html#constrain">constrain</a></li><li><a href="global.html#DOM">DOM</a></li><li><a href="global.html#FindRoot">FindRoot</a></li><li><a href="global.html#FindRootMulti">FindRootMulti</a></li><li><a href="global.html#generateVariables">generateVariables</a></li><li><a href="global.html#getAngle">getAngle</a></li><li><a href="global.html#getCookie">getCookie</a></li><li><a href="global.html#getDist">getDist</a></li><li><a href="global.html#getRandom">getRandom</a></li><li><a href="global.html#ifTF">ifTF</a></li><li><a href="global.html#isBetween">isBetween</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#randomID">randomID</a></li><li><a href="global.html#recursiveExists">recursiveExists</a></li><li><a href="global.html#recursiveFind">recursiveFind</a></li><li><a href="global.html#recursiveNumberfy">recursiveNumberfy</a></li><li><a href="global.html#recursiveReplace">recursiveReplace</a></li><li><a href="global.html#roundTo">roundTo</a></li><li><a href="global.html#setCookie">setCookie</a></li><li><a href="global.html#VAR">VAR</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jun 11 2018 00:27:38 GMT-0600 (Mountain Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 13 2018 00:09:58 GMT-0600 (Mountain Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
