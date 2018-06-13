@@ -170,6 +170,7 @@ export class ProblemController {
         html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.cuidtextid}"></input></div>`;
         html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.coursetextid}"></input></div>`;
         html += `<button id="${DOM.gradebuttonid}">Submit</button>`;
+        html += `<p id="gradeservererror" class="hidden">Error while submitting grade to server. Check console for detailed http report.</p>`
         html += `</form>`;
         // Create modal
         let m = new Modal({
@@ -191,19 +192,21 @@ export class ProblemController {
         Followed example at: https://github.com/dwyl/learn-to-send-email-via-google-script-html-no-server
     */
     submitForGrade(e) {
+        this.disableElement(DOM.gradebuttonid);
+        document.getElementById("gradeservererror").classList.add("hidden");
         e.preventDefault();     // Prevent default form submission, use xhr
         let data = this.getSubmissionData();
 
-        if (data.cuid.length != 9) {
-            console.log('BAD ID LENGTH');
-            return false;
-        } else if (data.name.length === 0) {
-            console.log('BAD NAME LENGTH');
-            return false;
-        } else if (parseFloat(data.course.length) <= 0) {
-            console.log('BAD COURSE ID');
-            return false;
-        } else {
+//        if (data.cuid.length != 9) {
+//            console.log('BAD ID LENGTH');
+//            return false;
+//        } else if (data.name.length === 0) {
+//            console.log('BAD NAME LENGTH');
+//            return false;
+//        } else if (parseFloat(data.course.length) <= 0) {
+//            console.log('BAD COURSE ID');
+//            return false;
+//        } else {
             const url = e.target.action;
             const method = 'POST';
             let xhr = new XMLHttpRequest();
@@ -211,10 +214,12 @@ export class ProblemController {
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (xhr.status == 200) {
-                    document.getElementById("gradeform").style.display = "none";
+                    //document.getElementById("gradeform").style.display = "none";
+                    document.getElementById("gradeform").innerHTML = "Your grade has been submitted."
                 } else {
+                    this.enableElement(DOM.gradebuttonid);
+                    document.getElementById("gradeservererror").classList.remove("hidden");
                     console.log(xhr.status, xhr.statusText, xhr.responseText);
-                    alert("Error while submitting grade to server. Check console for detailed http report.");
                 }
                 return;
             };
@@ -222,7 +227,7 @@ export class ProblemController {
                 return encodeURIComponent(k) + "=" + encodeURIComponent(data[k])
             }).join('&');
             xhr.send(encoded);
-        }
+//        }
     }
 
     /**
