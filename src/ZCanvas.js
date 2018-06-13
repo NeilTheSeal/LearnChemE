@@ -15,6 +15,10 @@ export class ZCanvas {
         for (let key of Object.keys(args)) {
             this[key] = args[key];
         }
+        // If parentid is given, insert html
+        if (document.getElementById(this.parentid)) {
+            document.getElementById(this.parentid).insertAdjacentHTML("beforeend", this.getHTML());
+        }
         // If elements exist, link to them
         if (document.getElementById(this.containerid)) {
             this.link();
@@ -28,7 +32,7 @@ export class ZCanvas {
     getHTML() {
         let html = `<div id="${this.containerid}" class="${this.containerclass}" style="position:relative; min-width:${this.width}px; min-height:${this.height}px;">`
         for (let i = 0; i < this.layers; i++) {
-            html += `<canvas id="${this.canvasidprefix}${i}" class="${this.canvasclass}" style="z-index:${i}; position:absolute;"></canvas>`;
+            html += `<canvas id="${this.containerid}-${this.canvasidprefix}${i}" class="${this.canvasclass}" style="z-index:${i}; position:absolute;"></canvas>`;
         }
         html += `</div>`;
         return html;
