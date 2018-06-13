@@ -2,6 +2,7 @@ button {
     border: 2px solid black;
     color: white;
     text-align: center;
+    vertical-align: top;
     width: 200px;
     height: 50px;
     font-size: 20px;
@@ -49,10 +50,14 @@ button:hover {
     background-color: #123456;
 }
 
-#restartyes {
+#restartzero {
     background-color: #555555;
 }
 
-#restartno {
+#restartone {
+    background-color: #555555;
+}
+
+#restartabort {
     background-color: #444444;
 }
