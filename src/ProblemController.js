@@ -1,5 +1,6 @@
 import {DOM} from "./DOM.js";
 import {Question} from "./Question.js";
+import {Modal} from "./Modal.js"
 import {roundTo, getCookie, setCookie, generateVariables} from "./sky-helpers.js";
 
 const VAR = "@";
@@ -27,13 +28,14 @@ export class ProblemController {
     init(inputarguments, containerid) {
         // Insert main page containers
         let html = `<div id=${DOM.problemdivid}>`;
-        html += `<div id="${DOM.titledivid}"></div>`;
-        html += `<hr>`;
-        html += `<div id="${DOM.questiondivid}"></div>`;
-        html += `<hr>`;
-        html += `<div id="${DOM.buttonsdivid}"></div>`;
-        html += `<div id="${DOM.scoredivid}"></div>`;
-        html += `<div id="${DOM.gradedivid}"></div>`;
+            html += `<div id="${DOM.titledivid}"></div>`;
+            html += `<hr>`;
+            html += `<div id="${DOM.questiondivid}"></div>`;
+            html += `<hr>`;
+            html += `<div id="${DOM.buttonsdivid}"></div>`;
+            html += `<div id="${DOM.scoredivid}"></div>`;
+            html += `<div id="${DOM.gradedivid}"></div>`;
+            html += `<div id=${DOM.modaldivid}></div>`;
         html += `</div>`;
         document.getElementById(containerid).insertAdjacentHTML("beforeend", html);
 
@@ -52,15 +54,8 @@ export class ProblemController {
         };
 
         // Create buttons
-        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, "Begin", "restart");
-        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, "Hint", "showhint");
-        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, "Submit Answers", "submit");
-        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, "Next Part", "next");
-
-        // Initialize button states
-        this.hideElement(DOM.nextbuttonid);
-        this.disableElement(DOM.submitbuttonid);
-        document.getElementById(DOM.restartbuttonid).focus();
+        this.insertButton(DOM.buttonsdivid, DOM.beginbuttonid, "Begin", this.begin.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, "Hint", this.showhint.bind(this));
 
         // Set problem title
         this.title = inputarguments.pagetitle;
@@ -82,6 +77,9 @@ export class ProblemController {
         document.addEventListener("keydown", e => this.keyEvent(e));
 
         // Initialize variables
+        this.reviewing = false;
+        this.hasbegun = false;
+        this.finished = false;
         this.currentquestion = undefined;
         this.score = {};
         for (let i in this.questions) {
@@ -97,17 +95,32 @@ export class ProblemController {
     /**
     *   Restart the problem
     */
+    promptrestart() {
+        let m = new Modal({
+            parentid:DOM.modaldivid,
+            modalid:DOM.restartmodal,
+            modalclass:DOM.modalclass,
+            header:"Restart Problem?",
+            backgroundcolor:"red",
+            content:`Really start a new problem?<br><button id="restartyes">Yes</button><button id="restartno">No</button>`,
+        });
+
+        m.show();
+
+        document.getElementById("restartyes").addEventListener("click", this.restart.bind(this));
+        document.getElementById("restartno").addEventListener("click", m.remove.bind(m));
+    }
+
+    /**
+    *
+    */
     restart() {
-        if (this.currentquestion === undefined) {
-            this.begin();
-        } else {
-            if (confirm("Really start a new problem?")) {
-                // Clear container
-                document.getElementById(DOM.problemdivid).remove();
-                // Start new problem
-                this.init(this.inputarguments, this.containerid);
-            }
-        }
+        // Hide modal
+        document.getElementById("restartmodal").remove();
+        // Clear container
+        document.getElementById(DOM.problemdivid).remove();
+        // Start new problem
+        this.init(this.inputarguments, this.containerid);
     }
 
     /**
@@ -116,15 +129,12 @@ export class ProblemController {
     keyEvent(e) {
         //console.log(`ProblemController: pressed ${e.key}`);
         if (e.key === "Enter") {
-            if (this.currentquestion === undefined) {
-                // Begin problem
-                document.getElementById(DOM.restartbuttonid).click();
-            } else if (this.currentquestion < this.questions.length) {
-                if (!document.getElementById(DOM.submitbuttonid).classList.contains(DOM.disabledclass)) {
-                    document.getElementById(DOM.submitbuttonid).click();
-                } else {
-                    document.getElementById(DOM.nextbuttonid).click();
-                }
+            if (!this.hasbegun) {
+                this.begin();
+            } else if (!this.finished && !this.reviewing) {
+                this.submit();
+            } else if (!this.finished && this.reviewing) {
+                this.next();
             }
         }
     }
@@ -143,23 +153,28 @@ export class ProblemController {
         Inserts the HTML for grading submission input
     */
     insertScoreInput() {
-        let container = document.getElementById(DOM.gradedivid);
+        // Create html for modal
         let html = `<form id="${DOM.gradeform}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
   action="${spreadsheetURL}">`;
 
         html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.nametextid}"></input></div>`;
-
         html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.cuidtextid}"></input></div>`;
-
         html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.coursetextid}"></input></div>`;
-
-        html += `<button id="${DOM.gradebuttonid}">Submit for Grade (optional)</button>`;
-
+        html += `<button id="${DOM.gradebuttonid}">Submit</button>`;
         html += `</form>`;
-        container.insertAdjacentHTML("beforeend", html);
-
+        // Create modal
+        let m = new Modal({
+            parentid:DOM.modaldivid,
+            modalid:DOM.gradesubmitmodal,
+            modalclass:DOM.modalclass,
+            header:"Submit Grade",
+            backgroundcolor:"#123456",
+            content:html,
+        });
+        // Create submission button
+        this.insertButton(DOM.buttonsdivid, DOM.gradebuttonid, "Submit for Grade (optional)", m.show.bind(m));
+        // Bind modal button to grade submission function
         document.getElementById(DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
-        //document.getElementById(DOM.gradebuttonid).addEventListener("click", e => this.submitForGrade(e));
     }
 
     /**
@@ -352,18 +367,46 @@ export class ProblemController {
         let container = document.getElementById(containerid);
         let html = `<button id="${buttonid}">${buttontext}</button>`;
         container.insertAdjacentHTML("beforeend", html);
-        document.getElementById(buttonid).addEventListener("click", e => this[callback](e));
+        document.getElementById(buttonid).addEventListener("click", callback);
     }
 
+    /**
+    *
+    */
+    removeElement(elementid) {
+        if (document.getElementById(elementid)) {
+            document.getElementById(elementid).remove();
+        } else {
+            console.log(`element ${elementid} does not exist`);
+            console.trace();
+        }
+    }
+
+    /**
+    *
+    */
     enableElement(elementid) {
+
         document.getElementById(elementid).classList.remove(DOM.disabledclass);
     }
+
+    /**
+    *
+    */
     disableElement(elementid) {
         document.getElementById(elementid).classList.add(DOM.disabledclass);
     }
+
+    /**
+    *
+    */
     hideElement(elementid) {
         document.getElementById(elementid).classList.add(DOM.hiddenclass);
     }
+
+    /**
+    *
+    */
     showElement(elementid) {
         document.getElementById(elementid).classList.remove(DOM.hiddenclass);
     }
@@ -372,11 +415,14 @@ export class ProblemController {
      *  Begin the question
      */
     begin() {
-        // Show buttons
-        this.enableElement(DOM.submitbuttonid);
-        document.getElementById(DOM.restartbuttonid).textContent = "Restart Problem";
-        this.enableElement(DOM.hintbuttonid);
-        document.getElementById(DOM.restartbuttonid).blur(); // defocus restart button
+        this.hasbegun = true;
+        this.removeElement(DOM.beginbuttonid);
+        this.removeElement(DOM.hintbuttonid);
+        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, "Restart Problem", this.promptrestart.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, "Hint", this.showhint.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, "Submit Answers", this.submit.bind(this));
+        // Insert next button so it can be removed
+        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, "Next Part", this.next.bind(this));
 
         // Start question sequence
         this.currentquestion = -1;
@@ -399,6 +445,8 @@ export class ProblemController {
         Check user-submitted answers, show correct answers, update score
     */
     submit() {
+        this.reviewing = true;
+        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, "Next Part", this.next.bind(this));
         // Update score for this question, call Question.submit
         this.score[this.currentquestion] = this.questions[this.currentquestion].submit();
         if (this.score[this.currentquestion].pct >= this.questions[this.currentquestion].requiredscore) {
@@ -423,14 +471,23 @@ export class ProblemController {
         Finish reviewing correct answers, move on to the next question
     */
     next() {
-        this.enableElement(DOM.submitbuttonid);
-        this.hideElement(DOM.nextbuttonid);
-        this.enableElement(DOM.hintbuttonid);
+        if (this.currentquestion < this.questions.length - 1) {
+            this.reviewing = false;
+            //this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, "Submit Answers", this.submit.bind(this));
+            //this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, "Next Part", this.next.bind(this));
+            //this.enableElement(DOM.submitbuttonid);
+            this.removeElement(DOM.nextbuttonid);//this.hideElement(DOM.nextbuttonid);
+            this.enableElement(DOM.submitbuttonid);
+            this.enableElement(DOM.hintbuttonid);
 
-        this.currentquestion++;
-        this.display();
+            this.currentquestion++;
+            this.display();
 
-        window.scrollTo(0,0); // Move to top of page
+            window.scrollTo(0,0); // Move to top of page
+        } else {
+            this.finished = true;
+            this.finish();
+        }
     }
 
     /**
