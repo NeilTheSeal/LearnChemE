@@ -102,13 +102,22 @@ export class ProblemController {
             modalclass:DOM.modalclass,
             header:"Restart Problem",
             backgroundcolor:"#BC5F50",
-            content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="restartyes">Yes</button><button id="restartno">No</button>`,
+            content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="restartone">Restart from step one</button><button id="restartzero">Restart from introduction</button><button id="restartabort">No</button>`,
         });
 
         m.show();
 
-        document.getElementById("restartyes").addEventListener("click", this.restart.bind(this));
-        document.getElementById("restartno").addEventListener("click", m.remove.bind(m));
+        document.getElementById("restartzero").addEventListener("click", this.restart.bind(this));
+        document.getElementById("restartone").addEventListener("click", this.restartstepone.bind(this));
+        document.getElementById("restartabort").addEventListener("click", m.remove.bind(m));
+    }
+
+    /**
+    *
+    */
+    restartstepone() {
+        this.restart();
+        this.begin();
     }
 
     /**
