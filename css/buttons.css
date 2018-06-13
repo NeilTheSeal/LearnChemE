@@ -1,0 +1,51 @@
+button {
+    border: 2px solid black;
+    color: white;
+    text-align: center;
+    width: 200px;
+    height: 50px;
+    font-size: 20px;
+    border-radius: 10px;
+    margin: 2px;
+    transition-duration: 0.0s;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+#beginbutton {
+    background-color: #123456;
+}
+
+#restartbutton {
+    background-color: #BC5F50;
+}
+
+#hintbutton {
+    color: black;
+}
+
+#hintbutton.disabled {
+    color: #CCCCCC;
+    background-color: #555555;
+}
+
+#submitbutton {
+    background-color: green;
+}
+
+#submitbutton.disabled {
+    color: #CCCCCC;
+    background-color: #555555;
+}
+
+#nextbutton {
+    background-color: darkgreen;
+}
+
+#gradebutton {
+    background-color: #123456;
+}
+
