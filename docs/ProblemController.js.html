@@ -130,13 +130,22 @@ export class ProblemController {
             modalclass:DOM.modalclass,
             header:"Restart Problem",
             backgroundcolor:"#BC5F50",
-            content:`You will lose all progress on the current problem. &lt;br>&lt;br>Really start a new problem?&lt;br>&lt;br>&lt;button id="restartyes">Yes&lt;/button>&lt;button id="restartno">No&lt;/button>`,
+            content:`You will lose all progress on the current problem. &lt;br>&lt;br>Really start a new problem?&lt;br>&lt;br>&lt;button id="${DOM.restartone}">Restart from step one&lt;/button>&lt;button id="${DOM.restartzero}">Restart from introduction&lt;/button>&lt;button id="${DOM.restartabort}">No&lt;/button>`,
         });
 
         m.show();
 
-        document.getElementById("restartyes").addEventListener("click", this.restart.bind(this));
-        document.getElementById("restartno").addEventListener("click", m.remove.bind(m));
+        document.getElementById(DOM.restartzero).addEventListener("click", this.restart.bind(this));
+        document.getElementById(DOM.restartone).addEventListener("click", this.restartstepone.bind(this));
+        document.getElementById(DOM.restartabort).addEventListener("click", m.remove.bind(m));
+    }
+
+    /**
+    *
+    */
+    restartstepone() {
+        this.restart();
+        this.begin();
     }
 
     /**
@@ -144,7 +153,7 @@ export class ProblemController {
     */
     restart() {
         // Hide modal
-        document.getElementById("restartmodal").remove();
+        document.getElementById(DOM.restartmodal).remove();
         // Clear container
         document.getElementById(DOM.problemdivid).remove();
         // Start new problem
@@ -189,6 +198,7 @@ export class ProblemController {
         html += `&lt;div class="${DOM.textboxdivclass}">&lt;span class="${DOM.textboxspanclass}">Student ID:&lt;/span>&lt;br>&lt;input class="${DOM.textboxclass}" id="${DOM.cuidtextid}">&lt;/input>&lt;/div>`;
         html += `&lt;div class="${DOM.textboxdivclass}">&lt;span class="${DOM.textboxspanclass}">Course code:&lt;/span>&lt;br>&lt;input class="${DOM.textboxclass}" id="${DOM.coursetextid}">&lt;/input>&lt;/div>`;
         html += `&lt;button id="${DOM.gradebuttonid}">Submit&lt;/button>`;
+        html += `&lt;p id=${DOM.gradeservererrorid} class="hidden">Error while submitting grade to server. Check console for detailed http report.&lt;/p>`
         html += `&lt;/form>`;
         // Create modal
         let m = new Modal({
@@ -200,7 +210,7 @@ export class ProblemController {
             content:html,
         });
         // Create submission button
-        this.insertButton(DOM.buttonsdivid, DOM.gradebuttonid, "Submit for Grade (optional)", m.show.bind(m));
+        this.insertButton(DOM.buttonsdivid, DOM.gradebuttonid, "Submit for Grade", m.show.bind(m));
         // Bind modal button to grade submission function
         document.getElementById(DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
     }
@@ -210,19 +220,21 @@ export class ProblemController {
         Followed example at: https://github.com/dwyl/learn-to-send-email-via-google-script-html-no-server
     */
     submitForGrade(e) {
+        this.disableElement(DOM.gradebuttonid);
+        document.getElementById(DOM.gradeservererrorid).classList.add(DOM.hiddenclass);
         e.preventDefault();     // Prevent default form submission, use xhr
         let data = this.getSubmissionData();
 
-        if (data.cuid.length != 9) {
-            console.log('BAD ID LENGTH');
-            return false;
-        } else if (data.name.length === 0) {
-            console.log('BAD NAME LENGTH');
-            return false;
-        } else if (parseFloat(data.course.length) &lt;= 0) {
-            console.log('BAD COURSE ID');
-            return false;
-        } else {
+//        if (data.cuid.length != 9) {
+//            console.log('BAD ID LENGTH');
+//            return false;
+//        } else if (data.name.length === 0) {
+//            console.log('BAD NAME LENGTH');
+//            return false;
+//        } else if (parseFloat(data.course.length) &lt;= 0) {
+//            console.log('BAD COURSE ID');
+//            return false;
+//        } else {
             const url = e.target.action;
             const method = 'POST';
             let xhr = new XMLHttpRequest();
@@ -230,10 +242,11 @@ export class ProblemController {
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (xhr.status == 200) {
-                    document.getElementById("gradeform").style.display = "none";
+                    document.getElementById(DOM.gradeformid).innerHTML = "Your grade has been submitted."
                 } else {
+                    this.enableElement(DOM.gradebuttonid);
+                    document.getElementById(DOM.gradeservererrorid).classList.remove(DOM.hiddenclass);
                     console.log(xhr.status, xhr.statusText, xhr.responseText);
-                    alert("Error while submitting grade to server. Check console for detailed http report.");
                 }
                 return;
             };
@@ -241,7 +254,7 @@ export class ProblemController {
                 return encodeURIComponent(k) + "=" + encodeURIComponent(data[k])
             }).join('&amp;');
             xhr.send(encoded);
-        }
+//        }
     }
 
     /**
@@ -549,7 +562,7 @@ export class ProblemController {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 13 2018 00:17:12 GMT-0600 (Mountain Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jun 13 2018 20:09:51 GMT-0600 (Mountain Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
