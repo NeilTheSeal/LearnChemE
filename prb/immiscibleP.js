@@ -1,6 +1,6 @@
 import {ProblemController} from "../src/ProblemController.js";
 
-const datalabel = "temperature = @T@ ºC <br> saturation pressures: P<sub>W</sub><sup>sat</sup> = @PsatW@ bar, P<sub>@org@</sub><sup>sat</sup> = @PsatO@ bar";
+const datalabel = "temperature = @T@ °C <br> saturation pressures: P<sub>W</sub><sup>sat</sup> = @PsatW@ bar, P<sub>@org@</sub><sup>sat</sup> = @PsatO@ bar";
 
 const watercolor = "blue";
 const organiccolor = "orange";

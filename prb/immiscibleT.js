@@ -1,6 +1,6 @@
 import {ProblemController} from "../src/ProblemController.js";
 
-const datalabel = "pressure = @P@ bar <br> saturation temperatures: T<sub>sat,W</sub> = @TsatW@ C, T<sub>sat,@org@</sub> = @TsatO@ ºC";
+const datalabel = "pressure = @P@ bar <br> saturation temperatures: T<sub>sat,W</sub> = @TsatW@ °C, T<sub>sat,@org@</sub> = @TsatO@ °C";
 
 const watercolor = "blue";
 const organiccolor = "orange";
@@ -28,7 +28,7 @@ const graphinfo = {
         "gridline": 0.05,
     },
     "y": {
-        "label": "temperature [ºC]",
+        "label": "temperature [°C]",
         "min": Tmin,
         "max": Tmax,
         "majortick": 15,
@@ -78,7 +78,7 @@ const sidegraph = {
         "graphbackground": "white",
         "axesbackground": "lightgray",
         "x": {
-            "label": "temperature [ºC]",
+            "label": "temperature [°C]",
             "min": Tmin,
             "max": Tmax,
             "majortick": 30,

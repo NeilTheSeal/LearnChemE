@@ -29,7 +29,7 @@ const graphinfo = {
         "gridline": 0.05,
     },
     "y": {
-        "label": "temperature [ºC]",
+        "label": "temperature [°C]",
         "min": Tmin,
         "max": Tmax,
         "majortick": 10,
@@ -79,7 +79,7 @@ const sidegraph = {
         "graphbackground": "white",
         "axesbackground": "lightgray",
         "x": {
-            "label": "temperature [ºC]",
+            "label": "temperature [°C]",
             "min": Tmin,
             "max": Tmax,
             "majortick": 30,
