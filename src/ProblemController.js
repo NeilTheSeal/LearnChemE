@@ -102,14 +102,14 @@ export class ProblemController {
             modalclass:DOM.modalclass,
             header:"Restart Problem",
             backgroundcolor:"#BC5F50",
-            content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="restartone">Restart from step one</button><button id="restartzero">Restart from introduction</button><button id="restartabort">No</button>`,
+            content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="${DOM.restartone}">Restart from step one</button><button id="${DOM.restartzero}">Restart from introduction</button><button id="${DOM.restartabort}">No</button>`,
         });
 
         m.show();
 
-        document.getElementById("restartzero").addEventListener("click", this.restart.bind(this));
-        document.getElementById("restartone").addEventListener("click", this.restartstepone.bind(this));
-        document.getElementById("restartabort").addEventListener("click", m.remove.bind(m));
+        document.getElementById(DOM.restartzero).addEventListener("click", this.restart.bind(this));
+        document.getElementById(DOM.restartone).addEventListener("click", this.restartstepone.bind(this));
+        document.getElementById(DOM.restartabort).addEventListener("click", m.remove.bind(m));
     }
 
     /**
@@ -125,7 +125,7 @@ export class ProblemController {
     */
     restart() {
         // Hide modal
-        document.getElementById("restartmodal").remove();
+        document.getElementById(DOM.restartmodal).remove();
         // Clear container
         document.getElementById(DOM.problemdivid).remove();
         // Start new problem
@@ -170,7 +170,7 @@ export class ProblemController {
         html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.cuidtextid}"></input></div>`;
         html += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.coursetextid}"></input></div>`;
         html += `<button id="${DOM.gradebuttonid}">Submit</button>`;
-        html += `<p id="gradeservererror" class="hidden">Error while submitting grade to server. Check console for detailed http report.</p>`
+        html += `<p id=${DOM.gradeservererrorid} class="hidden">Error while submitting grade to server. Check console for detailed http report.</p>`
         html += `</form>`;
         // Create modal
         let m = new Modal({
@@ -182,7 +182,7 @@ export class ProblemController {
             content:html,
         });
         // Create submission button
-        this.insertButton(DOM.buttonsdivid, DOM.gradebuttonid, "Submit for Grade (optional)", m.show.bind(m));
+        this.insertButton(DOM.buttonsdivid, DOM.gradebuttonid, "Submit for Grade", m.show.bind(m));
         // Bind modal button to grade submission function
         document.getElementById(DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
     }
@@ -193,7 +193,7 @@ export class ProblemController {
     */
     submitForGrade(e) {
         this.disableElement(DOM.gradebuttonid);
-        document.getElementById("gradeservererror").classList.add("hidden");
+        document.getElementById(DOM.gradeservererrorid).classList.add(DOM.hiddenclass);
         e.preventDefault();     // Prevent default form submission, use xhr
         let data = this.getSubmissionData();
 
@@ -214,11 +214,10 @@ export class ProblemController {
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (xhr.status == 200) {
-                    //document.getElementById("gradeform").style.display = "none";
-                    document.getElementById("gradeform").innerHTML = "Your grade has been submitted."
+                    document.getElementById(DOM.gradeformid).innerHTML = "Your grade has been submitted."
                 } else {
                     this.enableElement(DOM.gradebuttonid);
-                    document.getElementById("gradeservererror").classList.remove("hidden");
+                    document.getElementById(DOM.gradeservererrorid).classList.remove(DOM.hiddenclass);
                     console.log(xhr.status, xhr.statusText, xhr.responseText);
                 }
                 return;
