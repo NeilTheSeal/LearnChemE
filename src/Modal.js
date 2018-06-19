@@ -54,6 +54,7 @@ export class Modal {
     */
     show() {
         this.modal.style.display = "block";
+        this.showing = true;
     }
 
     /**
@@ -61,6 +62,7 @@ export class Modal {
     */
     hide() {
         this.modal.style.display = "none";
+        this.showing = false;
     }
 
     /**
