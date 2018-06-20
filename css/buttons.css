@@ -67,6 +67,11 @@ button:hover {
     background-color: #123456;
 }
 
+#submitfeedbackbutton.disabled {
+    color: #CCCCCC;
+    background-color: #555555;
+}
+
 #restartzero {
     color: white;
     background-color: #555555;
@@ -90,4 +95,14 @@ button:hover {
 #feedbackbutton {
     color: black;
     background-color: burlywood;
+}
+
+#submitfeedbackbutton {
+    color: black;
+    background-color: burlywood;
+}
+
+#submitfeedbackbutton.disabled {
+    color: #CCCCCC;
+    background-color: #555555;
 }
