@@ -5,7 +5,8 @@ import {roundTo, getCookie, setCookie, generateVariables} from "./sky-helpers.js
 
 const VAR = "@";
 const HIDESCOREWINDOWWIDTH = 875;
-const spreadsheetURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
+const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
+const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
 
 /**
     Master class for controlling page <br>
@@ -87,15 +88,7 @@ export class ProblemController {
                              "pct": 0};
         }
 
-        // Create modal
-        this.feedbackmodal = new Modal({
-            parentid:DOM.modaldivid,
-            modalid:DOM.feedbackmodal,
-            modalclass:DOM.modalclass,
-            header:"Give Feedback",
-            backgroundcolor:"burlywood",
-            content:"placeholder",
-        });
+        // Create modals
         this.restartmodal = new Modal({
             parentid:DOM.modaldivid,
             modalid:DOM.restartmodal,
@@ -104,23 +97,25 @@ export class ProblemController {
             backgroundcolor:"#BC5F50",
             content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="${DOM.restartoneid}">Restart from step one</button><button id="${DOM.restartzeroid}">Restart from introduction</button><button id="${DOM.restartabortid}">No</button>`,
         });
-        // Create html for modal
-        let grademodalhtml = `<form id="${DOM.gradeform}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
-  action="${spreadsheetURL}">`;
-        grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.nametextid}"></input></div>`;
-        grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.cuidtextid}"></input></div>`;
-        grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.coursetextid}"></input></div>`;
-        grademodalhtml += `<button id="${DOM.submitgradebuttonid}">Submit</button>`;
-        grademodalhtml += `<p id=${DOM.gradeservererrorid} class="hidden">Error while submitting grade to server. Check console for detailed http report.</p>`
-        grademodalhtml += `</form>`;
         this.grademodal = new Modal({
             parentid:DOM.modaldivid,
             modalid:DOM.gradesubmitmodal,
             modalclass:DOM.modalclass,
             header:"Submit Grade",
             backgroundcolor:"#123456",
-            content:grademodalhtml,
+            content:(function () {
+                let grademodalhtml = `<form id="${DOM.gradeformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
+          action="${gradecatcherURL}">`;
+                grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradenametextid}" required></input></div>`;
+                grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradecuidtextid}" required></input></div>`;
+                grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradecoursetextid}" required></input></div>`;
+                grademodalhtml += `<button id="${DOM.submitgradebuttonid}">Submit</button>`;
+                grademodalhtml += `<p id=${DOM.gradeservererrorid} class="hidden error">Error while submitting grade to server. Check console for detailed http report.</p>`
+                grademodalhtml += `</form>`;
+                return grademodalhtml;
+            })(),
         });
+        this.createFeedbackInput();
 
         // Show pre-question page
         this.beginquestion.display(this.variablevalues);
@@ -159,20 +154,37 @@ export class ProblemController {
     }
 
     /**
+    *
+    */
+    defocus() {
+        // Give the document focus
+        window.focus();
+
+        // Remove focus from any focused element
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+    }
+
+    /**
         Handler for keypress events
     */
     keyEvent(e) {
         // Process keypress
         switch(e.key) {
             case "Enter":
-                // Ignore possible button presses
-                e.preventDefault();
-                if (!this.hasbegun) {
-                    this.begin();
-                } else if (!this.finished && !this.reviewing) {
-                    this.submit();
-                } else if (!this.finished && this.reviewing) {
-                    this.next();
+                // If not in a modal
+                if (!this.feedbackmodal.showing && !this.grademodal.showing) {
+                    // Ignore activating whatever is selected
+                    e.preventDefault();
+                    // Progress through the problem
+                    if (!this.hasbegun) {
+                        this.begin();
+                    } else if (!this.finished && !this.reviewing) {
+                        this.submit();
+                    } else if (!this.finished && this.reviewing) {
+                        this.next();
+                    }
                 }
                 break;
             case "F2":
@@ -200,7 +212,36 @@ export class ProblemController {
         // Create submission button
         this.insertButton(DOM.buttonsdivid, DOM.showgradebuttonid, "Submit for Grade", this.grademodal.show.bind(this.grademodal));
         // Bind modal button to grade submission function
-        document.getElementById(DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
+        document.getElementById(DOM.gradeformid).addEventListener("submit", e => this.submitForGrade(e));
+    }
+
+    /**
+    *
+    */
+    createFeedbackInput() {
+        if (this.feedbackmodal != undefined) {
+            this.feedbackmodal.remove();
+            this.feedbackmodal = undefined;
+        }
+       this.feedbackmodal = new Modal({
+        parentid:DOM.modaldivid,
+        modalid:DOM.feedbackmodal,
+        modalclass:DOM.modalclass,
+        header:"Feedback",
+        backgroundcolor:"burlywood",
+        content:(function () {
+            let feedbackmodalhtml = `<form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
+      action="${feedbackcatcherURL}">`;
+            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbacknametextid}" required></input></div>`;
+            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">E-mail address:</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbackemailtextid}" type="email" required></input></div>`;
+            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Feedback:</span><br><textarea class="${DOM.textboxclass}" id="${DOM.feedbackinputtextid}" required></textarea></div>`;
+            feedbackmodalhtml += `<button id="${DOM.submitfeedbackbuttonid}">Submit</button>`;
+            feedbackmodalhtml += `<p id=${DOM.feedbackservererrorid} class="hidden error">Error while submitting feedback to server. Check console for detailed http report.</p>`
+            feedbackmodalhtml += `</form>`;
+            return feedbackmodalhtml;
+        })(),
+    });
+        document.getElementById(DOM.feedbackformid).addEventListener("submit", e => this.submitFeedback(e));
     }
 
     /**
@@ -211,7 +252,7 @@ export class ProblemController {
         this.disableElement(DOM.submitgradebuttonid);
         document.getElementById(DOM.gradeservererrorid).classList.add(DOM.hiddenclass);
         e.preventDefault();     // Prevent default form submission, use xhr
-        let data = this.getSubmissionData();
+        let data = this.getGradeSubmissionData();
 
 //        if (data.cuid.length != 9) {
 //            console.log('BAD ID LENGTH');
@@ -232,7 +273,7 @@ export class ProblemController {
                 if (xhr.status == 200) {
                     document.getElementById(DOM.gradeformid).innerHTML = "Your grade has been submitted."
                 } else {
-                    this.enableElement(DOM.submitgradebuttonid);
+                    document.getElementById(DOM.submitgradebuttonid).classList.remove(DOM.disabledclass);
                     document.getElementById(DOM.gradeservererrorid).classList.remove(DOM.hiddenclass);
                     console.log(xhr.status, xhr.statusText, xhr.responseText);
                 }
@@ -245,33 +286,76 @@ export class ProblemController {
 //        }
     }
 
+    submitFeedback(e) {
+        this.disableElement(DOM.submitfeedbackbuttonid);
+        document.getElementById(DOM.feedbackservererrorid).classList.add(DOM.hiddenclass);
+        e.preventDefault();     // Prevent default form submission, use xhr
+        let data = this.getFeedbackSubmissionData();
+
+        const url = e.target.action;
+        const method = 'POST';
+        let xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.status == 200) {
+                document.getElementById(DOM.feedbackformid).innerHTML = "Thank you, your feedback has been recorded.";
+                setTimeout(this.createFeedbackInput.bind(this), 3000);
+            } else {
+
+                document.getElementById(DOM.submitfeedbackbuttonid).classList.remove(DOM.disabledclass);
+                document.getElementById(DOM.feedbackservererrorid).classList.remove(DOM.hiddenclass);
+                console.log(xhr.status, xhr.statusText, xhr.responseText);
+            }
+            return;
+        }.bind(this);
+        var encoded = Object.keys(data).map(function(k) {
+            return encodeURIComponent(k) + "=" + encodeURIComponent(data[k])
+        }).join('&');
+        xhr.send(encoded);
+    }
+
     /**
     *
     */
     showfeedback() {
         this.feedbackmodal.show();
-
-
-        // Create submission button
-        //document.getElementById(DOM.feedbackbuttonid).addEventListener("click", m.show.bind(m));
-        // Bind modal button to grade submission function
-//        document.getElementById(DOM.gradeform).addEventListener("submit", e => this.submitForGrade(e));
+        document.getElementById(DOM.feedbacknametextid).focus();
     }
 
     /**
      * Gathers data from the page to submit to the spreadsheet
      * @return {object} Data that will be passed to the web server
      */
-    getSubmissionData() {
+    getGradeSubmissionData() {
         let data = {};
-        data.course = document.getElementById(DOM.coursetextid).value;
+        data.course = document.getElementById(DOM.gradecoursetextid).value;
         data.title = this.title;
-        data.name = document.getElementById(DOM.nametextid).value;
-        data.cuid = document.getElementById(DOM.cuidtextid).value;
+        data.name = document.getElementById(DOM.gradenametextid).value;
+        data.cuid = document.getElementById(DOM.gradecuidtextid).value;
         data.score = this.sumScore().pct.toFixed(2);
 
         data.formDataNameOrder = JSON.stringify(["course", "title", "name", "cuid", "score"]); // The data, in order, that is inserted into the sheet
         data.formGoogleSheetName = data.course; // The subsheet to insert data onto
+
+        return data;
+    }
+
+    /**
+     * Gathers data from the page to submit to the spreadsheet
+     * @return {object} Data that will be passed to the web server
+     */
+    getFeedbackSubmissionData() {
+        let data = {};
+        data.title = this.title;
+        data.name = document.getElementById(DOM.feedbacknametextid).value;
+        data.email = document.getElementById(DOM.feedbackemailtextid).value;
+        data.feedback = document.getElementById(DOM.feedbackinputtextid).value;
+        data.variables = JSON.stringify(this.variablevalues);
+        data.score = JSON.stringify(this.score);
+        data.currentquestion = this.currentquestion + 1;
+        data.formDataNameOrder = `["title", "name", "email", "feedback", "question", "score", "variables"]`; // The data, in order, that is inserted into the sheet
+        data.formGoogleSheetName = "feedback"; // The subsheet to insert data onto
 
         return data;
     }
@@ -479,7 +563,7 @@ export class ProblemController {
         this.hasbegun = true;
         this.removeElement(DOM.beginbuttonid);
         this.insertButton(DOM.buttonsdivid, DOM.scorebuttonid, "▲ Score ▲", this.togglescore.bind(this));
-        //this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, "Feedback", this.showfeedback.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, "Feedback", this.showfeedback.bind(this));
         this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, "Restart Problem", this.promptrestart.bind(this));
         this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, "Hint", this.showhint.bind(this));
         this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, "Submit Answers", this.submit.bind(this));
@@ -525,6 +609,7 @@ export class ProblemController {
             this.showhint();
         }
         this.updateScores();
+        this.defocus();
     }
 
     /**
@@ -544,6 +629,7 @@ export class ProblemController {
         } else {
             this.finish();
         }
+        this.defocus();
     }
 
     /**
