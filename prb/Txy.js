@@ -906,4 +906,4 @@ const problem = {
     } // begin
 };
 
-let problemController = new ProblemController(problem, "body");
+let problemController = new ProblemController(problem, document.getElementById("myscript").getAttribute("parentid"));
