@@ -86,3 +86,15 @@ body {
 .disabled {
     pointer-events: none;
 }
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+#feedbackinputtext {
+    width: 80%;
+    height: 110px;
+    word-wrap: break-word;
+    word-break: break-all;
+}
