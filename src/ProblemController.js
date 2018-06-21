@@ -232,9 +232,9 @@ export class ProblemController {
         content:(function () {
             let feedbackmodalhtml = `<form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
       action="${feedbackcatcherURL}">`;
-            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbacknametextid}" required></input></div>`;
-            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">E-mail address:</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbackemailtextid}" type="email" required></input></div>`;
-            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Feedback:</span><br><textarea class="${DOM.textboxclass}" id="${DOM.feedbackinputtextid}" required></textarea></div>`;
+            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name (optional)</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbacknametextid}"></input></div>`;
+            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">E-mail address (optional)</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbackemailtextid}" type="email"></input></div>`;
+            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Feedback</span><br><textarea class="${DOM.textboxclass}" id="${DOM.feedbackinputtextid}" required></textarea></div>`;
             feedbackmodalhtml += `<button id="${DOM.submitfeedbackbuttonid}">Submit</button>`;
             feedbackmodalhtml += `<p id=${DOM.feedbackservererrorid} class="hidden error">Error while submitting feedback to server. Check console for detailed http report.</p>`
             feedbackmodalhtml += `</form>`;
