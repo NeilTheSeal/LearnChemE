@@ -65,7 +65,7 @@ export class ProblemController {
         };
 
         // Create begin button
-        this.insertButton(DOM.buttonsdivid, DOM.beginbuttonid, "Begin", this.begin.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.beginbuttonid, "Begin", () => this.begin());
 
         // Set problem title
         this.title = inputarguments.pagetitle;
@@ -95,20 +95,27 @@ export class ProblemController {
                              "pct": 0};
         }
 
-        // Create modals
+        // Create restart modal
         this.restartmodal = new Modal({
             parentid:DOM.modaldivid,
             modalid:DOM.restartmodal,
             modalclass:DOM.modalclass,
             header:"Restart Problem",
+            color: "white",
             backgroundcolor:"#BC5F50",
             content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="${DOM.restartoneid}">Restart from step one</button><button id="${DOM.restartzeroid}">Restart from introduction</button><button id="${DOM.restartabortid}">No</button>`,
         });
+        // Add event listeners to modal
+        document.getElementById(DOM.restartabortid).addEventListener("click", () => this.restartmodal.hide());
+        document.getElementById(DOM.restartzeroid).addEventListener("click", () => this.restart());
+        document.getElementById(DOM.restartoneid).addEventListener("click", () => this.restartstepone());
+        // Create grade modal
         this.grademodal = new Modal({
             parentid:DOM.modaldivid,
             modalid:DOM.gradesubmitmodal,
             modalclass:DOM.modalclass,
             header:"Submit Grade",
+            color: "white",
             backgroundcolor:"#123456",
             content:(function () {
                 let grademodalhtml = `<form id="${DOM.gradeformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
@@ -134,9 +141,6 @@ export class ProblemController {
     promptrestart() {
         this.restartmodal.show();
 
-        document.getElementById(DOM.restartzeroid).addEventListener("click", this.restart.bind(this));
-        document.getElementById(DOM.restartoneid).addEventListener("click", this.restartstepone.bind(this));
-        document.getElementById(DOM.restartabortid).addEventListener("click", this.restartmodal.remove.bind(this.restartmodal));
     }
 
     /**
@@ -212,13 +216,13 @@ export class ProblemController {
             container.firstChild.remove();
         }
     }
+
     /**
         Inserts the HTML for grading submission input
     */
     insertScoreInput() {
         // Create submission button
-        this.insertButton(DOM.buttonsdivid, DOM.showgradebuttonid, "Submit for Grade", this.grademodal.show.bind(this.grademodal));
-        // Bind modal button to grade submission function
+        this.insertButton(DOM.buttonsdivid, DOM.showgradebuttonid, "Submit for Grade", () => this.grademodal.show());
         document.getElementById(DOM.gradeformid).addEventListener("submit", e => this.submitForGrade(e));
     }
 
@@ -235,7 +239,8 @@ export class ProblemController {
         modalid:DOM.feedbackmodal,
         modalclass:DOM.modalclass,
         header:"Feedback",
-        backgroundcolor:"burlywood",
+        color: "black",
+        backgroundcolor:"lightgray",
         content:(function () {
             let feedbackmodalhtml = `<form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
       action="${feedbackcatcherURL}">`;
@@ -307,7 +312,7 @@ export class ProblemController {
         xhr.onreadystatechange = function() {
             if (xhr.status == 200) {
                 document.getElementById(DOM.feedbackformid).innerHTML = "Thank you, your feedback has been recorded.";
-                setTimeout(this.createFeedbackInput.bind(this), 3000);
+                setTimeout(() => this.createFeedbackInput(), 3000);
             } else {
 
                 document.getElementById(DOM.submitfeedbackbuttonid).classList.remove(DOM.disabledclass);
@@ -569,12 +574,12 @@ export class ProblemController {
     begin() {
         this.hasbegun = true;
         this.removeElement(DOM.beginbuttonid);
-        this.insertButton(DOM.buttonsdivid, DOM.scorebuttonid, textScoreButtonShow, this.togglescore.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, textFeedackButton, this.showfeedback.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, textRestartButton, this.promptrestart.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, textHintButton, this.showhint.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, textSubmitButton, this.submit.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, textNextButton, this.next.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.scorebuttonid, textScoreButtonShow, () => this.togglescore());
+        this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, textFeedackButton, () => this.showfeedback());
+        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, textRestartButton, () => this.promptrestart());
+        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, textHintButton, () => this.showhint());
+        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, textSubmitButton, () => this.submit());
+        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, textNextButton, () => this.next());
 
         // Start question sequence
         this.currentquestion = -1;
