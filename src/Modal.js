@@ -28,7 +28,7 @@ export class Modal {
     getHTML() {
         let html = `<div id="${this.modalid}" class="${this.modalclass}">`;
             html += `<div class="modal-content">`;
-                html += `<div class="modal-header" style="background-color:${this.backgroundcolor}">`;
+                html += `<div class="modal-header" style="color: ${this.color}; background-color:${this.backgroundcolor};">`;
                     html += `<span class="close"> &times; </span>`;
                     html += `<p>${this.header}</p>`;
                 html += `</div>`;
