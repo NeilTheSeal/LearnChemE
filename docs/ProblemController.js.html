@@ -39,7 +39,6 @@ const textRestartButton = "Restart Problem";
 const textHintButton = "Hint";
 const textSubmitButton = "Submit Answer";
 const textNextButton = "Next Part";
-const HIDESCOREWINDOWWIDTH = 875;
 const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
 const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
 
@@ -69,6 +68,7 @@ export class ProblemController {
         // Insert main page containers
         let html = `&lt;div id=${DOM.problemdivid}>`;
             html += `&lt;div id="${DOM.titledivid}">&lt;/div>`;
+            html += `&lt;div id="${DOM.stepdivid}">&lt;/div>`;
             html += `&lt;hr>`;
             html += `&lt;div id="${DOM.questiondivid}">&lt;/div>`;
             html += `&lt;hr>`;
@@ -79,20 +79,6 @@ export class ProblemController {
         html += `&lt;/div>`;
         document.getElementById(containerid).insertAdjacentHTML("beforeend", html);
 
-        // Set up score box
-        if (document.documentElement.clientWidth &lt; HIDESCOREWINDOWWIDTH) {
-            document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
-        } else {
-            document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
-        }
-        document.getElementsByTagName("BODY")[0].onresize = function() {
-            if (document.documentElement.clientWidth &lt; HIDESCOREWINDOWWIDTH) {
-                document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
-            } else {
-                document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
-            }
-        };
-
         // Create begin button
         this.insertButton(DOM.buttonsdivid, DOM.beginbuttonid, "Begin", () => this.begin());
 
@@ -100,6 +86,7 @@ export class ProblemController {
         this.title = inputarguments.pagetitle;
         document.title = this.title;
         document.getElementById(DOM.titledivid).insertAdjacentHTML("beforeend", this.title);
+        document.getElementById(DOM.stepdivid).insertAdjacentHTML("beforeend", "Introduction");
 
         // Create questions
         this.questions = [];
@@ -129,9 +116,12 @@ export class ProblemController {
             parentid:DOM.modaldivid,
             modalid:DOM.restartmodal,
             modalclass:DOM.modalclass,
+            headerstyle: {
+                "color": "white",
+                "background-color":"#BC5F50",
+            },
+            contentstyle: {},
             header:"Restart Problem",
-            color: "white",
-            backgroundcolor:"#BC5F50",
             content:`You will lose all progress on the current problem. &lt;br>&lt;br>Really start a new problem?&lt;br>&lt;br>&lt;button id="${DOM.restartoneid}">Restart from step one&lt;/button>&lt;button id="${DOM.restartzeroid}">Restart from introduction&lt;/button>&lt;button id="${DOM.restartabortid}">No&lt;/button>`,
         });
         // Add event listeners to modal
@@ -143,9 +133,12 @@ export class ProblemController {
             parentid:DOM.modaldivid,
             modalid:DOM.gradesubmitmodal,
             modalclass:DOM.modalclass,
+            headerstyle: {
+                "color": "white",
+                "background-color":"#123456",
+            },
+            contentstyle: {},
             header:"Submit Grade",
-            color: "white",
-            backgroundcolor:"#123456",
             content:(function () {
                 let grademodalhtml = `&lt;form id="${DOM.gradeformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
           action="${gradecatcherURL}">`;
@@ -283,9 +276,12 @@ export class ProblemController {
         parentid:DOM.modaldivid,
         modalid:DOM.feedbackmodal,
         modalclass:DOM.modalclass,
+        headerstyle: {
+            "color": "black",
+            "background-color":"lightgray",
+        },
+        contentstyle: {},
         header:"Feedback",
-        color: "black",
-        backgroundcolor:"lightgray",
         content:(function () {
             let feedbackmodalhtml = `&lt;form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
       action="${feedbackcatcherURL}">`;
@@ -502,7 +498,7 @@ export class ProblemController {
     */
     insertTipBox(tip, left, top, uuid) {
         const COOKIEEXPIRATION = 30*1000; // In milliseconds
-        let container = document.getElementById(DOM.bodydivid);
+        let container = document.getElementById(DOM.problemdivid);
         // Generate uuid from tip string
         uuid = tip.hashCode();
         // If haven't been told to not show
@@ -697,6 +693,7 @@ export class ProblemController {
 
             this.currentquestion++;
             this.display();
+            document.getElementById(DOM.stepdivid).innerHTML = `Step ${this.currentquestion+1} / ${this.questions.length}`;
 
             window.scrollTo(0,0); // Move to top of page
         } else {
@@ -719,6 +716,7 @@ export class ProblemController {
             this.insertScoreInput();
             this.updateScores();
             this.finishquestion.display(this.variablevalues);
+            document.getElementById(DOM.stepdivid).innerHTML = ``;
             document.getElementById(DOM.questiondivid).classList.add("fadein");
             document.getElementById(DOM.scoredivid).classList.remove(DOM.hiddenclass);
         }
@@ -741,7 +739,7 @@ export class ProblemController {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jul 10 2018 13:26:22 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jul 10 2018 14:31:57 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
