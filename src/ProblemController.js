@@ -183,13 +183,15 @@ export class ProblemController {
      */
     clickEvent(e) {
         // If score button or div was not clicked, hide the div
-        let scoreClick = false;
-        for (let p of e.path) {
-            if (p.id == "scorediv" || p.id == "scorebutton") {
-                scoreClick = true;
+        if (this.hasbegun) {
+            let scoreClick = false;
+            for (let p of e.path) {
+                if (p.id == "scorediv" || p.id == "scorebutton") {
+                    scoreClick = true;
+                }
             }
+            scoreClick ? null : this.hidescore();
         }
-        scoreClick ? null : this.hidescore();
     }
 
     /**
