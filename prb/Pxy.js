@@ -1,8 +1,9 @@
 import {ProblemController} from "../src/ProblemController.js";
 
-const watercolor = "blue";
-const organiccolor = "orange";
-const triplecolor = "green";
+const octanecolor = "blue";
+const hexanecolor = "orange";
+const purplecolor = "fuchsia";
+const yellowcolor = "yellow";
 const textcolor = "black";
 const graycolor = "#999999";
 const answercolor = "green";
@@ -151,11 +152,11 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@Pinit@", "movey":true},
                                        {"x":"@x3@", "y":"@Pinit@", "movey":true},
                                        {"x":"@x4@", "y":"@Pinit@", "movey":true},
-                                       {"x":"@x5@", "y":"@PsatH@", "color":organiccolor},],
+                                       {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor},],
                              "color":graycolor,
                              "answer":true,},
                         ],
@@ -203,17 +204,17 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@by2@", "show":false},
                                        {"x":"@x3@", "y":"@by3@", "show":false},
                                        {"x":"@x4@", "y":"@by4@", "show":false},
-                                       {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
+                                       {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor}],
                              "color":graycolor},
-                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@Pinit@", "movey":true},
                                        {"x":"@x3@", "y":"@Pinit@", "movey":true},
                                        {"x":"@x4@", "y":"@Pinit@", "movey":true},
-                                       {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
+                                       {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor}],
                              "color":graycolor,
                              "answer":true},
                         ],
@@ -251,11 +252,11 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@by2@", "show":false},
                                        {"x":"@x3@", "y":"@by3@", "show":false},
                                        {"x":"@x4@", "y":"@by4@", "show":false},
-                                       {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
+                                       {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor}],
                              "color":graycolor},
 
                             {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
@@ -275,9 +276,9 @@ const problem = {
                              "showpoints": false},
                         ],
                         "text": [
-                            {"text":"region A", "position": {"x": 0.5, "y": "@yllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
-                            {"text":"region B", "position": {"x": 0.5, "y": "@yvllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
-                            {"text":"region C", "position": {"x": 0.5, "y": "@yvlabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
+                            {"text":"region A", "position": {"x": 0.5, "y": "@yllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":textcolor},
+                            {"text":"region B", "position": {"x": 0.5, "y": "@yvllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":textcolor},
+                            {"text":"region C", "position": {"x": 0.5, "y": "@yvlabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":textcolor},
                         ]
                     },
                     "cursor": normalcursor,
@@ -317,9 +318,9 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"@q4lx@", "y":"@q4y@","color":"purple", "show":false, "answer":true},
+                            {"points":[{"x":"@q4lx@", "y":"@q4y@","color":purplecolor, "answer":true},
                                        {"x":"@q4x@", "y":"@q4y@", "show":false},
-                                       {"x":"@q4vx@", "y":"@q4y@","color":"yellow", "show":false, "answer":true},],
+                                       {"x":"@q4vx@", "y":"@q4y@","color":yellowcolor, "answer":true},],
                              "color":"black",
                              "tolerance":pointtolerance,
                              "color":answercolor}
@@ -327,11 +328,11 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@by2@", "show":false},
                                        {"x":"@x3@", "y":"@by3@", "show":false},
                                        {"x":"@x4@", "y":"@by4@", "show":false},
-                                       {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
+                                       {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor}],
                              "color":graycolor},
 
                             {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
@@ -350,9 +351,9 @@ const problem = {
                              "color": graycolor,
                              "showpoints": false},
 
-                            {"points":[{"x":0.1, "y":"@Pinit@", "movex":true, "movey":true, "color":"purple"},
+                            {"points":[{"x":0.1, "y":"@Pinit@", "movex":true, "movey":true, "color":purplecolor},
                                        {"x":"@q4x@", "y":"@q4y@"},
-                                       {"x":0.9, "y":"@Pinit@", "movex":true, "movey":true, "color":"yellow"},],
+                                       {"x":0.9, "y":"@Pinit@", "movex":true, "movey":true, "color":yellowcolor},],
                              "color":"black",
                              "answer":true}
                         ],
@@ -394,11 +395,11 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@by2@", "show":false},
                                        {"x":"@x3@", "y":"@by3@", "show":false},
                                        {"x":"@x4@", "y":"@by4@", "show":false},
-                                       {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
+                                       {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor}],
                              "color":graycolor},
 
                             {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
@@ -417,9 +418,9 @@ const problem = {
                              "color": graycolor,
                              "showpoints": false},
 
-                            {"points":[{"x":"@q4lx@", "y":"@q4y@", "color":"purple"},
+                            {"points":[{"x":"@q4lx@", "y":"@q4y@", "color":purplecolor},
                                        {"x":"@q4x@", "y":"@q4y@"},
-                                       {"x":"@q4vx@", "y":"@q4y@", "color":"yellow"},],
+                                       {"x":"@q4vx@", "y":"@q4y@", "color":yellowcolor},],
                              "color":graycolor}
                         ],
                         "text": [
@@ -470,11 +471,11 @@ const problem = {
                 },
                 "default": {
                     "line": [
-                        {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                        {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                    {"x":"@x2@", "y":"@by2@", "show":false},
                                    {"x":"@x3@", "y":"@by3@", "show":false},
                                    {"x":"@x4@", "y":"@by4@", "show":false},
-                                   {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
+                                   {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor}],
                          "color":graycolor},
 
                         {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
@@ -493,12 +494,12 @@ const problem = {
                          "color": graycolor,
                          "showpoints": false},
 
-                        {"points":[{"x":"@q4lx@", "y":"@q4y@", "color":"purple"},
+                        {"points":[{"x":"@q4lx@", "y":"@q4y@", "color":purplecolor},
                                    {"x":"@q4x@", "y":"@q4y@", "label": {
                                        "text": "fraction vapor: @q5ans@",
                                        "align": "center",
                                        "offset": {"rawx":0, "rawy":20}}},
-                                   {"x":"@q4vx@", "y":"@q4y@", "color":"yellow"},],
+                                   {"x":"@q4vx@", "y":"@q4y@", "color":yellowcolor},],
                          "color":graycolor}
                     ],
                     "text": [
@@ -555,11 +556,11 @@ const problem = {
                 "mode": "view",
                 "default": {
                     "line": [
-                        {"points":[{"x":"@x1@", "y":"@PsatO@", "color":watercolor},
+                        {"points":[{"x":"@x1@", "y":"@PsatO@", "color":octanecolor},
                                    {"x":"@x2@", "y":"@by2@", "show":false},
                                    {"x":"@x3@", "y":"@by3@", "show":false},
                                    {"x":"@x4@", "y":"@by4@", "show":false},
-                                   {"x":"@x5@", "y":"@PsatH@", "color":organiccolor}],
+                                   {"x":"@x5@", "y":"@PsatH@", "color":hexanecolor}],
                          "color":graycolor},
 
                         {"equation": "Math.pow(~x~ / @PsatH@ + (1 - ~x~) / @PsatO@, -1)",
@@ -578,9 +579,9 @@ const problem = {
                          "color": graycolor,
                          "showpoints": false},
 
-                        {"points":[{"x":"@q4lx@", "y":"@q4y@", "color":"purple"},
+                        {"points":[{"x":"@q4lx@", "y":"@q4y@", "color":purplecolor},
                                    {"x":"@q4x@", "y":"@q4y@"},
-                                   {"x":"@q4vx@", "y":"@q4y@", "color":"yellow"},],
+                                   {"x":"@q4vx@", "y":"@q4y@", "color":yellowcolor},],
                          "color":graycolor}
                     ],
                 },

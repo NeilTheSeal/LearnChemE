@@ -2,9 +2,10 @@ import {ProblemController} from "../src/ProblemController.js";
 
 const datalabel = "pressure = @P@ bar";
 
-const watercolor = "blue";
-const organiccolor = "orange";
-const triplecolor = "green";
+const octanecolor = "blue";
+const hexanecolor = "orange";
+const purplecolor = "fuchsia";
+const yellowcolor = "yellow";
 const textcolor = "black";
 const graycolor = "#999999";
 const answercolor = "green";
@@ -124,7 +125,7 @@ const sidegraph = {
                  "depoffset": 0,
              },
              "tension": 0.5,
-             "color": watercolor,
+             "color": octanecolor,
              "showpoints": false},
 
             {"equation": "Antoine(~x~, @AH@, @BH@, @CH@)",
@@ -146,7 +147,7 @@ const sidegraph = {
                 "depoffset": 0,
              },
              "tension": 0.5,
-             "color": organiccolor,
+             "color": hexanecolor,
              "showpoints": false},
 
         ],
@@ -291,13 +292,13 @@ const problem = {
                     },
                     "answer": {
                         "point": [
-                            {"x":0, "y":"@TsatO@", "tolerance":pointtolerance, "color":"blue"}
+                            {"x":0, "y":"@TsatO@", "tolerance":pointtolerance, "color":octanecolor}
                         ]
                     },
                     "default": {
                         "point": [
                             {"x":1, "y":"@TsatH@", "color":"orange"},
-                            {"x":0.5, "y":Tmax / 2, "movex":true, "movey":true, "color":"blue", "answer":true},
+                            {"x":0.5, "y":Tmax / 2, "movex":true, "movey":true, "color":octanecolor, "answer":true},
                         ],
                     },
                     "cursor": normalcursor,
@@ -347,11 +348,11 @@ const problem = {
                     },
                     "default": {
                         "line": [
-                            {"points":[{"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@TsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@Tinit@", "movey":true},
                                        {"x":"@x3@", "y":"@Tinit@", "movey":true},
                                        {"x":"@x4@", "y":"@Tinit@", "movey":true},
-                                       {"x":"@x5@", "y":"@TsatH@", "color":organiccolor},],
+                                       {"x":"@x5@", "y":"@TsatH@", "color":hexanecolor},],
                              "color":graycolor,
                              "answer":true,},
                         ],
@@ -420,11 +421,11 @@ const problem = {
                              "color": graycolor,
                              "showpoints": false},
 
-                            {"points":[{"x":"@x1@", "y":"@TsatO@", "color":watercolor},
+                            {"points":[{"x":"@x1@", "y":"@TsatO@", "color":octanecolor},
                                        {"x":"@x2@", "y":"@Tinit@", "movey":true},
                                        {"x":"@x3@", "y":"@Tinit@", "movey":true},
                                        {"x":"@x4@", "y":"@Tinit@", "movey":true},
-                                       {"x":"@x5@", "y":"@TsatH@", "color":organiccolor},],
+                                       {"x":"@x5@", "y":"@TsatH@", "color":hexanecolor},],
                              "color":graycolor,
                              "answer":true,},
                         ],
@@ -469,8 +470,8 @@ const problem = {
                     },
                     "default": {
                         "point": [
-                            {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
-                            {"x":"@x5@", "y":"@TsatH@", "color":organiccolor},
+                            {"x":"@x1@", "y":"@TsatO@", "color":octanecolor},
+                            {"x":"@x5@", "y":"@TsatH@", "color":hexanecolor},
                         ],
                         "line": [
                             {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
@@ -506,19 +507,14 @@ const problem = {
                              "showpoints": false},
                         ],
                         "text": [
-                            {"text":"region A", "position": {"x": 0.5, "y": "@yvlabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
-                            {"text":"region B", "position": {"x": 0.5, "y": "@yvllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
-                            {"text":"region C", "position": {"x": 0.5, "y": "@yllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":"blue"},
+                            {"text":"region A", "position": {"x": 0.5, "y": "@yvlabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":textcolor},
+                            {"text":"region B", "position": {"x": 0.5, "y": "@yvllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":textcolor},
+                            {"text":"region C", "position": {"x": 0.5, "y": "@yllabel@"}, "font":"sans-serif", "fontsize":20, "fontstyle":"bold", "align":"center", "color":textcolor},
                         ]
 
                     },
                     "cursor": normalcursor,
                     "points": 0
-                },
-                {
-                    "type": "text",
-                    "label": "Hint:<br>K<sub>i</sub> = P<sup>sat</sup><sub>i</sub> / P<br>Σ (y<sub>i</sub> / K<sub>i</sub>) = 1",
-                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
@@ -559,9 +555,9 @@ const problem = {
                     },
                     "answer": {
                         "line": [
-                            {"points":[{"x":"@q6lx@", "y":"@q6y@","color":"purple", "show":false, "answer":true},
+                            {"points":[{"x":"@q6lx@", "y":"@q6y@","color":purplecolor, "answer":true},
                                        {"x":"@q6x@", "y":"@q6y@", "show":false},
-                                       {"x":"@q6vx@", "y":"@q6y@","color":"yellow", "show":false, "answer":true},],
+                                       {"x":"@q6vx@", "y":"@q6y@","color":yellowcolor, "answer":true},],
                              "color":"black",
                              "tolerance":pointtolerance,
                              "color":answercolor}
@@ -569,8 +565,8 @@ const problem = {
                     },
                     "default": {
                         "point":[
-                            {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
-                            {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                            {"x":"@x1@", "y":"@TsatO@", "color":octanecolor},
+                            {"x":"@x5@", "y":"@TsatH@", "color":hexanecolor}
                         ],
                         "line": [
                             {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
@@ -605,9 +601,9 @@ const problem = {
                              "color": graycolor,
                              "showpoints": false},
 
-                            {"points":[{"x":0.1, "y":"@Tinit@", "movex":true, "movey":true, "color":"purple"},
+                            {"points":[{"x":0.1, "y":"@Tinit@", "movex":true, "movey":true, "color":purplecolor},
                                        {"x":"@q6x@", "y":"@q6y@"},
-                                       {"x":0.9, "y":"@Tinit@", "movex":true, "movey":true, "color":"yellow"},],
+                                       {"x":0.9, "y":"@Tinit@", "movex":true, "movey":true, "color":yellowcolor},],
                              "color":"black",
                              "answer":true}
 
@@ -624,7 +620,7 @@ const problem = {
                 ],
                 [{
                     "type": "text",
-                    "label": "6) Click and drag the purple (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
+                    "label": "6) Click and drag the pink (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
                     "class": "prompt"
                 },
                 {
@@ -651,8 +647,8 @@ const problem = {
                     },
                     "default": {
                         "point":[
-                            {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
-                            {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                            {"x":"@x1@", "y":"@TsatO@", "color":octanecolor},
+                            {"x":"@x5@", "y":"@TsatH@", "color":hexanecolor}
                         ],
                         "line": [
                             {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
@@ -687,9 +683,9 @@ const problem = {
                              "color": graycolor,
                              "showpoints": false},
 
-                            {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":"purple"},
+                            {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":purplecolor},
                                        {"x":"@q6x@", "y":"@q6y@"},
-                                       {"x":"@q6vx@", "y":"@q6y@", "color":"yellow"},],
+                                       {"x":"@q6vx@", "y":"@q6y@", "color":yellowcolor},],
                              "color":graycolor}
 
                         ],
@@ -740,8 +736,8 @@ const problem = {
                 "answer": {},
                 "default": {
                     "point":[
-                        {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
-                        {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                        {"x":"@x1@", "y":"@TsatO@", "color":octanecolor},
+                        {"x":"@x5@", "y":"@TsatH@", "color":hexanecolor}
                     ],
                     "line": [
                         {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
@@ -776,12 +772,12 @@ const problem = {
                          "color": graycolor,
                          "showpoints": false},
 
-                        {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":"purple"},
+                        {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":purplecolor},
                                    {"x":"@q6x@", "y":"@q6y@", "label": {
                                        "text": "fraction vapor: @q7ans@",
                                        "align": "center",
                                        "offset": {"rawx":0, "rawy":20}}},
-                                   {"x":"@q6vx@", "y":"@q6y@", "color":"yellow"},],
+                                   {"x":"@q6vx@", "y":"@q6y@", "color":yellowcolor},],
                          "color":graycolor}
 
                     ],
@@ -847,8 +843,8 @@ const problem = {
                 "answer": {},
                 "default": {
                     "point":[
-                        {"x":"@x1@", "y":"@TsatO@", "color":watercolor},
-                        {"x":"@x5@", "y":"@TsatH@", "color":organiccolor}
+                        {"x":"@x1@", "y":"@TsatO@", "color":octanecolor},
+                        {"x":"@x5@", "y":"@TsatH@", "color":hexanecolor}
                     ],
                     "line": [
                         {"equation": "FindRoot({expression:'~x~ * Antoine(T, @AH@, @BH@, @CH@) + (1 - ~x~) * Antoine(T, @AO@, @BO@, @CO@) - @P@', variable:'T', min:@Tmin@, max:@Tmax@, precision:0.001})",
@@ -883,9 +879,9 @@ const problem = {
                          "color": graycolor,
                          "showpoints": false},
 
-                        {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":"purple"},
+                        {"points":[{"x":"@q6lx@", "y":"@q6y@", "color":purplecolor},
                                    {"x":"@q6x@", "y":"@q6y@"},
-                                   {"x":"@q6vx@", "y":"@q6y@", "color":"yellow"},],
+                                   {"x":"@q6vx@", "y":"@q6y@", "color":yellowcolor},],
                          "color":graycolor}
 
                     ],
