@@ -33,6 +33,7 @@ export class ProblemController {
         this.init(this.inputarguments, this.containerid);
 
         // Catch keyboard events
+        document.body.addEventListener("click", e => this.clickEvent(e));
         document.addEventListener("keydown", e => this.keyEvent(e));
     }
 
@@ -175,6 +176,20 @@ export class ProblemController {
         if (document.activeElement) {
             document.activeElement.blur();
         }
+    }
+
+    /**
+     * Handler for click events
+     */
+    clickEvent(e) {
+        // If score button or div was not clicked, hide the div
+        let scoreClick = false;
+        for (let p of e.path) {
+            if (p.id == "scorediv" || p.id == "scorebutton") {
+                scoreClick = true;
+            }
+        }
+        scoreClick ? null : this.hidescore();
     }
 
     /**
@@ -394,15 +409,27 @@ export class ProblemController {
     *
     */
     togglescore() {
-        document.getElementById(DOM.scoredivid).classList.toggle(DOM.hiddenclass);
-        const expandtext = textScoreButtonShow;
-        const retracttext = textScoreButtonHide;
-        let btn = document.getElementById(DOM.scorebuttonid);
-        if (btn.textContent == expandtext) {
-            btn.textContent = retracttext;
+        if (document.getElementById(DOM.scorebuttonid).textContent == textScoreButtonShow) {
+            this.showscore();
         } else {
-            btn.textContent = expandtext;
+            this.hidescore();
         }
+    }
+
+    /**
+    *
+    */
+    hidescore() {
+        document.getElementById(DOM.scoredivid).classList.add(DOM.hiddenclass);
+        document.getElementById(DOM.scorebuttonid).textContent = textScoreButtonShow;
+    }
+
+    /**
+    *
+    */
+    showscore() {
+        document.getElementById(DOM.scoredivid).classList.remove(DOM.hiddenclass);
+        document.getElementById(DOM.scorebuttonid).textContent = textScoreButtonHide;
     }
 
     /**
