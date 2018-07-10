@@ -34,7 +34,8 @@ button:hover {
 }
 
 #hintbutton {
-    color: black;
+    color: white;
+    background-color: #50729a;
 }
 
 #hintbutton.disabled {
@@ -44,7 +45,7 @@ button:hover {
 
 #submitbutton {
     color: white;
-    background-color: green;
+    background-color: forestgreen;
 }
 
 #submitbutton.disabled {
@@ -54,7 +55,7 @@ button:hover {
 
 #nextbutton {
     color: white;
-    background-color: darkgreen;
+    background-color: forestgreen;
 }
 
 #showgradebutton {
@@ -89,17 +90,17 @@ button:hover {
 
 #scorebutton {
     color: black;
-    background-color: rgb(230,230,0);
+    background-color: gold;
 }
 
 #feedbackbutton {
     color: black;
-    background-color: burlywood;
+    background-color: lightgray;
 }
 
 #submitfeedbackbutton {
     color: black;
-    background-color: burlywood;
+    background-color: lightgray;
 }
 
 #submitfeedbackbutton.disabled {
