@@ -32,6 +32,13 @@ import {Modal} from "./Modal.js"
 import {roundTo, getCookie, setCookie, generateVariables} from "./sky-helpers.js";
 
 const VAR = "@";
+const textScoreButtonShow = "▲ Show Score ▲";
+const textScoreButtonHide = "▼ Hide Score ▼";
+const textFeedackButton = "Give Feedback";
+const textRestartButton = "Restart Problem";
+const textHintButton = "Hint";
+const textSubmitButton = "Submit Answer";
+const textNextButton = "Next Part";
 const HIDESCOREWINDOWWIDTH = 875;
 const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
 const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
@@ -54,6 +61,7 @@ export class ProblemController {
         this.init(this.inputarguments, this.containerid);
 
         // Catch keyboard events
+        document.body.addEventListener("click", e => this.clickEvent(e));
         document.addEventListener("keydown", e => this.keyEvent(e));
     }
 
@@ -86,7 +94,7 @@ export class ProblemController {
         };
 
         // Create begin button
-        this.insertButton(DOM.buttonsdivid, DOM.beginbuttonid, "Begin", this.begin.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.beginbuttonid, "Begin", () => this.begin());
 
         // Set problem title
         this.title = inputarguments.pagetitle;
@@ -116,20 +124,27 @@ export class ProblemController {
                              "pct": 0};
         }
 
-        // Create modals
+        // Create restart modal
         this.restartmodal = new Modal({
             parentid:DOM.modaldivid,
             modalid:DOM.restartmodal,
             modalclass:DOM.modalclass,
             header:"Restart Problem",
+            color: "white",
             backgroundcolor:"#BC5F50",
             content:`You will lose all progress on the current problem. &lt;br>&lt;br>Really start a new problem?&lt;br>&lt;br>&lt;button id="${DOM.restartoneid}">Restart from step one&lt;/button>&lt;button id="${DOM.restartzeroid}">Restart from introduction&lt;/button>&lt;button id="${DOM.restartabortid}">No&lt;/button>`,
         });
+        // Add event listeners to modal
+        document.getElementById(DOM.restartabortid).addEventListener("click", () => this.restartmodal.hide());
+        document.getElementById(DOM.restartzeroid).addEventListener("click", () => this.restart());
+        document.getElementById(DOM.restartoneid).addEventListener("click", () => this.restartstepone());
+        // Create grade modal
         this.grademodal = new Modal({
             parentid:DOM.modaldivid,
             modalid:DOM.gradesubmitmodal,
             modalclass:DOM.modalclass,
             header:"Submit Grade",
+            color: "white",
             backgroundcolor:"#123456",
             content:(function () {
                 let grademodalhtml = `&lt;form id="${DOM.gradeformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
@@ -155,9 +170,6 @@ export class ProblemController {
     promptrestart() {
         this.restartmodal.show();
 
-        document.getElementById(DOM.restartzeroid).addEventListener("click", this.restart.bind(this));
-        document.getElementById(DOM.restartoneid).addEventListener("click", this.restartstepone.bind(this));
-        document.getElementById(DOM.restartabortid).addEventListener("click", this.restartmodal.remove.bind(this.restartmodal));
     }
 
     /**
@@ -191,6 +203,22 @@ export class ProblemController {
         // Remove focus from any focused element
         if (document.activeElement) {
             document.activeElement.blur();
+        }
+    }
+
+    /**
+     * Handler for click events
+     */
+    clickEvent(e) {
+        // If score button or div was not clicked, hide the div
+        if (this.hasbegun) {
+            let scoreClick = false;
+            for (let p of e.path) {
+                if (p.id == "scorediv" || p.id == "scorebutton") {
+                    scoreClick = true;
+                }
+            }
+            scoreClick ? null : this.hidescore();
         }
     }
 
@@ -233,13 +261,13 @@ export class ProblemController {
             container.firstChild.remove();
         }
     }
+
     /**
         Inserts the HTML for grading submission input
     */
     insertScoreInput() {
         // Create submission button
-        this.insertButton(DOM.buttonsdivid, DOM.showgradebuttonid, "Submit for Grade", this.grademodal.show.bind(this.grademodal));
-        // Bind modal button to grade submission function
+        this.insertButton(DOM.buttonsdivid, DOM.showgradebuttonid, "Submit for Grade", () => this.grademodal.show());
         document.getElementById(DOM.gradeformid).addEventListener("submit", e => this.submitForGrade(e));
     }
 
@@ -256,7 +284,8 @@ export class ProblemController {
         modalid:DOM.feedbackmodal,
         modalclass:DOM.modalclass,
         header:"Feedback",
-        backgroundcolor:"burlywood",
+        color: "black",
+        backgroundcolor:"lightgray",
         content:(function () {
             let feedbackmodalhtml = `&lt;form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
       action="${feedbackcatcherURL}">`;
@@ -328,7 +357,7 @@ export class ProblemController {
         xhr.onreadystatechange = function() {
             if (xhr.status == 200) {
                 document.getElementById(DOM.feedbackformid).innerHTML = "Thank you, your feedback has been recorded.";
-                setTimeout(this.createFeedbackInput.bind(this), 3000);
+                setTimeout(() => this.createFeedbackInput(), 3000);
             } else {
 
                 document.getElementById(DOM.submitfeedbackbuttonid).classList.remove(DOM.disabledclass);
@@ -410,15 +439,27 @@ export class ProblemController {
     *
     */
     togglescore() {
-        document.getElementById(DOM.scoredivid).classList.toggle(DOM.hiddenclass);
-        const expandtext = "▲ Score ▲";
-        const retracttext = "▼ Score ▼";
-        let btn = document.getElementById(DOM.scorebuttonid);
-        if (btn.textContent == expandtext) {
-            btn.textContent = retracttext;
+        if (document.getElementById(DOM.scorebuttonid).textContent == textScoreButtonShow) {
+            this.showscore();
         } else {
-            btn.textContent = expandtext;
+            this.hidescore();
         }
+    }
+
+    /**
+    *
+    */
+    hidescore() {
+        document.getElementById(DOM.scoredivid).classList.add(DOM.hiddenclass);
+        document.getElementById(DOM.scorebuttonid).textContent = textScoreButtonShow;
+    }
+
+    /**
+    *
+    */
+    showscore() {
+        document.getElementById(DOM.scoredivid).classList.remove(DOM.hiddenclass);
+        document.getElementById(DOM.scorebuttonid).textContent = textScoreButtonHide;
     }
 
     /**
@@ -500,12 +541,15 @@ export class ProblemController {
     */
     display() {
         // Clear current page elements
+        document.getElementById(DOM.questiondivid).classList.remove("fadein");
         this.clearPage();
         if (this.currentquestion > -1) {
             // Add current question objects to html
             if (this.currentquestion &lt; this.questions.length) {
                 // TODO remove this if wrapper, instead remove event from Next button
                 this.questions[this.currentquestion].display(this.variablevalues);
+                // Fade in new elements
+                document.getElementById(DOM.questiondivid).classList.add("fadein");
             }
         }
         this.updateScores();
@@ -590,12 +634,12 @@ export class ProblemController {
     begin() {
         this.hasbegun = true;
         this.removeElement(DOM.beginbuttonid);
-        this.insertButton(DOM.buttonsdivid, DOM.scorebuttonid, "▲ Score ▲", this.togglescore.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, "Feedback", this.showfeedback.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, "Restart Problem", this.promptrestart.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, "Hint", this.showhint.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, "Submit Answers", this.submit.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, "Next Part", this.next.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.scorebuttonid, textScoreButtonShow, () => this.togglescore());
+        this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, textFeedackButton, () => this.showfeedback());
+        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, textRestartButton, () => this.promptrestart());
+        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, textHintButton, () => this.showhint());
+        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, textSubmitButton, () => this.submit());
+        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, textNextButton, () => this.next());
 
         // Start question sequence
         this.currentquestion = -1;
@@ -610,6 +654,7 @@ export class ProblemController {
         // Loop through all hints, remove hidden text class
         let elements = document.getElementsByClassName(DOM.hiddentextclass);
         while (elements[0]) {
+            elements[0].classList.add("fadein");
             elements[0].classList.remove(DOM.hiddentextclass);
         }
     }
@@ -666,6 +711,7 @@ export class ProblemController {
     finish() {
         if (!this.finished) {
             this.finished = true;
+            document.getElementById(DOM.questiondivid).classList.remove("fadein");
             this.clearPage();
             this.removeElement(DOM.hintbuttonid);
             this.removeElement(DOM.submitbuttonid);
@@ -673,6 +719,7 @@ export class ProblemController {
             this.insertScoreInput();
             this.updateScores();
             this.finishquestion.display(this.variablevalues);
+            document.getElementById(DOM.questiondivid).classList.add("fadein");
             document.getElementById(DOM.scoredivid).classList.remove(DOM.hiddenclass);
         }
     }
@@ -694,7 +741,7 @@ export class ProblemController {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jun 21 2018 15:42:03 GMT-0600 (Mountain Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jul 10 2018 13:26:22 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
