@@ -8,6 +8,7 @@ export let DOM = {
     "headerdivid": "header",
     "bodydivid": "body",
         "titledivid": "title",
+        "stepdivid": "step",
         "questiondivid": "question",
             "canvasdivclass": "canvasarea",
             "canvasdivid": "canvasarea--" + VAR + "id" + VAR,

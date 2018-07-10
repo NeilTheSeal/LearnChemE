@@ -170,7 +170,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "1) Drag the dotted line to the pressure where three phases coexist.",
+                    "label": "Drag the dotted line to the pressure where three phases coexist.",
                     "class": "prompt"
                 },
                 {
@@ -216,7 +216,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "2) Which region has two liquids in equilibrium and no vapor?",
+                    "label": "Which region has two liquids in equilibrium and no vapor?",
                     "class": "prompt"
                 },
                 {
@@ -280,7 +280,7 @@ const problem = {
                 }], // element
                 [{
                     "type": "text",
-                    "label": "3) Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure @compound@ is in VLE. <br>",
+                    "label": "Drag the blue point to where pure water is in VLE (vapor-liquid equilibrium), and drag the orange point to where pure @compound@ is in VLE. <br>",
                     "class": "prompt"
                 }, // element
                 {
@@ -331,7 +331,7 @@ const problem = {
                 }], // element
                 [{
                     "type": "text",
-                    "label": "4) Drag the green point to where vapor is in equilibrium with two liquid phases. <br>",
+                    "label": "Drag the green point to where vapor is in equilibrium with two liquid phases. <br>",
                     "class": "prompt"
                 }, // element
                 {
@@ -406,7 +406,7 @@ const problem = {
                 }], // element
                 [{
                     "type": "text",
-                    "label": "5) Drag each black point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
+                    "label": "Drag each black point to the pressure where vapor with that mole fraction is in equilbrium with liquid. <br>",
                     "class": "prompt"
                 }, // element
                 {

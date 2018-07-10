@@ -168,7 +168,7 @@ const problem = {
                 ],
                 [{
                     "type": "text",
-                    "label": "1) Click and drag the black points to draw the bubble-point curve.",
+                    "label": "Click and drag the black points to draw the bubble-point curve.",
                     "class": "prompt"
                 },
                 {
@@ -225,7 +225,7 @@ const problem = {
                 ],
                 [{
                     "type": "text",
-                    "label": "2) Click and drag the black points to draw the dew-point curve.",
+                    "label": "Click and drag the black points to draw the dew-point curve.",
                     "class": "prompt"
                 },
                 {
@@ -286,7 +286,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "3) Which region has pure @q3text@?",
+                    "label": "Which region has pure @q3text@?",
                     "class": "prompt"
                 },
                  {
@@ -368,7 +368,7 @@ const problem = {
                 ],
                 [{
                     "type": "text",
-                    "label": "4) Click and drag the purple (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
+                    "label": "Click and drag the purple (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
                     "class": "prompt"
                 },
                 {
@@ -434,7 +434,7 @@ const problem = {
                 ],
                 [{
                     "type": "text",
-                    "label": "5) What is fraction of vapor of a mixture located at the black point?",
+                    "label": "What is fraction of vapor of a mixture located at the black point?",
                     "class": "prompt"
                 },
                 {

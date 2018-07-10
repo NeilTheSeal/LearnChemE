@@ -266,7 +266,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "1) Click and drag the orange point to the location where pure n-hexane is in vapor-liquid equilibrium.",
+                    "label": "Click and drag the orange point to the location where pure n-hexane is in vapor-liquid equilibrium.",
                     "class": "prompt"
                 },
                 {
@@ -311,7 +311,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "2) Click and drag the blue point to the location where pure n-octane is in vapor-liquid equilibrium.",
+                    "label": "Click and drag the blue point to the location where pure n-octane is in vapor-liquid equilibrium.",
                     "class": "prompt"
                 },
                 {
@@ -368,7 +368,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "3) Click and drag the black points to draw the bubble-point curve.",
+                    "label": "Click and drag the black points to draw the bubble-point curve.",
                     "class": "prompt"
                 },
                 {
@@ -441,7 +441,7 @@ const problem = {
                 }],
                 [{
                     "type": "text",
-                    "label": "4) Click and drag the black points to draw the dew-point curve.",
+                    "label": "Click and drag the black points to draw the dew-point curve.",
                     "class": "prompt"
                 },
                 {
@@ -523,7 +523,7 @@ const problem = {
                 },
                 [{
                     "type": "text",
-                    "label": "5) Which region has pure @q5text@?",
+                    "label": "Which region has pure @q5text@?",
                     "class": "prompt"
                 },
                 {
@@ -620,7 +620,7 @@ const problem = {
                 ],
                 [{
                     "type": "text",
-                    "label": "6) Click and drag the pink (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
+                    "label": "Click and drag the pink (liquid) and yellow (vapor) points to the compositions that are in equilibrium for the mixture indicated by the black point.",
                     "class": "prompt"
                 },
                 {
@@ -701,7 +701,7 @@ const problem = {
                 ],
                 [{
                     "type": "text",
-                    "label": "7) What is fraction of vapor of a mixture located at the black point?",
+                    "label": "What is fraction of vapor of a mixture located at the black point?",
                     "class": "prompt"
                 },
                 {

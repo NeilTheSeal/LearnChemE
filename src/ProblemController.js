@@ -41,6 +41,7 @@ export class ProblemController {
         // Insert main page containers
         let html = `<div id=${DOM.problemdivid}>`;
             html += `<div id="${DOM.titledivid}"></div>`;
+            html += `<div id="${DOM.stepdivid}"></div>`;
             html += `<hr>`;
             html += `<div id="${DOM.questiondivid}"></div>`;
             html += `<hr>`;
@@ -72,6 +73,7 @@ export class ProblemController {
         this.title = inputarguments.pagetitle;
         document.title = this.title;
         document.getElementById(DOM.titledivid).insertAdjacentHTML("beforeend", this.title);
+        document.getElementById(DOM.stepdivid).insertAdjacentHTML("beforeend", "Introduction");
 
         // Create questions
         this.questions = [];
@@ -678,6 +680,7 @@ export class ProblemController {
 
             this.currentquestion++;
             this.display();
+            document.getElementById(DOM.stepdivid).innerHTML = `Step ${this.currentquestion+1} / ${this.questions.length}`;
 
             window.scrollTo(0,0); // Move to top of page
         } else {
@@ -700,6 +703,7 @@ export class ProblemController {
             this.insertScoreInput();
             this.updateScores();
             this.finishquestion.display(this.variablevalues);
+            document.getElementById(DOM.stepdivid).innerHTML = ``;
             document.getElementById(DOM.questiondivid).classList.add("fadein");
             document.getElementById(DOM.scoredivid).classList.remove(DOM.hiddenclass);
         }
