@@ -513,12 +513,15 @@ export class ProblemController {
     */
     display() {
         // Clear current page elements
+        document.getElementById(DOM.questiondivid).classList.remove("fadein");
         this.clearPage();
         if (this.currentquestion > -1) {
             // Add current question objects to html
             if (this.currentquestion < this.questions.length) {
                 // TODO remove this if wrapper, instead remove event from Next button
                 this.questions[this.currentquestion].display(this.variablevalues);
+                // Fade in new elements
+                document.getElementById(DOM.questiondivid).classList.add("fadein");
             }
         }
         this.updateScores();
@@ -623,6 +626,7 @@ export class ProblemController {
         // Loop through all hints, remove hidden text class
         let elements = document.getElementsByClassName(DOM.hiddentextclass);
         while (elements[0]) {
+            elements[0].classList.add("fadein");
             elements[0].classList.remove(DOM.hiddentextclass);
         }
     }
@@ -679,6 +683,7 @@ export class ProblemController {
     finish() {
         if (!this.finished) {
             this.finished = true;
+            document.getElementById(DOM.questiondivid).classList.remove("fadein");
             this.clearPage();
             this.removeElement(DOM.hintbuttonid);
             this.removeElement(DOM.submitbuttonid);
@@ -686,6 +691,7 @@ export class ProblemController {
             this.insertScoreInput();
             this.updateScores();
             this.finishquestion.display(this.variablevalues);
+            document.getElementById(DOM.questiondivid).classList.add("fadein");
             document.getElementById(DOM.scoredivid).classList.remove(DOM.hiddenclass);
         }
     }

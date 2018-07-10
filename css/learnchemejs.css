@@ -98,3 +98,14 @@ body {
     word-wrap: break-word;
     word-break: break-all;
 }
+
+.fadein {
+    animation-name: animatefadein;
+    animation-duration: 0.5s;
+}
+
+
+@keyframes animatefadein {
+    0%   {opacity:0}
+    100% {opacity:1}
+}

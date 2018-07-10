@@ -172,6 +172,7 @@ export class Question {
                 document.getElementById(DOM.textboxanswerid.replace(re, i)).textContent = element.answer;
                 // Add box around answer
                 document.getElementById(DOM.textboxanswerid.replace(re, i)).classList.add(DOM.textboxanswershown);
+                document.getElementById(DOM.textboxanswerid.replace(re, i)).classList.add("fadein");
             } else if (element instanceof CanvasElement) {
                 // Get answers from canvas
                 let ans = element.GraphCanvasController.getanswers();
