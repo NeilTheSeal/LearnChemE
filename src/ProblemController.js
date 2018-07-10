@@ -4,6 +4,13 @@ import {Modal} from "./Modal.js"
 import {roundTo, getCookie, setCookie, generateVariables} from "./sky-helpers.js";
 
 const VAR = "@";
+const textScoreButtonShow = "▲ Show Score ▲";
+const textScoreButtonHide = "▼ Hide Score ▼";
+const textFeedackButton = "Give Feedback";
+const textRestartButton = "Restart Problem";
+const textHintButton = "Hint";
+const textSubmitButton = "Submit Answer";
+const textNextButton = "Next Part";
 const HIDESCOREWINDOWWIDTH = 875;
 const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
 const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
@@ -383,8 +390,8 @@ export class ProblemController {
     */
     togglescore() {
         document.getElementById(DOM.scoredivid).classList.toggle(DOM.hiddenclass);
-        const expandtext = "▲ Score ▲";
-        const retracttext = "▼ Score ▼";
+        const expandtext = textScoreButtonShow;
+        const retracttext = textScoreButtonHide;
         let btn = document.getElementById(DOM.scorebuttonid);
         if (btn.textContent == expandtext) {
             btn.textContent = retracttext;
@@ -562,12 +569,12 @@ export class ProblemController {
     begin() {
         this.hasbegun = true;
         this.removeElement(DOM.beginbuttonid);
-        this.insertButton(DOM.buttonsdivid, DOM.scorebuttonid, "▲ Score ▲", this.togglescore.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, "Feedback", this.showfeedback.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, "Restart Problem", this.promptrestart.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, "Hint", this.showhint.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, "Submit Answers", this.submit.bind(this));
-        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, "Next Part", this.next.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.scorebuttonid, textScoreButtonShow, this.togglescore.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.feedbackbuttonid, textFeedackButton, this.showfeedback.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.restartbuttonid, textRestartButton, this.promptrestart.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.hintbuttonid, textHintButton, this.showhint.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.submitbuttonid, textSubmitButton, this.submit.bind(this));
+        this.insertButton(DOM.buttonsdivid, DOM.nextbuttonid, textNextButton, this.next.bind(this));
 
         // Start question sequence
         this.currentquestion = -1;
