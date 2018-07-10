@@ -46,7 +46,6 @@ export class Modal {
                 html += `</div>`;
             html += `</div>`;
         html += `</div>`;
-        console.log('inserting html:', html)
         return html;
     }
 
