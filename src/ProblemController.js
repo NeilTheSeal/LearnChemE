@@ -11,7 +11,6 @@ const textRestartButton = "Restart Problem";
 const textHintButton = "Hint";
 const textSubmitButton = "Submit Answer";
 const textNextButton = "Next Part";
-const HIDESCOREWINDOWWIDTH = 875;
 const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
 const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
 
@@ -51,20 +50,6 @@ export class ProblemController {
             html += `<div id=${DOM.modaldivid}></div>`;
         html += `</div>`;
         document.getElementById(containerid).insertAdjacentHTML("beforeend", html);
-
-        // Set up score box
-        if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
-            document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
-        } else {
-            document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
-        }
-        document.getElementsByTagName("BODY")[0].onresize = function() {
-            if (document.documentElement.clientWidth < HIDESCOREWINDOWWIDTH) {
-                document.getElementById(DOM.scoredivid).classList.add(DOM.hidescoreclass)
-            } else {
-                document.getElementById(DOM.scoredivid).classList.remove(DOM.hidescoreclass)
-            }
-        };
 
         // Create begin button
         this.insertButton(DOM.buttonsdivid, DOM.beginbuttonid, "Begin", () => this.begin());
@@ -485,7 +470,7 @@ export class ProblemController {
     */
     insertTipBox(tip, left, top, uuid) {
         const COOKIEEXPIRATION = 30*1000; // In milliseconds
-        let container = document.getElementById(DOM.bodydivid);
+        let container = document.getElementById(DOM.problemdivid);
         // Generate uuid from tip string
         uuid = tip.hashCode();
         // If haven't been told to not show
