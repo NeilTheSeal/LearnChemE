@@ -8,7 +8,8 @@
     "docs": "jsdoc ./src/ -r -d ./docs/",
     "webpack": "webpack --config webpack.config.js",
     "build": "npm run docs && npm run webpack",
-    "deploy": "npm run build && git add * && git commit && git push"
+    "deploy": "npm run build && git add * && git commit && git push",
+    "deploybeta": "npm run build && git add * && git commit && git push --set-upstream origin beta"
   },
   "repository": {
     "type": "git",
