@@ -28,15 +28,25 @@ export class Modal {
     getHTML() {
         let html = `<div id="${this.modalid}" class="${this.modalclass}">`;
             html += `<div class="modal-content">`;
-                html += `<div class="modal-header" style="color: ${this.color}; background-color:${this.backgroundcolor};">`;
+                html += `<div class="modal-header" style="`
+                    for (let key of Object.keys(this.headerstyle)) {
+                        html += `${key}:${this.headerstyle[key]}; `
+                    }
+//                    color: ${this.color}; background-color:${this.backgroundcolor};
+                html += `">`;
                     html += `<span class="close"> &times; </span>`;
                     html += `<p>${this.header}</p>`;
                 html += `</div>`;
-                html += `<div class="modal-body">`;
+                html += `<div class="modal-body" style="`;
+                    for (let key of Object.keys(this.contentstyle)) {
+                        html += `${key}:${this.contentstyle[key]}; `
+                    }
+                html += `">`;
                     html += `<p>${this.content}</p>`;
                 html += `</div>`;
             html += `</div>`;
         html += `</div>`;
+        console.log('inserting html:', html)
         return html;
     }
 

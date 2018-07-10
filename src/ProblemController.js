@@ -101,9 +101,12 @@ export class ProblemController {
             parentid:DOM.modaldivid,
             modalid:DOM.restartmodal,
             modalclass:DOM.modalclass,
+            headerstyle: {
+                "color": "white",
+                "background-color":"#BC5F50",
+            },
+            contentstyle: {},
             header:"Restart Problem",
-            color: "white",
-            backgroundcolor:"#BC5F50",
             content:`You will lose all progress on the current problem. <br><br>Really start a new problem?<br><br><button id="${DOM.restartoneid}">Restart from step one</button><button id="${DOM.restartzeroid}">Restart from introduction</button><button id="${DOM.restartabortid}">No</button>`,
         });
         // Add event listeners to modal
@@ -115,9 +118,12 @@ export class ProblemController {
             parentid:DOM.modaldivid,
             modalid:DOM.gradesubmitmodal,
             modalclass:DOM.modalclass,
+            headerstyle: {
+                "color": "white",
+                "background-color":"#123456",
+            },
+            contentstyle: {},
             header:"Submit Grade",
-            color: "white",
-            backgroundcolor:"#123456",
             content:(function () {
                 let grademodalhtml = `<form id="${DOM.gradeformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
           action="${gradecatcherURL}">`;
@@ -255,9 +261,12 @@ export class ProblemController {
         parentid:DOM.modaldivid,
         modalid:DOM.feedbackmodal,
         modalclass:DOM.modalclass,
+        headerstyle: {
+            "color": "black",
+            "background-color":"lightgray",
+        },
+        contentstyle: {},
         header:"Feedback",
-        color: "black",
-        backgroundcolor:"lightgray",
         content:(function () {
             let feedbackmodalhtml = `<form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
       action="${feedbackcatcherURL}">`;
