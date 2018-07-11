@@ -17,7 +17,7 @@ const Pmax = 2;
 
 const graphinfo = {
     "graphheight": 400,
-    "graphwidth": 600,
+    "graphwidth": 500,
     "padding": {"left":80, "bottom":60, "top":60, "right":30},
     "graphbackground": "white",
     "axesbackground": "lightgray",
@@ -521,7 +521,7 @@ const problem = {
                     "label": datalabel,
                     "class": "data"
                 },
-                [{
+                [[{
                     "type": "text",
                     "label": "Which region has pure @q5text@?",
                     "class": "prompt"
@@ -538,7 +538,7 @@ const problem = {
                     "type": "text",
                     "label": "Hint: liquids are more stable at higher pressures",
                     "class": "hiddentext hint"
-                }]]]
+                }]]]]
             ],
             "requiredscore": 0.00
         }, // question

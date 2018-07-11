@@ -13,7 +13,7 @@ const Pmax = 7;
 
 const graphinfo = {
     "graphheight": 400,
-    "graphwidth": 600,
+    "graphwidth": 500,
     "padding": {
         "left":60,
         "bottom":60,
@@ -162,11 +162,6 @@ const problem = {
                     },
                     "cursor": normalcursor,
                     "points": 10
-                },
-                {
-                    "type": "text",
-                    "label": "Hint: sum the saturation pressures",
-                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
@@ -177,6 +172,11 @@ const problem = {
                     "type": "text",
                     "label": datalabel,
                     "class": "data"
+                },
+                {
+                    "type": "text",
+                    "label": "Hint: sum the saturation pressures",
+                    "class": "hiddentext hint"
                 }]]
             ],
             "requiredscore": 0.00
@@ -208,11 +208,6 @@ const problem = {
                     },
                     "cursor": normalcursor,
                     "points": 0
-                },
-                {
-                    "type": "text",
-                    "label": "Hint: sum the saturation pressures",
-                    "class": "hiddentext hint"
                 }],
                 [{
                     "type": "text",
@@ -272,11 +267,6 @@ const problem = {
                     },
                     "cursor": normalcursor,
                     "points": 20
-                }, // element
-                {
-                    "type": "text",
-                    "label": "Hint: pure component saturation pressures",
-                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
@@ -287,7 +277,12 @@ const problem = {
                     "type": "text",
                     "label": datalabel,
                     "class": "data"
-                }]], // element
+                },
+                {
+                    "type": "text",
+                    "label": "Hint: pure component saturation pressures",
+                    "class": "hiddentext hint"
+                }]],
             ], // questionelements
             "requiredscore": 0.00
         }, // question
@@ -323,11 +318,6 @@ const problem = {
                     },
                     "cursor": normalcursor,
                     "points": 10
-                }, // element
-                {
-                    "type": "text",
-                    "label": "Hint: each liquid exerts its saturation pressure",
-                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
@@ -338,6 +328,11 @@ const problem = {
                     "type": "text",
                     "label": datalabel,
                     "class": "data"
+                },
+                {
+                    "type": "text",
+                    "label": "Hint: each liquid exerts its saturation pressure",
+                    "class": "hiddentext hint"
                 }]], // element
             ], // questionelements
             "requiredscore": 0.00
@@ -398,11 +393,6 @@ const problem = {
                     },
                     "cursor": detailedcursor,
                     "points": 20
-                }, // element
-                {
-                    "type": "text",
-                    "label": "Hint: the vapor mole fraction for component i is P<sub>i</sub><sup>sat</sup> / P",
-                    "class": "hiddentext hint"
                 }], // element
                 [{
                     "type": "text",
@@ -413,6 +403,11 @@ const problem = {
                     "type": "text",
                     "label": datalabel,
                     "class": "data"
+                },
+                {
+                    "type": "text",
+                    "label": "Hint: the vapor mole fraction for component i is P<sub>i</sub><sup>sat</sup> / P",
+                    "class": "hiddentext hint"
                 }]], // element
             ], // questionelements
             "requiredscore": 0.00

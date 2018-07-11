@@ -12,7 +12,7 @@ const Pmax = 5;
 
 const graphinfo = {
     "graphheight": 400,
-    "graphwidth": 600,
+    "graphwidth": 500,
     "padding": {
         "left":60,
         "bottom":60,

@@ -41,9 +41,9 @@ export class ProblemController {
         let html = `<div id=${DOM.problemdivid}>`;
             html += `<div id="${DOM.titledivid}"></div>`;
             html += `<div id="${DOM.stepdivid}"></div>`;
-            html += `<hr>`;
+            //html += `<hr>`;
             html += `<div id="${DOM.questiondivid}"></div>`;
-            html += `<hr>`;
+            //html += `<hr>`;
             html += `<div id="${DOM.buttonsdivid}"></div>`;
             html += `<div id="${DOM.scoredivid}" class="${DOM.hiddenclass}"></div>`;
             html += `<div id="${DOM.gradedivid}"></div>`;

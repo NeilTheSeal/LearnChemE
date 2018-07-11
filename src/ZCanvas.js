@@ -65,6 +65,10 @@ export class ZCanvas {
             console.log('Error initializing ZCanvas, does not exist in document yet.', this);
         }
     }
+    
+    /**
+    * Sets 'top' and 'bottom' references to the appropriate layers
+    */
     updateTopBottom() {
         this.canvas["top"] = this.canvas[this.layers - 1];
         this.canvas["bottom"] = this.canvas[0];
