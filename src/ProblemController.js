@@ -11,8 +11,13 @@ const textRestartButton = "Restart Problem";
 const textHintButton = "Hint";
 const textSubmitButton = "Submit Answer";
 const textNextButton = "Next Part";
-const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
-const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
+
+// Old test URLs, under mirrorcoloured@gmail.com
+//const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
+//const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
+// URLs to web apps to collect info
+const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzFyWWUzGbucE6zlFRtaU__iImClayuS_i4cLQY/exec";
+const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbzrf2_4peZHz_xVyNmHK9zBuF4U5qzdPB6sV2nqKg/exec";
 
 /**
     Master class for controlling page <br>
