@@ -637,7 +637,7 @@ export class ProblemController {
     /**
         Show the hints for the current {@link Question}
     */
-    showhint(e) {
+    showhint() {
         this.disableElement(DOM.hintbuttonid);
         // Loop through all hints, remove hidden text class
         let elements = document.getElementsByClassName(DOM.hiddentextclass);
