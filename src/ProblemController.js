@@ -15,6 +15,7 @@ const textNextButton = "Next Part";
 // Old test URLs, under mirrorcoloured@gmail.com
 //const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzNPmE7Qx1mLXdwIvP8FyWVyDdR8FQ-ymkAFyiNcF4QC4zvVwM/exec";
 //const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbyKAKkuvF87WdWUvhHbhbXvjqz3d0qBST7eJIzOTPkNhw9qKuOg/exec";
+
 // URLs to web apps to collect info
 const gradecatcherURL = "https://script.google.com/macros/s/AKfycbzFyWWUzGbucE6zlFRtaU__iImClayuS_i4cLQY/exec";
 const feedbackcatcherURL = "https://script.google.com/macros/s/AKfycbzrf2_4peZHz_xVyNmHK9zBuF4U5qzdPB6sV2nqKg/exec";
@@ -105,29 +106,9 @@ export class ProblemController {
         document.getElementById(DOM.restartabortid).addEventListener("click", () => this.restartmodal.hide());
         document.getElementById(DOM.restartzeroid).addEventListener("click", () => this.restart());
         document.getElementById(DOM.restartoneid).addEventListener("click", () => this.restartstepone());
-        // Create grade modal
-        this.grademodal = new Modal({
-            parentid:DOM.modaldivid,
-            modalid:DOM.gradesubmitmodal,
-            modalclass:DOM.modalclass,
-            headerstyle: {
-                "color": "white",
-                "background-color":"#123456",
-            },
-            contentstyle: {},
-            header:"Submit Grade",
-            content:(function () {
-                let grademodalhtml = `<form id="${DOM.gradeformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
-          action="${gradecatcherURL}">`;
-                grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradenametextid}" required></input></div>`;
-                grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradecuidtextid}" required></input></div>`;
-                grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradecoursetextid}" required></input></div>`;
-                grademodalhtml += `<button id="${DOM.submitgradebuttonid}">Submit</button>`;
-                grademodalhtml += `<p id=${DOM.gradeservererrorid} class="hidden error">Error while submitting grade to server. Check console for detailed http report.</p>`
-                grademodalhtml += `</form>`;
-                return grademodalhtml;
-            })(),
-        });
+
+        // Create modals
+        this.createGradeSubmit();
         this.createFeedbackInput();
 
         // Show pre-question page
@@ -139,11 +120,10 @@ export class ProblemController {
     */
     promptrestart() {
         this.restartmodal.show();
-
     }
 
     /**
-    *
+    *   Restart from step one (skipping introduction)
     */
     restartstepone() {
         this.restart();
@@ -151,7 +131,7 @@ export class ProblemController {
     }
 
     /**
-    *
+    *   Restart from introduction (step zero)
     */
     restart() {
         // Hide modal
@@ -164,7 +144,7 @@ export class ProblemController {
     }
 
     /**
-    *
+    *   Focus window (remove focus from currently focused element)
     */
     defocus() {
         // Give the document focus
@@ -238,6 +218,9 @@ export class ProblemController {
     insertScoreInput() {
         // Create submission button
         this.insertButton(DOM.buttonsdivid, DOM.showgradebuttonid, "Submit for Grade", () => this.grademodal.show());
+
+        this.createGradeSubmit();
+
         document.getElementById(DOM.gradeformid).addEventListener("submit", e => this.submitForGrade(e));
     }
 
@@ -249,30 +232,62 @@ export class ProblemController {
             this.feedbackmodal.remove();
             this.feedbackmodal = undefined;
         }
-       this.feedbackmodal = new Modal({
-        parentid:DOM.modaldivid,
-        modalid:DOM.feedbackmodal,
-        modalclass:DOM.modalclass,
-        headerstyle: {
-            "color": "black",
-            "background-color":"lightgray",
-        },
-        contentstyle: {},
-        header:"Feedback",
-        content:(function () {
-            let feedbackmodalhtml = `<form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
-      action="${feedbackcatcherURL}">`;
-            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name (optional)</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbacknametextid}"></input></div>`;
-            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">E-mail address (optional)</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbackemailtextid}" type="email"></input></div>`;
-            feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Feedback</span><br><textarea class="${DOM.textboxclass}" id="${DOM.feedbackinputtextid}" required></textarea></div>`;
-            feedbackmodalhtml += `<button id="${DOM.submitfeedbackbuttonid}">Submit</button>`;
-            feedbackmodalhtml += `<p id=${DOM.feedbackservererrorid} class="hidden error">Error while submitting feedback to server. Check console for detailed http report.</p>`
-            feedbackmodalhtml += `</form>`;
-            return feedbackmodalhtml;
-        })(),
-    });
+        this.feedbackmodal = new Modal({
+            parentid:DOM.modaldivid,
+            modalid:DOM.feedbackmodal,
+            modalclass:DOM.modalclass,
+            headerstyle: {
+                "color": "black",
+                "background-color":"lightgray",
+            },
+            contentstyle: {},
+            header:"Feedback",
+            content:(function () {
+                let feedbackmodalhtml = `<form id="${DOM.feedbackformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
+        action="${feedbackcatcherURL}">`;
+                feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name (optional)</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbacknametextid}"></input></div>`;
+                feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">E-mail address (optional)</span><br><input class="${DOM.textboxclass}" id="${DOM.feedbackemailtextid}" type="email"></input></div>`;
+                feedbackmodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Feedback</span><br><textarea class="${DOM.textboxclass}" id="${DOM.feedbackinputtextid}" required></textarea></div>`;
+                feedbackmodalhtml += `<button id="${DOM.submitfeedbackbuttonid}">Submit</button>`;
+                feedbackmodalhtml += `<p id=${DOM.feedbackservererrorid} class="hidden error">Error while submitting feedback to server. Check console for detailed http report.</p>`
+                feedbackmodalhtml += `</form>`;
+                return feedbackmodalhtml;
+            })(),
+        });
         document.getElementById(DOM.feedbackformid).addEventListener("submit", e => this.submitFeedback(e));
     }
+
+    /**
+    *
+    */
+   createGradeSubmit() {
+    if (this.grademodal != undefined) {
+        this.grademodal.remove();
+        this.grademodal = undefined;
+    }
+    this.grademodal = new Modal({
+        parentid:DOM.modaldivid,
+        modalid:DOM.gradesubmitmodal,
+        modalclass:DOM.modalclass,
+        headerstyle: {
+            "color": "white",
+            "background-color":"#123456",
+        },
+        contentstyle: {},
+        header:"Submit Grade",
+        content:(function () {
+            let grademodalhtml = `<form id="${DOM.gradeformid}" method="POST" class="pure-form pure-form-stacked" data-email="SOMEEMAIL@email.net"
+      action="${gradecatcherURL}">`;
+            grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Name:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradenametextid}" required></input></div>`;
+            grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Student ID:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradecuidtextid}" required></input></div>`;
+            grademodalhtml += `<div class="${DOM.textboxdivclass}"><span class="${DOM.textboxspanclass}">Course code:</span><br><input class="${DOM.textboxclass}" id="${DOM.gradecoursetextid}" required></input></div>`;
+            grademodalhtml += `<button id="${DOM.submitgradebuttonid}">Submit</button>`;
+            grademodalhtml += `<p id=${DOM.gradeservererrorid} class="hidden error">Error while submitting grade to server. Check console for detailed http report.</p>`
+            grademodalhtml += `</form>`;
+            return grademodalhtml;
+        })(),
+    });
+}
 
     /**
         Submits grade to spreadsheet <br>
@@ -699,4 +714,3 @@ export class ProblemController {
         }
     }
 }
-
