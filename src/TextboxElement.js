@@ -13,8 +13,6 @@ export class TextboxElement extends QuestionElement{
         @param {string} inputarguments.answertype "number" or "text"
         @param {float|string} inputarguments.answer Correct answer
         @param {object} inputarguments.tolerance Range above or below answer to count as correct
-        @param {float} inputarguments.tolerance.x
-        @param {float} inputarguments.tolerance.y
         @param {int} inputarguments.points Number of points question is worth
     */
     constructor(inputarguments) {
@@ -66,4 +64,3 @@ export class TextboxElement extends QuestionElement{
         super.insertHTML(containerid, this.getHTML(id));
     }
 }
-
