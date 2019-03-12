@@ -49,7 +49,7 @@ const normalcursor = {
 
 // The problem contents
 const problem = {
-    "pagetitle": "Simple Problem",
+    "pagetitle": "Solve an Energy Balance",
 
     // list of variables used in the problem
     "variables": {
@@ -123,33 +123,6 @@ const problem = {
             // required score to pass this question (not working anymore)
             "requiredscore": 0.00
         }, // question
-
-        {
-            // list of elements for the second question
-            "questionelements": [
-
-                // text element
-                {
-                    "type": "text",
-                    "label": `If x is @x@, and y is @y@, what is y - x?`,
-                    "class": "text"
-                },
-
-                // textbox element
-                {
-                    "type": "textbox",
-                    "placeholder": "x",
-                    "answertype": "number",
-                    "answer": "@negdiff@",
-                    "tolerance": 0.25,
-                    "points": 10
-                },
-
-            ], // questionelements
-
-            // required score to pass this question (not working anymore)
-            "requiredscore": 0.00
-        }, // question
     ], // questions
 
     "begin": {
@@ -158,7 +131,7 @@ const problem = {
         "questionelements": [
             {
                 "type": "text",
-                "label": `This is the simple intro.`,
+                "label": `In this demonstration, you will learn how to solve a simple energy balance. Click \"begin\" when you are ready to start. After you have input your answer, press "submit problem" and continue to the next step. You may restart at any point, which will reset your progress on the current problem and generate new values.`,
                 "class": "prompt"
             } // element
         ] // questionelements
@@ -170,7 +143,7 @@ const problem = {
         "questionelements": [
             {
                 "type": "text",
-                "label": `This is the simple finish.`,
+                "label": `Good job!`,
                 "class": "prompt"
             } // element
         ] // questionelements
